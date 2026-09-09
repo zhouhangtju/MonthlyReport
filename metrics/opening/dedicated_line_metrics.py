@@ -36,7 +36,7 @@ TRANSMISSION_PRODUCTS = [
     "地区内精品电路", "地区内数字电路出租套餐", "光纤出租套餐",
 ]
 CITY_ORDER = ["杭州市", "嘉兴市", "宁波市", "温州市", "金华市", "绍兴市", "湖州市", "台州市", "衢州市", "丽水市", "舟山市"]
-DATE_FIELDS = ["订单创建时间", "创建时间", "订单受理时间"]
+DATE_FIELDS = ["订单结束时间", "结束时间", "完成时间", "订单完成时间", "报结时间"]
 OPENING_STAGES = [
     ("受理", "受理人", "系统自动"),
     ("方案设计", "方案设计处理人", "系统自动"),
@@ -110,15 +110,19 @@ def load_rows(database: Path) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
         records = connection.execute(
-            "SELECT source_data FROM raw_source_record WHERE dataset_code=?",
-            (DATASET_CODE,),
+            "SELECT order_no, source_data FROM ods_orch_opening"
         ).fetchall()
         runs = connection.execute(
             """SELECT run_id FROM etl_run
                WHERE dataset_code=? AND status='success' ORDER BY started_at""",
             (DATASET_CODE,),
         ).fetchall()
-    return [json.loads(row["source_data"]) for row in records], [row["run_id"] for row in runs]
+    rows = []
+    for record in records:
+        row = json.loads(record["source_data"])
+        row["_source_record_id"] = record["order_no"]
+        rows.append(row)
+    return rows, [row["run_id"] for row in runs]
 
 
 def order_count(rows: Iterable[dict[str, object]]) -> int:

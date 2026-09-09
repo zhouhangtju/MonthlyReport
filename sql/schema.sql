@@ -59,6 +59,48 @@ CREATE TABLE IF NOT EXISTS raw_source_record (
 CREATE INDEX IF NOT EXISTS idx_raw_source_record_dataset
 ON raw_source_record(dataset_code);
 
+-- 编排专线开通情况：接口周期按结束时间筛选。
+CREATE TABLE IF NOT EXISTS ods_orch_opening (
+    order_no TEXT PRIMARY KEY,
+    order_created_at TEXT,
+    order_finished_at TEXT,
+    city TEXT,
+    order_status TEXT,
+    business_type TEXT,
+    product_name TEXT,
+    order_type TEXT,
+    source_data TEXT NOT NULL,
+    row_hash TEXT NOT NULL,
+    first_run_id TEXT NOT NULL REFERENCES etl_run(run_id),
+    last_run_id TEXT NOT NULL REFERENCES etl_run(run_id),
+    first_seen_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ods_orch_opening_finished
+ON ods_orch_opening(order_finished_at);
+
+-- 编排互联网专线新装单：接口周期按派单时间筛选。
+CREATE TABLE IF NOT EXISTS ods_orch_install (
+    order_no TEXT PRIMARY KEY,
+    order_created_at TEXT,
+    dispatched_at TEXT,
+    city TEXT,
+    order_status TEXT,
+    business_type TEXT,
+    product_name TEXT,
+    order_type TEXT,
+    source_data TEXT NOT NULL,
+    row_hash TEXT NOT NULL,
+    first_run_id TEXT NOT NULL REFERENCES etl_run(run_id),
+    last_run_id TEXT NOT NULL REFERENCES etl_run(run_id),
+    first_seen_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ods_orch_install_dispatched
+ON ods_orch_install(dispatched_at);
+
 CREATE TABLE IF NOT EXISTS raw_source_record_version (
     version_id INTEGER PRIMARY KEY AUTOINCREMENT,
     record_id INTEGER NOT NULL REFERENCES raw_source_record(record_id),

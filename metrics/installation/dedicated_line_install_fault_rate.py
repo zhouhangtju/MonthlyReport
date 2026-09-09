@@ -23,7 +23,7 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
     for row in installs:
         row["_dataset_code"] = "orch_install"
         account = identifier(row.get("产品实例编号"))
-        created = parse_time(row.get("订单创建时间"))
+        created = parse_time(row.get("派单时间"))
         valid_scope = text(row.get("订单状态")) == "已完成" and text(row.get("订单类型")) == "开通" and text(row.get("业务类型")) == "互联网专线"
         if not account or created is None or not start_time <= created <= end_time or not valid_scope:
             invalid_installs.append(row); continue
@@ -56,7 +56,7 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
     return {
         "metric_code": METRIC_CODE, "metric_version": METRIC_VERSION,
         "period_start": start, "period_end": end,
-        "rules": {"join_key": "产品实例编号=计费号码", "time": "投诉派单时间不早于订单创建时间", "city": "新装地市与投诉所属地市一致", "count_unit": "唯一计费号码"},
+        "rules": {"join_key": "产品实例编号=计费号码", "time": "投诉派单时间不早于新装派单时间", "city": "新装地市与投诉所属地市一致", "count_unit": "唯一计费号码"},
         "quality": {"raw_install_rows": len(installs), "raw_complaint_rows": len(complaints), "valid_install_rows": len(valid_installs), "complaint_rows_in_period": len(complaint_rows), "denominator_accounts": len(denominator_accounts), "numerator_accounts": len(numerator_accounts), "excluded_install_rows": len(invalid_installs)},
         "results": results,
         "details": {"denominator": valid_installs, "numerator": numerator_rows, "excluded": invalid_installs},

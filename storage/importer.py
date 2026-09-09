@@ -16,6 +16,7 @@ from openpyxl import load_workbook
 
 from config.datasets import Dataset
 from storage.database import connect, initialize
+from storage.orchestration_tables import upsert as upsert_orchestration
 
 
 def utc_now() -> str:
@@ -171,7 +172,8 @@ def import_file(
                     continue
                 payload, row_hash = row_payload(row)
                 existing = connection.execute(
-                    """SELECT record_id, row_hash FROM raw_source_record
+                    """SELECT record_id, row_hash, first_run_id, first_seen_at
+                       FROM raw_source_record
                        WHERE dataset_code = ? AND source_record_id = ?""",
                     (dataset.code, source_record_id),
                 ).fetchone()
@@ -211,6 +213,13 @@ def import_file(
                        (record_id, run_id, row_hash, source_data, observed_at)
                        VALUES (?, ?, ?, ?, ?)""",
                     (record_id, run_id, row_hash, payload, observed_at),
+                )
+                upsert_orchestration(
+                    connection, dataset.code, row, payload, row_hash,
+                    run_id if existing is None else existing["first_run_id"],
+                    run_id,
+                    observed_at if existing is None else existing["first_seen_at"],
+                    observed_at,
                 )
 
             connection.execute(

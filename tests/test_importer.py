@@ -19,6 +19,31 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
 
 
 class ImporterTest(unittest.TestCase):
+    def test_orchestration_datasets_are_projected_to_separate_tables(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            database = root / "quality.db"
+            opening = root / "opening.csv"
+            with opening.open("w", encoding="utf-8-sig", newline="") as target:
+                writer = csv.DictWriter(target, fieldnames=["订单号", "订单创建时间", "结束时间", "地市"])
+                writer.writeheader()
+                writer.writerow({"订单号": "O1", "订单创建时间": "2026-07-31 10:00:00", "结束时间": "2026-08-02 10:00:00", "地市": "杭州"})
+            install = root / "install.csv"
+            with install.open("w", encoding="utf-8-sig", newline="") as target:
+                writer = csv.DictWriter(target, fieldnames=["订单号", "订单创建时间", "派单时间", "地市"])
+                writer.writeheader()
+                writer.writerow({"订单号": "I1", "订单创建时间": "2026-07-30 10:00:00", "派单时间": "2026-08-01 09:00:00", "地市": "宁波"})
+
+            import_file(database, get_dataset("orch_opening"), opening, period_start="2026-08-01", period_end="2026-08-03")
+            import_file(database, get_dataset("orch_install"), install, period_start="2026-08-01", period_end="2026-08-03")
+            with connect(database) as connection:
+                opening_row = connection.execute("SELECT * FROM ods_orch_opening").fetchone()
+                install_row = connection.execute("SELECT * FROM ods_orch_install").fetchone()
+            self.assertEqual(opening_row["order_finished_at"], "2026-08-02 10:00:00")
+            self.assertEqual(install_row["dispatched_at"], "2026-08-01 09:00:00")
+            self.assertEqual(opening_row["order_no"], "O1")
+            self.assertEqual(install_row["order_no"], "I1")
+
     def test_import_is_idempotent_and_keeps_changed_versions(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

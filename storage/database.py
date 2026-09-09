@@ -146,6 +146,8 @@ def initialize(path: Path) -> None:
                 DROP TABLE ads_metric_result_legacy;
                 """
             )
+        from storage.orchestration_tables import backfill_missing
+        backfill_missing(connection)
 
 
 def has_successful_coverage(

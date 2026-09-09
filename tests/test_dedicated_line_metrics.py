@@ -12,6 +12,7 @@ def opening(order: str, month: str, *, product: str = "互联网专线套餐", c
     row = {
         "订单号": order,
         "订单创建时间": f"{month}-15 10:00:00",
+        "结束时间": f"{month}-20 10:00:00",
         "订单状态": "已完成",
         "业务类型": "互联网专线",
         "产品名称": product,

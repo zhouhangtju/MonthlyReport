@@ -52,10 +52,15 @@ def period_bounds(start: str, end: str) -> tuple[datetime, datetime]:
 def load_dataset(database: Path, dataset_code: str) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
-        records = connection.execute(
-            "SELECT source_record_id, source_data FROM raw_source_record WHERE dataset_code=?",
-            (dataset_code,),
-        ).fetchall()
+        if dataset_code == "orch_opening":
+            records = connection.execute("SELECT order_no AS source_record_id, source_data FROM ods_orch_opening").fetchall()
+        elif dataset_code == "orch_install":
+            records = connection.execute("SELECT order_no AS source_record_id, source_data FROM ods_orch_install").fetchall()
+        else:
+            records = connection.execute(
+                "SELECT source_record_id, source_data FROM raw_source_record WHERE dataset_code=?",
+                (dataset_code,),
+            ).fetchall()
         runs = connection.execute(
             "SELECT run_id FROM etl_run WHERE dataset_code=? AND status='success' ORDER BY started_at",
             (dataset_code,),

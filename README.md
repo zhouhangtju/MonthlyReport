@@ -94,7 +94,7 @@ EOMS ──政企投诉工单───────┘
 - `service_catalog=ProvGCDedicatedLine`；
 - `service_type=ProvInternetLine`；
 - 按开始、结束日期分批下载；
-- 当前指标至少需要产品实例编号、订单创建时间、地市、订单号、客户名称、产品名称。
+- 当前指标至少需要产品实例编号、派单时间、地市、订单号、客户名称、产品名称。
 
 产品实例编号是与 EOMS 计费号码进行跨系统关联的关键字段。
 
@@ -187,6 +187,7 @@ quality-assessment-pipeline/
 |---|---|---|
 | 运行审计层 | 记录取数与计算是否成功、起止时间、条数、错误信息 | `etl_run`, `metric_run` |
 | 原始层（raw） | 基本按源系统字段原样保存，并保留当前记录和历史版本 | `raw_source_record`, `raw_source_record_version` |
+| 编排业务层（ODS） | 将两类编排数据物理分表，并显式保存各自业务时间 | `ods_orch_opening`, `ods_orch_install` |
 | 标准层（dwd） | 字段命名、时间、地市、账号/计费号、业务类型标准化 | `dwd_opening_order`, `dwd_install_order`, `dwd_complaint_order` |
 | 指标层（ads） | 保存分子、分母、指标值及口径版本 | `ads_metric_result`, `ads_metric_detail` |
 
@@ -426,7 +427,7 @@ python3 metrics/opening/dedicated_line_metrics.py \
   --mode both
 ```
 
-月份按订单的 `订单创建时间`归属。结果写入 `metric_run`和`ads_metric_result`，并可同时输出JSON审计文件。已覆盖互联网专线、MPLS-VPN、传输专线开通量和同比环比，以及互联网专线开通、移机、拆机自动率。详细口径见 `metrics/opening/dedicated_line_metrics.README.md`。
+月份按接口取数口径对应的订单结束时间归属。结果写入 `metric_run`和`ads_metric_result`，并可同时输出JSON审计文件。已覆盖互联网专线、MPLS-VPN、传输专线开通量和同比环比，以及互联网专线开通、移机、拆机自动率。详细口径见 `metrics/opening/dedicated_line_metrics.README.md`。
 
 ### 7.11 一体化专线开通撤退单率
 
