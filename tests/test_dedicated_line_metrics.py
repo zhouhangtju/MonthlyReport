@@ -1,0 +1,74 @@
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+from metrics.opening.dedicated_line_metrics import calculate, save_results
+from storage.database import connect
+
+
+def opening(order: str, month: str, *, product: str = "互联网专线套餐", city: str = "杭州市", automatic: bool = False) -> dict[str, object]:
+    row = {
+        "订单号": order,
+        "订单创建时间": f"{month}-15 10:00:00",
+        "订单状态": "已完成",
+        "业务类型": "互联网专线",
+        "产品名称": product,
+        "订单类型": "开通",
+        "地市": city,
+        "受理人": "人工",
+        "方案设计处理人": "人工",
+        "资源分配受理人": "人工",
+        "配置激活处理人": "人工",
+        "开通结果审核处理人": "人工",
+        "报结人": "人工",
+    }
+    if automatic:
+        row.update({
+            "受理人": "系统自动",
+            "方案设计处理人": "系统自动",
+            "资源分配受理人": "自动处理",
+            "配置激活处理人": "系统自动",
+            "开通结果审核处理人": "系统自动",
+            "报结人": "自动处理",
+        })
+    return row
+
+
+class DedicatedLineMetricsTest(unittest.TestCase):
+    def test_counts_deduplicate_orders_and_calculates_comparisons(self):
+        rows = [
+            opening("A", "2026-08", automatic=True),
+            opening("A", "2026-08", automatic=True),
+            opening("B", "2026-08"),
+            opening("C", "2026-07"),
+            opening("D", "2025-08"),
+        ]
+        report = calculate(rows, "2026-07", "2026-08")
+        results = report["results"]
+        current = next(item for item in results if item["metric_code"] == "internet_opening_orders" and item["dimension"] == {"month": "2026-08"})
+        mom = next(item for item in results if item["metric_code"] == "internet_opening_orders_mom")
+        yoy = next(item for item in results if item["metric_code"] == "internet_opening_orders_yoy")
+        stage = next(item for item in results if item["metric_code"] == "internet_opening_automation_rate" and item["dimension"].get("stage") == "受理")
+        self.assertEqual(current["metric_value"], 2)
+        self.assertEqual(mom["metric_value"], 1.0)
+        self.assertEqual(yoy["metric_value"], 1.0)
+        self.assertEqual(stage["numerator"], 1)
+        self.assertEqual(stage["denominator"], 2)
+        self.assertEqual(stage["metric_value"], 0.5)
+
+    def test_results_are_written_to_metric_tables(self):
+        report = calculate([opening("A", "2026-08")], "2026-08", "2026-08")
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "quality.db"
+            run_id = save_results(database, report, ["etl_source"])
+            with connect(database) as connection:
+                run = connection.execute("SELECT * FROM metric_run WHERE metric_run_id=?", (run_id,)).fetchone()
+                count = connection.execute("SELECT COUNT(*) AS value FROM ads_metric_result WHERE metric_run_id=?", (run_id,)).fetchone()["value"]
+            self.assertEqual(run["status"], "success")
+            self.assertEqual(count, len(report["results"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

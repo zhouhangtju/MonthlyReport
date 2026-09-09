@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/raw/
+data/*.db
+data/*.db-*
+.DS_Store
+collector/youshu/youdata_login.json
+collector/youshu/有数配置.json
+collector/youshu/edge_profile/
+collector/eoms/eoms_login.json
+collector/eoms/login.db

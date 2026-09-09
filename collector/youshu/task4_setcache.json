@@ -1,0 +1,4645 @@
+{
+  "data": {
+    "state": {
+      "useStaticParameterValue": true,
+      "global": {
+        "title": "企业宽带-投诉工单处理",
+        "id": 38660,
+        "setting": {
+          "style": {
+            "theme": "white",
+            "primary": {
+              "background": {
+                "color": {
+                  "r": 242,
+                  "g": 242,
+                  "b": 242,
+                  "a": 1
+                }
+              },
+              "font": {
+                "color": {
+                  "r": 51,
+                  "g": 51,
+                  "b": 51,
+                  "a": 1
+                },
+                "family": "avenir, Helvetica,\"Microsoft YaHei\", Arial, \"Hiragino Sans GB\", sans-serif",
+                "size": 12
+              }
+            },
+            "secondary": {
+              "background": {
+                "color": {
+                  "r": 68,
+                  "g": 68,
+                  "b": 68,
+                  "a": 1
+                }
+              },
+              "font": {
+                "color": {
+                  "r": 255,
+                  "g": 255,
+                  "b": 255,
+                  "a": 1
+                },
+                "family": "avenir, Helvetica,\"Microsoft YaHei\", Arial, \"Hiragino Sans GB\", sans-serif"
+              }
+            },
+            "palette": [
+              {
+                "r": 0,
+                "g": 82,
+                "b": 228,
+                "a": 1
+              },
+              {
+                "r": 63,
+                "g": 178,
+                "b": 126,
+                "a": 1
+              },
+              {
+                "r": 105,
+                "g": 204,
+                "b": 101,
+                "a": 1
+              },
+              {
+                "r": 247,
+                "g": 200,
+                "b": 74,
+                "a": 1
+              },
+              {
+                "r": 248,
+                "g": 141,
+                "b": 73,
+                "a": 1
+              },
+              {
+                "r": 243,
+                "g": 83,
+                "b": 81,
+                "a": 1
+              },
+              {
+                "r": 206,
+                "g": 98,
+                "b": 214,
+                "a": 1
+              },
+              {
+                "r": 137,
+                "g": 84,
+                "b": 212,
+                "a": 1
+              },
+              {
+                "r": 81,
+                "g": 86,
+                "b": 184,
+                "a": 1
+              },
+              {
+                "r": 105,
+                "g": 212,
+                "b": 219,
+                "a": 1
+              }
+            ],
+            "grid": {
+              "color": {
+                "r": 230,
+                "g": 230,
+                "b": 230,
+                "a": 0.8
+              }
+            },
+            "axis": {
+              "color": {
+                "r": 163,
+                "g": 163,
+                "b": 163,
+                "a": 1
+              }
+            },
+            "background": {
+              "color": {
+                "r": 255,
+                "g": 255,
+                "b": 255,
+                "a": 1
+              }
+            },
+            "opacity": 1,
+            "border": {
+              "color": {
+                "r": 204,
+                "g": 204,
+                "b": 204,
+                "a": 1
+              },
+              "width": 0,
+              "style": "solid"
+            },
+            "borderRadius": 0,
+            "discreteColor": 13,
+            "continuousColor": 23,
+            "subline": {
+              "show": true
+            },
+            "widget": {
+              "auto": {
+                "style": {
+                  "title": {
+                    "show": true,
+                    "smarting": true,
+                    "padding": {
+                      "top": 20,
+                      "bottom": 5,
+                      "left": 20,
+                      "right": 20
+                    },
+                    "background": {
+                      "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 0
+                      }
+                    },
+                    "font": {
+                      "size": 16,
+                      "align": "left",
+                      "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif",
+                      "color": {
+                        "r": 51,
+                        "g": 51,
+                        "b": 51,
+                        "a": 1
+                      }
+                    },
+                    "split": {
+                      "color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0,
+                        "a": 0.08
+                      },
+                      "width": 1,
+                      "style": "solid"
+                    }
+                  },
+                  "graphic": {
+                    "title": {
+                      "font": {
+                        "size": 12,
+                        "align": "center",
+                        "verticalAlign": "center",
+                        "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif"
+                      },
+                      "border": {
+                        "global": false
+                      }
+                    },
+                    "body": {
+                      "chart": {
+                        "font": {},
+                        "grid": {
+                          "line": "solid"
+                        },
+                        "axis": {},
+                        "bgColor": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 0
+                        },
+                        "border": {
+                          "color": {
+                            "r": 255,
+                            "g": 255,
+                            "b": 255,
+                            "a": 0
+                          }
+                        }
+                      },
+                      "table": {
+                        "grid": {},
+                        "row": {
+                          "odd": {
+                            "bgColor": {
+                              "r": 255,
+                              "g": 255,
+                              "b": 255,
+                              "a": 0
+                            }
+                          },
+                          "even": {
+                            "bgColor": {
+                              "r": 26,
+                              "g": 26,
+                              "b": 26,
+                              "a": 0.08
+                            }
+                          }
+                        }
+                      },
+                      "padding": {
+                        "top": 5,
+                        "bottom": 0,
+                        "left": 20,
+                        "right": 20
+                      }
+                    },
+                    "legend": {
+                      "font": {},
+                      "title": {
+                        "show": true
+                      }
+                    }
+                  }
+                }
+              },
+              "tab": {
+                "style": {
+                  "type": 3,
+                  "actived": {
+                    "color": {
+                      "r": 16,
+                      "g": 63,
+                      "b": 250,
+                      "a": 1
+                    }
+                  },
+                  "normal": {
+                    "color": {
+                      "r": 51,
+                      "g": 51,
+                      "b": 51,
+                      "a": 1
+                    }
+                  },
+                  "label": {
+                    "direction": "horizon",
+                    "position": "top"
+                  }
+                }
+              },
+              "indicator": {
+                "style": {
+                  "title": {
+                    "show": true,
+                    "smarting": true,
+                    "padding": {
+                      "top": 20,
+                      "bottom": 8,
+                      "left": 20,
+                      "right": 20
+                    },
+                    "background": {
+                      "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 0
+                      }
+                    },
+                    "font": {
+                      "size": 16,
+                      "align": "left",
+                      "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif",
+                      "color": {
+                        "r": 51,
+                        "g": 51,
+                        "b": 51,
+                        "a": 1
+                      }
+                    },
+                    "split": {
+                      "color": {
+                        "r": 204,
+                        "g": 204,
+                        "b": 204,
+                        "a": 1
+                      },
+                      "style": "solid"
+                    }
+                  },
+                  "layout": "vertical",
+                  "align": "center",
+                  "adaption": true,
+                  "indicator": {
+                    "size": 48
+                  },
+                  "graphic": {
+                    "body": {
+                      "padding": {
+                        "top": 8,
+                        "bottom": 0,
+                        "left": 20,
+                        "right": 20
+                      }
+                    }
+                  }
+                }
+              },
+              "control": {
+                "style": {
+                  "body": {
+                    "font": {}
+                  },
+                  "secondary": {
+                    "show": true,
+                    "font": {
+                      "color": {
+                        "r": 51,
+                        "g": 51,
+                        "b": 51,
+                        "a": 1
+                      },
+                      "size": 12,
+                      "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif"
+                    },
+                    "background": {
+                      "color": {
+                        "r": 68,
+                        "g": 68,
+                        "b": 68,
+                        "a": 1
+                      }
+                    }
+                  },
+                  "navSelected": {
+                    "textColor": {
+                      "color": {
+                        "r": 16,
+                        "g": 63,
+                        "b": 250,
+                        "a": 1
+                      }
+                    },
+                    "background": {
+                      "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 1
+                      }
+                    },
+                    "icon": {
+                      "show": true,
+                      "name": "check-nav-1",
+                      "size": 18
+                    }
+                  },
+                  "region": {
+                    "width": 180,
+                    "height": 40
+                  }
+                }
+              },
+              "table": {
+                "style": {
+                  "title": {
+                    "show": true,
+                    "smarting": true,
+                    "padding": {
+                      "top": 20,
+                      "bottom": 8,
+                      "left": 20,
+                      "right": 20
+                    },
+                    "background": {
+                      "color": {
+                        "r": 255,
+                        "g": 255,
+                        "b": 255,
+                        "a": 0
+                      }
+                    },
+                    "font": {
+                      "size": 16,
+                      "align": "left",
+                      "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif",
+                      "color": {
+                        "r": 51,
+                        "g": 51,
+                        "b": 51,
+                        "a": 1
+                      }
+                    },
+                    "split": {
+                      "color": {
+                        "r": 0,
+                        "g": 0,
+                        "b": 0,
+                        "a": 0.08
+                      },
+                      "width": 1,
+                      "style": "solid"
+                    }
+                  },
+                  "secondary": {
+                    "show": true,
+                    "font": {
+                      "size": 12,
+                      "align": "left",
+                      "weight": "bold",
+                      "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif"
+                    }
+                  },
+                  "graphic": {
+                    "title": {
+                      "font": {
+                        "color": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 1
+                        },
+                        "size": 12,
+                        "align": "center",
+                        "verticalAlign": "center",
+                        "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif"
+                      },
+                      "lineHeight": 1,
+                      "border": {
+                        "color": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 1
+                        }
+                      },
+                      "grid": {
+                        "color": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 0
+                        },
+                        "horizontal": true,
+                        "vertical": false
+                      }
+                    },
+                    "titleRow": {
+                      "font": {
+                        "color": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 1
+                        },
+                        "size": 12,
+                        "align": "center",
+                        "verticalAlign": "center",
+                        "family": "\"PingFang SC\",\"Microsoft YaHei\",Arial,sans-serif"
+                      },
+                      "lineHeight": 1,
+                      "border": {
+                        "color": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 1
+                        }
+                      }
+                    },
+                    "body": {
+                      "chart": {
+                        "font": {
+                          "size": 12
+                        },
+                        "grid": {
+                          "line": "solid"
+                        },
+                        "axis": {},
+                        "bgColor": {
+                          "r": 255,
+                          "g": 255,
+                          "b": 255,
+                          "a": 0
+                        },
+                        "border": {
+                          "color": {
+                            "r": 255,
+                            "g": 255,
+                            "b": 255,
+                            "a": 0
+                          }
+                        }
+                      },
+                      "table": {
+                        "fontAlias": {
+                          "align": "auto"
+                        },
+                        "grid": {
+                          "horizontal": true,
+                          "vertical": false
+                        },
+                        "row": {
+                          "even": {
+                            "bgColor": {
+                              "color": {
+                                "r": 255,
+                                "g": 255,
+                                "b": 255,
+                                "a": 1
+                              }
+                            }
+                          },
+                          "odd": {
+                            "bgColor": {
+                              "color": {
+                                "r": 255,
+                                "g": 255,
+                                "b": 255,
+                                "a": 1
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "padding": {
+                        "top": 8,
+                        "bottom": 0,
+                        "left": 20,
+                        "right": 20
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "graphic": {
+              "body": {
+                "padding": {
+                  "top": null,
+                  "bottom": 0,
+                  "left": 20,
+                  "right": 20
+                }
+              }
+            }
+          },
+          "format": {
+            "size": {
+              "type": "standard",
+              "width": 960,
+              "height": 720
+            }
+          },
+          "data": {
+            "filter": {
+              "146837": [
+                {
+                  "$type": "Dimension",
+                  "expr": "if find($$257320,\"企业宽带\")!=0 then \"是\" else \"否\"",
+                  "alias": "是否小微投诉",
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "369744",
+                  "status": 0,
+                  "geoRole": "None",
+                  "tableName": "自定义维度",
+                  "from": "otherSide",
+                  "logicalTableId": 2,
+                  "dataModelId": 146837,
+                  "filter": {
+                    "$type": "DiscreteDimensionFilter",
+                    "match": {
+                      "$type": "Contains",
+                      "contains": "是"
+                    },
+                    "mode": "list",
+                    "priority": 3,
+                    "dashboardsPri": true
+                  },
+                  "_cid": "p_lqm36o2m1"
+                }
+              ]
+            },
+            "ignoreDataPermission": false,
+            "enableRealTime": true
+          },
+          "attributes": []
+        },
+        "flushTime": "2026-09-04 09:54:28",
+        "permissions": [
+          "view",
+          "copyData",
+          "export",
+          "share",
+          "mail",
+          "warning",
+          "move",
+          "edit"
+        ],
+        "reportThemes": [],
+        "platform": "desktop",
+        "totalView": 2390,
+        "totalExport": 0,
+        "publishStatus": 1,
+        "publishRelatedId": null,
+        "publishTime": null,
+        "sameWithPublish": true,
+        "ifPublish": true,
+        "mirrorReportId": null,
+        "discreteColorTemplates": [],
+        "continuousColorTemplates": [],
+        "dbProtection": 1
+      },
+      "dataModels": [
+        {
+          "id": 146837,
+          "type": "DATA_MODEL",
+          "enableChatBi": 0,
+          "projectId": 31,
+          "name": "企业宽带---中间表",
+          "permissions": [
+            "view",
+            "copy",
+            "edit",
+            "warning",
+            "dragFetch",
+            "dragFetchCopyData",
+            "dragFetchExport",
+            "dragFetchShare"
+          ],
+          "folderName": "有线模型-公共",
+          "pivotSchema": {
+            "dimensions": [
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ORDERTYPEID",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "Whole",
+                "granularity": "g0",
+                "alias": "工单类型",
+                "partition": false,
+                "$type": "Dimension",
+                "defaultAggregator": "SUM",
+                "fieldId": "257363",
+                "checked": false,
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ASSOCORDERNO",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "ASSOCORDERNO",
+                "partition": false,
+                "fieldId": "257306",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "BUSINESSTYPE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "业务类型",
+                "partition": false,
+                "fieldId": "257305",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "BUSITYPEGROUP",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "BUSITYPEGROUP",
+                "partition": false,
+                "fieldId": "257315",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "CONSTRUCTMODE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "CONSTRUCTMODE",
+                "partition": false,
+                "fieldId": "257311",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "COOPERATEMODE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "COOPERATEMODE",
+                "partition": false,
+                "fieldId": "257313",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "COUNTY",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "区县",
+                "partition": false,
+                "fieldId": "257303",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "CPSATISFACTION",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "CPSATISFACTION",
+                "partition": false,
+                "fieldId": "257325",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "CREATETIME",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "派单时间",
+                "partition": false,
+                "fieldId": "257314",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "CURSTATENAME",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "工单状态",
+                "partition": false,
+                "fieldId": "257304",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "CUSTOMERACCOUNT",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "宽带账号",
+                "partition": false,
+                "fieldId": "257317",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "FIRSTPULLORDERTIME",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "FIRSTPULLORDERTIME",
+                "partition": false,
+                "fieldId": "257321",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "GROUPNAME",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "班组名称",
+                "partition": false,
+                "fieldId": "257344",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "INSTALLSATISFACTION",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "INSTALLSATISFACTION",
+                "partition": false,
+                "fieldId": "257352",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "INTRADAYSERVICE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "INTRADAYSERVICE",
+                "partition": false,
+                "fieldId": "257324",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION1",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION1",
+                "partition": false,
+                "fieldId": "257338",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION2",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION2",
+                "partition": false,
+                "fieldId": "257339",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION3",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION3",
+                "partition": false,
+                "fieldId": "257340",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION4",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION4",
+                "partition": false,
+                "fieldId": "257341",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION5",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION5",
+                "partition": false,
+                "fieldId": "257342",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "IVRQUESTION6",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "IVRQUESTION6",
+                "partition": false,
+                "fieldId": "257343",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION1",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION1",
+                "partition": false,
+                "fieldId": "257332",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION2",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION2",
+                "partition": false,
+                "fieldId": "257333",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION3",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION3",
+                "partition": false,
+                "fieldId": "257334",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION4",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION4",
+                "partition": false,
+                "fieldId": "257335",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION5",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION5",
+                "partition": false,
+                "fieldId": "257336",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "JTQUESTION6",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "JTQUESTION6",
+                "partition": false,
+                "fieldId": "257337",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "MAINTAINENDTIME",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "MAINTAINENDTIME",
+                "partition": false,
+                "fieldId": "257346",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "MARKETGRIDNAME",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "MARKETGRIDNAME",
+                "partition": false,
+                "fieldId": "257347",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "MTNUSERNAME",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "装维人员名称",
+                "partition": false,
+                "fieldId": "257345",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "NETTYPE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "NETTYPE",
+                "partition": false,
+                "fieldId": "257351",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "OPERATIONNAME",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "OPERATIONNAME",
+                "partition": false,
+                "fieldId": "257307",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "OPERTIME",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "报结时间",
+                "partition": false,
+                "fieldId": "257301",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ORDERACTIONTYPE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "ORDERACTIONTYPE",
+                "partition": false,
+                "fieldId": "257309",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ORDERDESC",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "ORDERDESC",
+                "partition": false,
+                "fieldId": "257312",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ORDERID",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "工单号",
+                "partition": false,
+                "fieldId": "257322",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "ORDERNO",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "客服流水号",
+                "partition": false,
+                "fieldId": "257318",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "OVERALLSCORE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "OVERALLSCORE",
+                "partition": false,
+                "fieldId": "257349",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "PERSONSERVICE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "PERSONSERVICE",
+                "partition": false,
+                "fieldId": "257355",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "PRODPROPERTY",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "PRODPROPERTY",
+                "partition": false,
+                "fieldId": "257310",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "PROMPTNESSRATE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "PROMPTNESSRATE",
+                "partition": false,
+                "fieldId": "257353",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "REGION",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "地市",
+                "partition": false,
+                "fieldId": "257302",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "REPLYTIME",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "REPLYTIME",
+                "partition": false,
+                "fieldId": "257308",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SERVERCONDITION",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SERVERCONDITION",
+                "partition": false,
+                "fieldId": "257356",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SERVERMANNER",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SERVERMANNER",
+                "partition": false,
+                "fieldId": "257357",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION1",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION1",
+                "partition": false,
+                "fieldId": "257326",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION2",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION2",
+                "partition": false,
+                "fieldId": "257327",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION3",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION3",
+                "partition": false,
+                "fieldId": "257328",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION4",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION4",
+                "partition": false,
+                "fieldId": "257329",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION5",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION5",
+                "partition": false,
+                "fieldId": "257330",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SMSQUESTION6",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SMSQUESTION6",
+                "partition": false,
+                "fieldId": "257331",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SOURCE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SOURCE",
+                "partition": false,
+                "fieldId": "257348",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "SPECIALITY",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "SPECIALITY",
+                "partition": false,
+                "fieldId": "257354",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "TECHNOLOGYTYPE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "技术类型",
+                "partition": false,
+                "fieldId": "257323",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "TOTALSCORE",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "TOTALSCORE",
+                "partition": false,
+                "fieldId": "257350",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "上门及时性及响应及时性",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "上门及时性及响应及时性",
+                "partition": false,
+                "fieldId": "257359",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "主题",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "主题",
+                "partition": false,
+                "fieldId": "257320",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "投诉内容",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "投诉内容",
+                "partition": false,
+                "fieldId": "257319",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "投诉满意度综合得分",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "投诉满意度综合得分",
+                "partition": false,
+                "fieldId": "257362",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "故障解决专业性评分",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "故障解决专业性评分",
+                "partition": false,
+                "fieldId": "257361",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否超时",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否超时",
+                "partition": false,
+                "fieldId": "257316",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "满意度整体分数",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "满意度整体分数",
+                "partition": false,
+                "fieldId": "257358",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "维修人员服务及在线指导人员服务",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "维修人员服务及在线指导人员服务",
+                "partition": false,
+                "fieldId": "257360",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "最后预约时间",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "最后预约时间",
+                "partition": false,
+                "fieldId": "257430",
+                "checked": false,
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否合装",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否合装",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "257816",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否酒店类投诉",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否酒店类投诉",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "257972",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "PBOSS订单编号",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "PBOSS订单编号",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303804",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "挂起原因",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "挂起原因",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303805",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "用户地址",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "用户地址",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303806",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "同笔订单号",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "同笔订单号",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303807",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "客服催单信息",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "客服催单信息",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303808",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "最终回复时限",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "最终回复时限",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303809",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "装维电话",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "装维电话",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303810",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "受理时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "受理时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303811",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否30天重复投诉",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否30天重复投诉",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303812",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "首次预约上门时间2",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "首次预约上门时间2",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303813",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "首次进入已配置派发时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "首次进入已配置派发时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "303814",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否酒店类业务",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否酒店类业务",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "306019",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "解决情况",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "解决情况",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "319792",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "用户首次预约上门时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "用户首次预约上门时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "327711",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "status": 0,
+                "geoRole": "None"
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "前台集中预约时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "前台集中预约时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "348711",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "施工操作",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "施工操作",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369778",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "沿街商铺",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "沿街商铺",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369775",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "用户电话",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "用户电话",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369781",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "装维工号",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "装维工号",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "348712",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "覆盖场景",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "覆盖场景",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369776",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "阶段意见",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "阶段意见",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369777",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "预分配上门日期",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "预分配上门日期",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369779",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "预分配上门时间段",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "预分配上门时间段",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "369780",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "实际首次进入已配置派发时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "实际首次进入已配置派发时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "406009",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "DISTRIBUTEAPPOINT",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "DISTRIBUTEAPPOINT",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "471047",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "LASTAPPOINTTIME",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "LASTAPPOINTTIME",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "471070",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "装维预约上门时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "装维预约上门时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "471114",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "是否投诉夜间值班",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否投诉夜间值班",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "501394",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "待配置派发时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "待配置派发时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "501395",
+                "defaultAggregator": "CNT",
+                "logicalTableId": 1,
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "logicalTableId": 1,
+                "field": "附加信息",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "附加信息",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "gsv6n_529339",
+                "defaultAggregator": "CNT",
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "logicalTableId": 1,
+                "field": "集团报结意见",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "集团报结意见",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "gsv6n_529338",
+                "defaultAggregator": "CNT",
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "logicalTableId": 1,
+                "field": "是否酒店用户",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "String",
+                "granularity": "g0",
+                "alias": "是否酒店用户",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "gsv6n_561241",
+                "defaultAggregator": "CNT",
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "logicalTableId": 1,
+                "field": "打卡时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "打卡时间",
+                "partition": false,
+                "$type": "Dimension",
+                "fieldId": "gsv6n_652349",
+                "defaultAggregator": "CNT",
+                "geoRole": "None",
+                "status": 0
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "expr": "(if ($$257304 =\"已报结\"  or $$257304 =\"退单完成\")\nthen DATEDIFF(\"second\", $$501395, $$257301)\nelse DATEDIFF(\"second\", $$501395, NOW()))/3600",
+                "alias": "小微处理时长(待配置派发-报结/now)",
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "tableId": -1,
+                "produced": "Calculated",
+                "fieldId": "382779",
+                "status": 0,
+                "geoRole": "None",
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "logicalTableId": 1,
+                "defaultFormat": {
+                  "decimalPlace": 1,
+                  "unit": "none",
+                  "prefix": "",
+                  "suffix": "",
+                  "thousandSeparator": false,
+                  "type": "num"
+                }
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "expr": "(if ($$382978=\"是\" and \n($$257304 =\"已报结\"  or $$257304 =\"退单完成\"))\nthen DATEDIFF(\"second\", $$501395, $$257301)\nelse if $$382978=\"是\" \nthen DATEDIFF(\"second\", $$501395, NOW()))/3600",
+                "alias": "小微酒店处理时长(待配置派发-报结/now)",
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "tableId": -1,
+                "produced": "Calculated",
+                "fieldId": "gsv6n_520353",
+                "logicalTableId": -1,
+                "status": 0,
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "geoRole": "None",
+                "defaultFormat": {
+                  "decimalPlace": 1,
+                  "unit": "none",
+                  "prefix": "",
+                  "suffix": "",
+                  "thousandSeparator": false,
+                  "type": "num"
+                }
+              },
+              {
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "$type": "Dimension",
+                "expr": "if $$483491=\"1夜间\" then \nDATEDIFF(\"hour\",\ndateadd(\"hour\",8,datetrunc(\"day\",(dateadd(\"day\",1,$$501395))))\n,$$257301)\nelse(if $$483491=\"非夜间\" then \nDATEDIFF(\"hour\",$$501395,$$257301)\nelse(if $$483491=\"2夜间\" then \nDATEDIFF(\"hour\",\ndateadd(\"hour\",8,datetrunc(\"day\",$$501395))\n,$$257301)))",
+                "alias": "处理时长（废弃）",
+                "dataType": "Whole",
+                "granularity": "g0",
+                "tableId": -1,
+                "produced": "Calculated",
+                "fieldId": "257461",
+                "status": 0,
+                "geoRole": "None",
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "logicalTableId": -1
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if($$382978=\"是\" and $$gsv6n_520353<=12)\nthen \"及时\"\nelse if($$382978=\"是\" and $$gsv6n_520353>12)\nthen \"不及时\"\nelse if($$gsv6n_529341=\"是\" and $$gsv6n_529347<=12)\nthen \"及时\"\nelse if($$gsv6n_529341=\"是\" and $$gsv6n_529347>12)\nthen \"不及时\"\nelse if($$369744=\"是\" and $$382779<=24)\nthen \"及时\"\nelse \"不及时\"",
+                "alias": "是否及时",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "325995",
+                "status": 0,
+                "geoRole": "None",
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "logicalTableId": -1
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if find($$257320,\"企业宽带\")!=0 then \"是\" else \"否\"",
+                "alias": "是否小微投诉",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "369744",
+                "status": 0,
+                "geoRole": "None",
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "logicalTableId": 2
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if $$257972=\"是\" and find($$257320,\"企业宽带\")!=0 then \"是\" else \"否\"",
+                "alias": "是否小微酒店判断",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "382978",
+                "status": 0,
+                "geoRole": "None",
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "logicalTableId": 1
+              },
+              {
+                "$type": "Dimension",
+                "expr": "DATEDIFF(\"second\",$$303811,$$257301)/60/60",
+                "alias": "处理时长(受理-报结)",
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "413167",
+                "status": 0,
+                "tableName": "自定义维度",
+                "geoRole": "None",
+                "defaultFormat": {
+                  "decimalPlace": 2,
+                  "unit": "none",
+                  "prefix": "",
+                  "suffix": "",
+                  "thousandSeparator": false,
+                  "type": "num"
+                },
+                "from": "otherSide"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if(DATEPART(\"hour\",$$303811)=20 or DATEPART(\"hour\",$$303811)=21\nor DATEPART(\"hour\",$$303811)=22 or DATEPART(\"hour\",$$303811)=23)\nthen \"1夜间\" \nelse if(DATEPART(\"hour\",$$303811)=00 or DATEPART(\"hour\",$$303811)=01\nor DATEPART(\"hour\",$$303811)=02 or DATEPART(\"hour\",$$303811)=03 \nor DATEPART(\"hour\",$$303811)=04 or DATEPART(\"hour\",$$303811)=05\nor DATEPART(\"hour\",$$303811)=06 or DATEPART(\"hour\",$$303811)=07) then \"2夜间\" else \"非夜间\"",
+                "alias": "是否夜间(受理时间)",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "483491",
+                "status": 0,
+                "tableName": "自定义维度",
+                "geoRole": "None",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if find($$257320,\"网络协调\")!=0 then \"是\" else \"否\"",
+                "alias": "是否网络协调单",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "gsv6n_520355",
+                "logicalTableId": 2,
+                "status": 0,
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "geoRole": "None"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if FIND($$gsv6n_529339, \"酒店\") >0  or $$gsv6n_561241=\"是\" then \"是\" \nelse \"否\"",
+                "alias": "是否线下酒店投诉",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "gsv6n_529341",
+                "logicalTableId": 1,
+                "status": 0,
+                "from": "otherSide",
+                "tableName": "自定义维度",
+                "geoRole": "None"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "(if ($$gsv6n_529341=\"是\" and \n($$257304 =\"已报结\"  or $$257304 =\"退单完成\"))\nthen DATEDIFF(\"second\", $$501395, $$257301)\nelse if $$gsv6n_529341=\"是\" \nthen DATEDIFF(\"second\", $$501395, NOW()))/3600",
+                "alias": "小微线下酒店处理时长(待配置派发-报结/now)",
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "gsv6n_529347",
+                "logicalTableId": 1,
+                "status": 0,
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "defaultFormat": {
+                  "decimalPlace": 1,
+                  "unit": "none",
+                  "prefix": "",
+                  "suffix": "",
+                  "thousandSeparator": false,
+                  "type": "num"
+                },
+                "geoRole": "None"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "(if ($$257304 =\"已报结\"  or $$257304 =\"退单完成\")\nthen DATEDIFF(\"second\", $$303811, $$257301)\nelse DATEDIFF(\"second\", $$303811, NOW()))/3600",
+                "alias": "报结-受理时长（H）",
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "gsv6n_696736",
+                "logicalTableId": 1,
+                "status": 0,
+                "tableName": "自定义维度",
+                "from": "otherSide",
+                "geoRole": "None"
+              },
+              {
+                "$type": "Dimension",
+                "expr": "if find($$257320,\"企业宽带\")!=0 then \"是\" else \"否\"",
+                "alias": "是否小微投诉(1)",
+                "dataType": "String",
+                "granularity": "g0",
+                "tableId": -1,
+                "role": "Dimension",
+                "produced": "Calculated",
+                "interpretation": "Discrete",
+                "fieldId": "gsv6n_697720",
+                "status": 0,
+                "from": "otherSide",
+                "tableName": "自定义维度",
+                "geoRole": "None"
+              }
+            ],
+            "measures": [
+              {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "BACKCOUNT",
+                "role": "Measure",
+                "interpretation": "Continuous",
+                "indexed": false,
+                "dataType": "Decimal",
+                "granularity": "g0",
+                "alias": "BACKCOUNT",
+                "partition": false,
+                "$type": "Measure",
+                "defaultAggregator": "SUM",
+                "fieldId": "257364",
+                "checked": false,
+                "logicalTableId": 1,
+                "status": 0
+              },
+              {
+                "$type": "Measure",
+                "defaultAggregator": "SUM",
+                "alias": "记录数",
+                "dataType": "Whole",
+                "expr": "1",
+                "field": "Record",
+                "fieldId": "-100",
+                "granularity": "g0",
+                "interpretation": "Continuous",
+                "produced": "Calculated",
+                "role": "Measure",
+                "tableId": -1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF $$257304=\"已报结\" and $$369744=\"是\" then $$257322) ",
+                "alias": "小微投诉报结量",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "38545",
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide",
+                "logicalTableId": 2
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(if $$325995=\"及时\" \n then $$257322)",
+                "alias": "处理及时量（全量小微）",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "325974",
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide",
+                "logicalTableId": 2
+              },
+              {
+                "$type": "Measure",
+                "expr": "$$325974/$$gsv6n_520349",
+                "alias": "处理及时率（全量小微）",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "325977",
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide",
+                "logicalTableId": 2
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF $$257304=\"已报结\"  and $$382978=\"是\" then $$257322) ",
+                "alias": "小微酒店类投诉报结量",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "327538",
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide",
+                "logicalTableId": 2
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF$$369744 =\"是\" then $$257322) ",
+                "alias": "小微投诉受理量",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520349",
+                "logicalTableId": 2,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF $$382978=\"是\" then $$257322) ",
+                "alias": "小微酒店类投诉受理",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520350",
+                "logicalTableId": 2,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(if \n$$gsv6n_529341=\"是\" and$$325995=\"及时\"\n then $$257322)",
+                "alias": "处理及时量（小微线下酒店）",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520351",
+                "logicalTableId": -1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "$$gsv6n_529344/$$gsv6n_520350",
+                "alias": "处理及时率（小微酒店）",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520352",
+                "logicalTableId": -1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "AVG($$382779)",
+                "alias": "小微平均处理时长",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520358",
+                "logicalTableId": 2,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "AVG($$gsv6n_520353)",
+                "alias": "小微酒店平均处理时长",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_520359",
+                "logicalTableId": 2,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF $$gsv6n_529341=\"是\" then $$257322) ",
+                "alias": "小微线下酒店类投诉受理",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_529342",
+                "logicalTableId": 1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(IF $$257304=\"已报结\"  and $$gsv6n_529341=\"是\" then $$257322) ",
+                "alias": "小微线下酒店类投诉报结量",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_529343",
+                "logicalTableId": 1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "countd(if \n$$382978=\"是\" and$$325995=\"及时\"\n then $$257322)",
+                "alias": "处理及时量（小微酒店）",
+                "dataType": "Whole",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_529344",
+                "logicalTableId": -1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "$$gsv6n_520351/$$gsv6n_529342",
+                "alias": "处理及时率（小微线下酒店）",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_529345",
+                "logicalTableId": -1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "AVG($$gsv6n_529347)",
+                "alias": "小微线下酒店平均处理时长",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_529346",
+                "logicalTableId": 1,
+                "status": 0,
+                "tableName": "自定义度量",
+                "from": "otherSide"
+              },
+              {
+                "$type": "Measure",
+                "expr": "AVG($$gsv6n_696736)",
+                "alias": "处理时长（受理-报结）",
+                "dataType": "Decimal",
+                "granularity": "g1",
+                "tableId": -1,
+                "role": "Measure",
+                "produced": "Calculated",
+                "interpretation": "Continuous",
+                "fieldId": "gsv6n_696737",
+                "logicalTableId": 1,
+                "status": 0,
+                "from": "otherSide",
+                "tableName": "自定义度量"
+              }
+            ],
+            "levels": [
+              {
+                "name": "地市",
+                "pathes": [
+                  "257303"
+                ]
+              }
+            ],
+            "geoConfig": {
+              "maxId": 0,
+              "list": []
+            },
+            "schemaOptions": {}
+          },
+          "config": {
+            "status": "direct",
+            "tables": [
+              {
+                "produced": "LogicalTable",
+                "logicalTableId": 1,
+                "tables": [
+                  {
+                    "tableId": 1,
+                    "tableAlias": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                    "produced": "Original",
+                    "dataConnectionId": 6279,
+                    "database": "ZC_TNMSPON",
+                    "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                    "logicalTableId": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "tableMap": {
+            "1": "YX_VIEW_INSTALL_COMPLAIN_SGS"
+          },
+          "dataConnectionId": 6279,
+          "filter": [],
+          "dcType": 1,
+          "dcName": "省客响-家宽库表-中间表",
+          "relatedDataModelId": 13255,
+          "dataConnectionInfo": {
+            "version": "Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production"
+          },
+          "dataFilter": {
+            "columnFilters": [],
+            "rowFilters": []
+          },
+          "dataFilterDescriptions": [],
+          "realDataConnectionId": null,
+          "flushTime": "2025-03-04T06:59:12.000Z",
+          "flushSetting": null,
+          "extractStatus": "direct",
+          "enableMppMaterializedView": 0,
+          "enableRelation": 0,
+          "fieldClasses": [],
+          "originName": "企业宽带---中间表"
+        }
+      ],
+      "parameters": [],
+      "dashboard": {
+        "id": 137143,
+        "title": "企业宽带清单",
+        "setting": {
+          "style": {
+            "legendPositionFollow": true
+          },
+          "format": {
+            "background": {
+              "value": "default"
+            },
+            "size": {
+              "type": "custom",
+              "width": 1400,
+              "height": 800
+            }
+          },
+          "data": {
+            "filter": {
+              "146837": [
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "ORDERTYPEID",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "Whole",
+                  "granularity": "g0",
+                  "alias": "工单类型",
+                  "partition": false,
+                  "$type": "Dimension",
+                  "fieldId": "257363",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "logicalTableId": 2,
+                  "dataModelId": 146837,
+                  "filter": {
+                    "$type": "DiscreteDimensionFilter",
+                    "mode": "list",
+                    "select": [
+                      2
+                    ],
+                    "dashboardsPri": true,
+                    "priority": 3
+                  },
+                  "_cid": "p_lqm33mwu0"
+                }
+              ]
+            }
+          }
+        },
+        "groups": [],
+        "did": 66796
+      },
+      "components": [
+        {
+          "id": "c-eKLK26aStHXn18JiDQFzPD",
+          "title": "清单",
+          "type": "table",
+          "box": {
+            "region": {
+              "width": 1380,
+              "height": 690,
+              "left": 10,
+              "top": 90,
+              "item": "left"
+            },
+            "zIndex": 0
+          },
+          "setting": {
+            "style": {
+              "title": {
+                "show": true,
+                "visible": true,
+                "smarting": false,
+                "padding": {
+                  "top": 20,
+                  "bottom": 5,
+                  "left": 20,
+                  "right": 20
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 0
+                  }
+                },
+                "font": {
+                  "size": 16,
+                  "align": "left"
+                },
+                "text": "清单"
+              },
+              "page": {
+                "show": true,
+                "size": 20,
+                "needSize": true,
+                "showTotal": true
+              },
+              "secondary": {
+                "show": true,
+                "font": {
+                  "size": 14,
+                  "align": "left",
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 61,
+                    "g": 70,
+                    "b": 98,
+                    "a": 1
+                  }
+                }
+              },
+              "primary": {
+                "font": {
+                  "size": 12,
+                  "align": "left",
+                  "color": {
+                    "r": 51,
+                    "g": 51,
+                    "b": 51,
+                    "a": 1
+                  },
+                  "dimensionAlign": "center",
+                  "measureAlign": "center"
+                },
+                "grid": {
+                  "color": {
+                    "r": 193,
+                    "g": 196,
+                    "b": 208,
+                    "a": 1
+                  },
+                  "horizontal": true,
+                  "vertical": false
+                },
+                "number": {
+                  "show": false,
+                  "fixed": false
+                },
+                "oddBackground": {
+                  "color": {
+                    "r": 246,
+                    "g": 248,
+                    "b": 249,
+                    "a": 1
+                  }
+                },
+                "evenBackground": {
+                  "color": {
+                    "r": 223,
+                    "g": 227,
+                    "b": 232,
+                    "a": 1
+                  }
+                },
+                "savedColsWidth": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "table": {
+                "reverse": false,
+                "indicator": false,
+                "newline": false
+              },
+              "subTotal": {
+                "font": {
+                  "align": "left",
+                  "size": 12,
+                  "weight": "bold"
+                }
+              },
+              "chart": {
+                "showMode": "fitNormal"
+              },
+              "indicatorWidget": {
+                "type": "modal",
+                "box": {
+                  "top": 0,
+                  "left": 0
+                }
+              },
+              "appearance": "black",
+              "background": {
+                "color": {
+                  "r": 255,
+                  "g": 255,
+                  "b": 255,
+                  "a": 1
+                }
+              },
+              "border": {
+                "width": 0,
+                "style": "solid",
+                "color": {
+                  "r": 204,
+                  "g": 204,
+                  "b": 204,
+                  "a": 1
+                }
+              },
+              "borderRadius": 0,
+              "graphic": {
+                "body": {
+                  "padding": {
+                    "top": 5,
+                    "bottom": 0,
+                    "left": 20,
+                    "right": 20
+                  }
+                }
+              }
+            },
+            "data": {
+              "column": [
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "REGION",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "地市",
+                  "partition": false,
+                  "fieldId": "257302",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_kwoax9gq5"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "COUNTY",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "区县",
+                  "partition": false,
+                  "fieldId": "257303",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_lnldbbwx18"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "ORDERID",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "工单号",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "257322",
+                  "status": 0,
+                  "checked": false,
+                  "geoRole": "None",
+                  "_cid": "p_kwn7i5of47"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "ORDERNO",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "客服流水号",
+                  "partition": false,
+                  "fieldId": "257318",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_l3i3sz3626"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "CUSTOMERACCOUNT",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "宽带账号",
+                  "partition": false,
+                  "fieldId": "257317",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_lnmucplh13"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "装维工号",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "装维工号",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "348712",
+                  "geoRole": "None",
+                  "status": 0,
+                  "_cid": "p_lnmzf8ul3"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "GROUPNAME",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "班组名称",
+                  "partition": false,
+                  "fieldId": "257344",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_lnmzh0ta4"
+                },
+                {
+                  "$type": "DimensionPill",
+                  "expr": "if find($$257320,\"企业宽带\")!=0 then \"是\" else \"否\"",
+                  "alias": "是否小微投诉",
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "369744",
+                  "status": 0,
+                  "_cid": "p_lcogjmtx14",
+                  "geoRole": "None"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "是否酒店类投诉",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "是否酒店类投诉",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "257972",
+                  "geoRole": "None",
+                  "status": 0,
+                  "_cid": "p_kwue79xn24"
+                },
+                {
+                  "$type": "DimensionPill",
+                  "expr": "if(DATEPART(\"hour\",$$303811)=20 or DATEPART(\"hour\",$$303811)=21\nor DATEPART(\"hour\",$$303811)=22 or DATEPART(\"hour\",$$303811)=23)\nthen \"1夜间\" \nelse if(DATEPART(\"hour\",$$303811)=00 or DATEPART(\"hour\",$$303811)=01\nor DATEPART(\"hour\",$$303811)=02 or DATEPART(\"hour\",$$303811)=03 \nor DATEPART(\"hour\",$$303811)=04 or DATEPART(\"hour\",$$303811)=05\nor DATEPART(\"hour\",$$303811)=06 or DATEPART(\"hour\",$$303811)=07) then \"2夜间\" else \"非夜间\"",
+                  "alias": "是否夜间(受理时间)",
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "483491",
+                  "status": 0,
+                  "tableName": "自定义维度",
+                  "geoRole": "None",
+                  "from": "otherSide",
+                  "_cid": "p_lqm16xqg2"
+                },
+                {
+                  "$type": "DimensionPill",
+                  "expr": "(if ($$257304 =\"已报结\"  or $$257304 =\"退单完成\")\nthen DATEDIFF(\"second\", $$501395, $$257301)\nelse DATEDIFF(\"second\", $$501395, NOW()))/3600",
+                  "alias": "小微处理时长(待配置派发-报结/now)",
+                  "dataType": "Decimal",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "382779",
+                  "status": 0,
+                  "geoRole": "None",
+                  "tableName": "自定义维度",
+                  "from": "otherSide",
+                  "logicalTableId": 2,
+                  "_cid": "p_lqm17v9b4"
+                },
+                {
+                  "$type": "DimensionPill",
+                  "expr": "(if ($$382978=\"是\" and \n($$257304 =\"已报结\"  or $$257304 =\"退单完成\"))\nthen DATEDIFF(\"second\", $$501395, $$257301)\nelse if $$382978=\"是\" \nthen DATEDIFF(\"second\", $$501395, NOW()))/3600",
+                  "alias": "小微酒店处理时长(待配置派发-报结/now)",
+                  "dataType": "Decimal",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "gsv6n_520353",
+                  "logicalTableId": 2,
+                  "status": 0,
+                  "tableName": "自定义维度",
+                  "from": "otherSide",
+                  "_cid": "p_lqm181qo5",
+                  "geoRole": "None"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "受理时间",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "DateTime",
+                  "granularity": "g0",
+                  "alias": "受理时间",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "303811",
+                  "status": 0,
+                  "geoRole": "None",
+                  "mapFunction": "YEAR-MONTH-DAY-HOUR-MINUTE",
+                  "_cid": "p_lg142zqy191"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "CREATETIME",
+                  "indexed": false,
+                  "dataType": "DateTime",
+                  "granularity": "g0",
+                  "alias": "派单时间",
+                  "partition": false,
+                  "fieldId": "257314",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "mapFunction": "YEAR-MONTH-DAY-HOUR-MINUTE",
+                  "_cid": "p_lnmk73vs8"
+                },
+                {
+                  "$type": "DimensionPill",
+                  "expr": "if($$382978=\"是\" and $$gsv6n_520353<=12)\nthen \"及时\"\nelse if($$382978=\"是\" and $$gsv6n_520353>12)\nthen \"不及时\"\nelse if($$gsv6n_529341=\"是\" and $$gsv6n_529347<=12)\nthen \"及时\"\nelse if($$gsv6n_529341=\"是\" and $$gsv6n_529347>12)\nthen \"不及时\"\nelse if($$369744=\"是\" and $$382779<=24)\nthen \"及时\"\nelse \"不及时\"",
+                  "alias": "是否及时",
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "tableId": -1,
+                  "role": "Dimension",
+                  "produced": "Calculated",
+                  "interpretation": "Discrete",
+                  "fieldId": "325995",
+                  "status": 0,
+                  "geoRole": "None",
+                  "tableName": "自定义维度",
+                  "from": "otherSide",
+                  "logicalTableId": 2,
+                  "_cid": "p_lqm18aow6"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "待配置派发时间",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "DateTime",
+                  "granularity": "g0",
+                  "alias": "待配置派发时间",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "501395",
+                  "geoRole": "None",
+                  "logicalTableId": 2,
+                  "status": 0,
+                  "_cid": "p_lqm17b333",
+                  "mapFunction": "YEAR-MONTH-DAY-HOUR-MINUTE"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "实际首次进入已配置派发时间",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "DateTime",
+                  "granularity": "g0",
+                  "alias": "实际首次进入已配置派发时间",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "406009",
+                  "status": 0,
+                  "mapFunction": "YEAR-MONTH-DAY-HOUR-MINUTE",
+                  "_cid": "p_lfjfuz6k106",
+                  "geoRole": "None"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "OPERTIME",
+                  "indexed": false,
+                  "dataType": "DateTime",
+                  "granularity": "g0",
+                  "alias": "报结时间",
+                  "partition": false,
+                  "fieldId": "257301",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "mapFunction": "YEAR-MONTH-DAY-HOUR-MINUTE",
+                  "_cid": "p_kwnb5k768"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "CURSTATENAME",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "工单状态",
+                  "partition": false,
+                  "fieldId": "257304",
+                  "checked": false,
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_lg14494d206"
+                },
+                {
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "$type": "DimensionPill",
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "field": "主题",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "主题",
+                  "partition": false,
+                  "fieldId": "257320",
+                  "status": 0,
+                  "geoRole": "None",
+                  "_cid": "p_lavwh33f51"
+                },
+                {
+                  "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                  "tableId": 1,
+                  "bigtable": false,
+                  "logicalTableId": 1,
+                  "field": "集团报结意见",
+                  "role": "Dimension",
+                  "interpretation": "Discrete",
+                  "indexed": false,
+                  "dataType": "String",
+                  "granularity": "g0",
+                  "alias": "集团报结意见",
+                  "partition": false,
+                  "$type": "DimensionPill",
+                  "fieldId": "gsv6n_529338",
+                  "geoRole": "None",
+                  "status": 0,
+                  "_cid": "p_m78t7qz90"
+                }
+              ],
+              "levelSign": {
+                "column": {
+                  "1": {
+                    "signName": "$Level`地市",
+                    "index": 0,
+                    "last": true
+                  },
+                  "$Level`地市": 1
+                },
+                "row": {},
+                "color": {},
+                "details": {}
+              },
+              "options": {
+                "chart": {
+                  "limit": 20
+                },
+                "ignoreDataPermission": false,
+                "sortPriorityMap": {},
+                "aggregate": true,
+                "formatMap": {
+                  "@dd`382779``": {
+                    "decimalPlace": 1,
+                    "unit": "none",
+                    "prefix": "",
+                    "suffix": "",
+                    "thousandSeparator": false,
+                    "type": "num"
+                  },
+                  "@dd`gsv6n_520353``": {
+                    "decimalPlace": 1,
+                    "unit": "none",
+                    "prefix": "",
+                    "suffix": "",
+                    "thousandSeparator": false,
+                    "type": "num"
+                  }
+                },
+                "displayNameMap": {
+                  "@dd`257301``YEAR-MONTH-DAY-HOUR": "报结时间",
+                  "@cm`257461`ATTR`": "处理时长"
+                },
+                "nullValueMap": {
+                  "@dd`257302``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257303``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257322``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257318``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257317``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`348712``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257344``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`369744``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257972``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`483491``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`303811``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257314``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`406009``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`303814``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257301``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257304``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257320``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257305``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`501395``YEAR": {
+                    "nullValue": "null"
+                  },
+                  "@dd`382779``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`gsv6n_520353``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`325995``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`501395``YEAR-MONTH-DAY-HOUR-MINUTE": {
+                    "nullValue": "null"
+                  },
+                  "@dd`406009``YEAR-MONTH-DAY-HOUR-MINUTE": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257301``YEAR-MONTH-DAY-HOUR-MINUTE": {
+                    "nullValue": "null"
+                  },
+                  "@dd`303811``YEAR-MONTH-DAY-HOUR-MINUTE": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257314``YEAR-MONTH-DAY-HOUR-MINUTE": {
+                    "nullValue": "null"
+                  },
+                  "@dd`gsv6n_529338``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`501395``YEAR-MONTH-DAY-HOUR-MINUTE-SECOND": {
+                    "nullValue": "null"
+                  },
+                  "@dd`501395``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "dataModelId": 146837,
+              "filter": []
+            }
+          },
+          "cid": "c-1-12286-28330-kwn625mh",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-ncARTSYLR97sZG2aaksHNR",
+          "title": "受理时间",
+          "type": "dateTimeFilter",
+          "box": {
+            "region": {
+              "width": 290,
+              "height": 40,
+              "left": 0,
+              "top": 0,
+              "item": "right"
+            },
+            "zIndex": 1
+          },
+          "setting": {
+            "style": {
+              "title": {
+                "smarting": true,
+                "text": "受理时间"
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "type": "range"
+            },
+            "data": {
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "dataModelId": 146837,
+              "dateDimension": {
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "tableId": 1,
+                "bigtable": false,
+                "field": "受理时间",
+                "role": "Dimension",
+                "interpretation": "Discrete",
+                "indexed": false,
+                "dataType": "DateTime",
+                "granularity": "g0",
+                "alias": "受理时间",
+                "partition": false,
+                "$type": "DimensionPill",
+                "fieldId": "303811",
+                "status": 0,
+                "geoRole": "None",
+                "logicalTableId": 2,
+                "_cid": "p_lqm68zzd1"
+              },
+              "date": {
+                "$type": "DateTimeFilter",
+                "period": {
+                  "minBound": "2026-08-01 00:00:00",
+                  "maxBound": "2026-08-02 00:00:00"
+                },
+                "mode": {
+                  "$type": "StaticTime"
+                }
+              }
+            }
+          },
+          "cid": "c-1-12286-28330-kwn625mi",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-a6cyYMcdfF7VbN8bZu1YVg",
+          "title": "是否酒店类投诉",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 310,
+              "top": 0
+            },
+            "zIndex": 2
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "是否酒店类投诉"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "257972",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "field": "是否酒店类投诉",
+                "alias": "是否酒店类投诉",
+                "tableId": 1,
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "granularity": "g0",
+                "geoRole": "None",
+                "bigtable": false,
+                "partition": false
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {}
+              }
+            }
+          },
+          "cid": "c-1-12396-28782-l4hq2mle",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-f1Dn5ddyPrVju5HZJfbUoF",
+          "title": "是否夜间(受理时间)",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 510,
+              "top": 0
+            },
+            "zIndex": 3
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "是否夜间(受理时间)"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "icon": {
+                  "show": true,
+                  "name": "check-nav-1",
+                  "size": 18
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "483491",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "alias": "是否夜间(受理时间)",
+                "tableId": -1,
+                "tableName": "自定义维度",
+                "granularity": "g0",
+                "geoRole": "None",
+                "expr": "if(DATEPART(\"hour\",$$303811)=20 or DATEPART(\"hour\",$$303811)=21\nor DATEPART(\"hour\",$$303811)=22 or DATEPART(\"hour\",$$303811)=23)\nthen \"1夜间\" \nelse if(DATEPART(\"hour\",$$303811)=00 or DATEPART(\"hour\",$$303811)=01\nor DATEPART(\"hour\",$$303811)=02 or DATEPART(\"hour\",$$303811)=03 \nor DATEPART(\"hour\",$$303811)=04 or DATEPART(\"hour\",$$303811)=05\nor DATEPART(\"hour\",$$303811)=06 or DATEPART(\"hour\",$$303811)=07) then \"2夜间\" else \"非夜间\"",
+                "produced": "Calculated"
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {},
+                "nullValueMap": {
+                  "@dd`483491``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "enableDimensionalAcceleration": true
+            }
+          },
+          "cid": "c-1-31575-104575-lqm0t2ys",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-exNzEajvNw278ZLCCe3gNU",
+          "title": "是否网络协调单",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 720,
+              "top": 0
+            },
+            "zIndex": 4
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "是否网络协调单"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "icon": {
+                  "show": true,
+                  "name": "check-nav-1",
+                  "size": 18
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "gsv6n_520355",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "alias": "是否网络协调单",
+                "tableId": -1,
+                "tableName": "自定义维度",
+                "granularity": "g0",
+                "geoRole": "None",
+                "expr": "if find($$257320,\"网络协调\")!=0 then \"是\" else \"否\"",
+                "produced": "Calculated",
+                "logicalTableId": 2
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {},
+                "nullValueMap": {
+                  "@dd`gsv6n_520355``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "enableDimensionalAcceleration": true
+            }
+          },
+          "cid": "c-1-31575-104575-lqm0t2yt",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-2pJv1ieVnKCwAj6iVUKoXk",
+          "title": "工单状态",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 920,
+              "top": 0
+            },
+            "zIndex": 5
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "工单状态"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "icon": {
+                  "show": true,
+                  "name": "check-nav-1",
+                  "size": 18
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "257304",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "field": "CURSTATENAME",
+                "alias": "工单状态",
+                "tableId": 1,
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "granularity": "g0",
+                "geoRole": "None",
+                "logicalTableId": 2,
+                "bigtable": false,
+                "partition": false
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {},
+                "nullValueMap": {
+                  "@dd`257304``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "enableDimensionalAcceleration": true
+            }
+          },
+          "cid": "c-1-31575-104575-lqm6l86r",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-8RrRGysvequjP7pkvFzsv6",
+          "title": "地市",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 1120,
+              "top": 0
+            },
+            "zIndex": 6
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "地市"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "icon": {
+                  "show": true,
+                  "name": "check-nav-1",
+                  "size": 18
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "257302",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "field": "REGION",
+                "alias": "地市",
+                "tableId": 1,
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "granularity": "g0",
+                "geoRole": "None",
+                "logicalTableId": 1,
+                "bigtable": false,
+                "partition": false
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {},
+                "nullValueMap": {
+                  "@dd`257304``": {
+                    "nullValue": "null"
+                  },
+                  "@dd`257302``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "enableDimensionalAcceleration": true
+            }
+          },
+          "cid": "c-1-33813-113760-lraa7b2k",
+          "warnings": [],
+          "publishRelatedId": null
+        },
+        {
+          "id": "c-nQQkwas8HFmPoJCVfwnqC9",
+          "title": "工单号",
+          "type": "listFilter",
+          "box": {
+            "region": {
+              "width": 180,
+              "height": 40,
+              "left": 0,
+              "top": 50
+            },
+            "zIndex": 7
+          },
+          "setting": {
+            "style": {
+              "operationType": "dropdown",
+              "selectType": "multi",
+              "title": {
+                "smarting": true,
+                "text": "工单号"
+              },
+              "secondary": {
+                "font": {
+                  "size": 12
+                },
+                "showTitle": false
+              },
+              "primary": {
+                "font": {
+                  "size": 12
+                }
+              },
+              "memberNum": 6,
+              "navSelected": {
+                "textColor": {
+                  "color": {
+                    "r": 16,
+                    "g": 63,
+                    "b": 250,
+                    "a": 1
+                  }
+                },
+                "background": {
+                  "color": {
+                    "r": 255,
+                    "g": 255,
+                    "b": 255,
+                    "a": 1
+                  }
+                },
+                "icon": {
+                  "show": true,
+                  "name": "check-nav-1",
+                  "size": 18
+                }
+              }
+            },
+            "data": {
+              "dataModelId": 146837,
+              "dimension": {
+                "$type": "DimensionPill",
+                "role": "Dimension",
+                "fieldId": "257322",
+                "interpretation": "Discrete",
+                "dataType": "String",
+                "field": "ORDERID",
+                "alias": "工单号",
+                "tableId": 1,
+                "tableName": "YX_VIEW_INSTALL_COMPLAIN_SGS",
+                "granularity": "g0",
+                "geoRole": "None",
+                "logicalTableId": 1,
+                "bigtable": false,
+                "partition": false
+              },
+              "filter": [],
+              "targets": [
+                "c-eKLK26aStHXn18JiDQFzPD"
+              ],
+              "modelList": [],
+              "options": {
+                "formatMap": {},
+                "sort": {},
+                "nullValueMap": {
+                  "@dd`257322``": {
+                    "nullValue": "null"
+                  }
+                }
+              },
+              "enableDimensionalAcceleration": true
+            }
+          },
+          "cid": "c-1-37208-130722-lwzwko5o",
+          "warnings": [],
+          "publishRelatedId": null
+        }
+      ]
+    },
+    "temporary": {
+      "activedMenus": [],
+      "clipboard": [],
+      "fullScreen": false,
+      "askme": {
+        "visible": false
+      },
+      "adjustMode": "none",
+      "settingContext": "report",
+      "linkFilterMap": {},
+      "paging": {},
+      "listFilterTemporaryItems": {},
+      "selected2brush": [],
+      "focusDownParams": {
+        "c-eKLK26aStHXn18JiDQFzPD": false
+      }
+    }
+  },
+  "keyword": "export"
+}

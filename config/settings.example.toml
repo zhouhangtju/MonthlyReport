@@ -1,0 +1,16 @@
+[storage]
+# file：只生成文件；database：只入库；both：同时生成文件并入库。
+mode = "both"
+database = "data/quality_assessment.db"
+raw_directory = "data/raw"
+output_directory = "outputs"
+
+[storage.file]
+# 原始取数文件保持源平台格式；指标明细默认输出 CSV，汇总可继续输出 Excel。
+archive_raw_files = true
+keep_batch_files = true
+
+[storage.database]
+keep_record_versions = true
+write_metric_details = true
+
