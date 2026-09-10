@@ -1,0 +1,134 @@
+{
+  "metric_code": "commercial_customer_install_fault_rate",
+  "metric_version": "1.0.0",
+  "period_start": "2026-06-01",
+  "period_end": "2026-08-31",
+  "formula": "(专线分子 + 企宽分子) / (专线分母 + 企宽分母)",
+  "results": [
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "丽水"
+      },
+      "numerator": 11,
+      "denominator": 9133,
+      "metric_value": 0.0012044235191065367
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "台州"
+      },
+      "numerator": 65,
+      "denominator": 16552,
+      "metric_value": 0.003927017883035283
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "嘉兴"
+      },
+      "numerator": 111,
+      "denominator": 17907,
+      "metric_value": 0.006198693248450327
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "宁波"
+      },
+      "numerator": 165,
+      "denominator": 36211,
+      "metric_value": 0.004556626439479716
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "杭州"
+      },
+      "numerator": 257,
+      "denominator": 46497,
+      "metric_value": 0.005527238316450524
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "温州"
+      },
+      "numerator": 115,
+      "denominator": 27844,
+      "metric_value": 0.004130153713546904
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "湖州"
+      },
+      "numerator": 27,
+      "denominator": 11104,
+      "metric_value": 0.002431556195965418
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "绍兴"
+      },
+      "numerator": 149,
+      "denominator": 17312,
+      "metric_value": 0.008606746765249538
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "舟山"
+      },
+      "numerator": 12,
+      "denominator": 7188,
+      "metric_value": 0.001669449081803005
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "衢州"
+      },
+      "numerator": 23,
+      "denominator": 6996,
+      "metric_value": 0.0032875929102344197
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "金华"
+      },
+      "numerator": 95,
+      "denominator": 32428,
+      "metric_value": 0.0029295670408289133
+    },
+    {
+      "metric_code": "commercial_customer_install_fault_rate",
+      "dimension_type": "province",
+      "dimension": {
+        "scope": "全省"
+      },
+      "numerator": 1030,
+      "denominator": 229172,
+      "metric_value": 0.004494440856649154
+    }
+  ],
+  "source_metric_runs": [
+    "metric_20260910_161009_31a8579e",
+    "metric_20260910_161059_0924ef83"
+  ],
+  "metric_run_id": "metric_20260910_161318_d011a34c"
+}

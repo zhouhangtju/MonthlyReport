@@ -7,6 +7,7 @@ import calendar
 import json
 import sys
 import uuid
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -52,6 +53,13 @@ REMOVAL_STAGES = [
     ("开通结果审核", "开通结果审核处理人", "系统自动"),
     ("报结", "报结人", "自动处理"),
 ]
+
+
+def log(message: str) -> None:
+    print(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} [INFO] {message}",
+        flush=True,
+    )
 
 
 def text(value: object) -> str:
@@ -106,22 +114,44 @@ def month_dates(month: str) -> tuple[str, str]:
     return f"{month}-01", f"{month}-{calendar.monthrange(value.year, value.month)[1]:02d}"
 
 
-def load_rows(database: Path) -> tuple[list[dict[str, object]], list[str]]:
+def load_rows(
+    database: Path,
+    first_month: str | None = None,
+    last_month: str | None = None,
+) -> tuple[list[dict[str, object]], list[str]]:
+    log(f"正在初始化数据库：{database}")
     initialize(database)
+    where = ""
+    parameters: tuple[str, ...] = ()
+    if first_month and last_month:
+        where = " WHERE order_finished_at >= ? AND order_finished_at < ?"
+        parameters = (f"{first_month}-01", f"{shift_month(last_month, 1)}-01")
+    log(
+        "正在读取 ods_orch_opening"
+        + (f"（结束时间 {first_month} 至 {last_month}）" if where else "")
+    )
     with connect(database) as connection:
-        records = connection.execute(
-            "SELECT order_no, source_data FROM ods_orch_opening"
-        ).fetchall()
+        cursor = connection.execute(
+            "SELECT order_no, source_data FROM ods_orch_opening" + where,
+            parameters,
+        )
+        rows: list[dict[str, object]] = []
+        while True:
+            records = cursor.fetchmany(5000)
+            if not records:
+                break
+            for record in records:
+                row = json.loads(record["source_data"])
+                row["_source_record_id"] = record["order_no"]
+                rows.append(row)
+            if len(rows) % 50000 == 0:
+                log(f"已读取并解析 {len(rows)} 条…")
         runs = connection.execute(
             """SELECT run_id FROM etl_run
                WHERE dataset_code=? AND status='success' ORDER BY started_at""",
             (DATASET_CODE,),
         ).fetchall()
-    rows = []
-    for record in records:
-        row = json.loads(record["source_data"])
-        row["_source_record_id"] = record["order_no"]
-        rows.append(row)
+    log(f"数据读取完成，共 {len(rows)} 条")
     return rows, [row["run_id"] for row in runs]
 
 
@@ -156,6 +186,42 @@ def select(
     ]
 
 
+def build_index(
+    rows: Iterable[dict[str, object]],
+) -> tuple[dict[tuple[str, str, str], list[dict[str, object]]], int]:
+    """一次遍历完成归月、筛选和订单号去重。"""
+    grouped: dict[tuple[str, str, str], dict[str, dict[str, object]]] = defaultdict(dict)
+    missing_month = 0
+    empty_sequence = 0
+    for row in rows:
+        month = row_month(row)
+        if month is None:
+            missing_month += 1
+            continue
+        if text(row.get("订单状态")) != STATUS:
+            continue
+        order_no = text(row.get("订单号"))
+        if not order_no:
+            empty_sequence += 1
+            order_no = f"__empty_order_{empty_sequence}"
+        key = (
+            month,
+            text(row.get("业务类型")),
+            text(row.get("订单类型")),
+        )
+        grouped[key][order_no] = row
+    return {key: list(value.values()) for key, value in grouped.items()}, missing_month
+
+
+def group_rows(
+    index: dict[tuple[str, str, str], list[dict[str, object]]],
+    month: str,
+    business_type: str,
+    order_type: str = "开通",
+) -> list[dict[str, object]]:
+    return index.get((month, business_type, order_type), [])
+
+
 def result(
     code: str,
     dimension_type: str,
@@ -174,7 +240,10 @@ def result(
     }
 
 
-def volume_results(rows: list[dict[str, object]], months: list[str]) -> list[dict[str, object]]:
+def volume_results(
+    index: dict[tuple[str, str, str], list[dict[str, object]]],
+    months: list[str],
+) -> list[dict[str, object]]:
     output: list[dict[str, object]] = []
     for month in months:
         for business_type, products, code in [
@@ -182,7 +251,7 @@ def volume_results(rows: list[dict[str, object]], months: list[str]) -> list[dic
             (MPLS_BUSINESS_TYPE, MPLS_PRODUCTS, "mpls_opening_orders"),
             (TRANSMISSION_BUSINESS_TYPE, TRANSMISSION_PRODUCTS, "transmission_opening_orders"),
         ]:
-            source = select(rows, month=month, business_type=business_type)
+            source = group_rows(index, month, business_type)
             if products is not None:
                 source = [row for row in source if text(row.get("产品名称")) in products]
             output.append(result(code, "month", {"month": month}, order_count(source)))
@@ -192,32 +261,46 @@ def volume_results(rows: list[dict[str, object]], months: list[str]) -> list[dic
     return output
 
 
-def current_distribution(rows: list[dict[str, object]], month: str) -> list[dict[str, object]]:
+def current_distribution(
+    index: dict[tuple[str, str, str], list[dict[str, object]]],
+    month: str,
+) -> list[dict[str, object]]:
     output: list[dict[str, object]] = []
     for business_type, products, code in [
         (BUSINESS_TYPE, ALL_PRODUCTS, "internet_opening_orders"),
         (MPLS_BUSINESS_TYPE, MPLS_PRODUCTS, "mpls_opening_orders"),
         (TRANSMISSION_BUSINESS_TYPE, TRANSMISSION_PRODUCTS, "transmission_opening_orders"),
     ]:
+        source = group_rows(index, month, business_type)
+        source = [row for row in source if text(row.get("产品名称")) in products]
         for city in CITY_ORDER:
             for product in products:
-                count = order_count(select(rows, month=month, business_type=business_type, product=product, city=city))
+                count = sum(
+                    1 for row in source
+                    if text(row.get("地市")) == city
+                    and text(row.get("产品名称")) == product
+                )
                 output.append(result(code, "month_city_product", {"month": month, "city": city, "product": product}, count))
+            city_total = sum(1 for row in source if text(row.get("地市")) == city)
+            output.append(result(code, "month_city", {"month": month, "city": city}, city_total))
     return output
 
 
-def automation_results(rows: list[dict[str, object]], month: str) -> list[dict[str, object]]:
+def automation_results(
+    index: dict[tuple[str, str, str], list[dict[str, object]]],
+    month: str,
+) -> list[dict[str, object]]:
     output: list[dict[str, object]] = []
     for order_type, stages, prefix in [
         ("开通", OPENING_STAGES, "internet_opening_automation_rate"),
         ("变更", OPENING_STAGES, "internet_move_automation_rate"),
         ("拆除", REMOVAL_STAGES, "internet_removal_automation_rate"),
     ]:
-        source = select(rows, month=month, business_type=BUSINESS_TYPE, order_type=order_type)
-        denominator = order_count(source)
+        source = group_rows(index, month, BUSINESS_TYPE, order_type)
+        denominator = len(source)
         automatic_total = 0
         for stage, field, automatic_value in stages:
-            numerator = order_count(row for row in source if text(row.get(field)) == automatic_value)
+            numerator = sum(1 for row in source if text(row.get(field)) == automatic_value)
             automatic_total += numerator
             output.append(result(prefix, "month_stage", {"month": month, "stage": stage, "field": field, "automatic_value": automatic_value}, numerator, denominator))
         output.append(result(prefix, "month_all_stages", {"month": month, "stage": f"{len(stages)}环节整体"}, automatic_total, denominator * len(stages)))
@@ -225,9 +308,11 @@ def automation_results(rows: list[dict[str, object]], month: str) -> list[dict[s
             city_code = "internet_move_activation_rate" if order_type == "变更" else "internet_removal_activation_rate"
             for city in CITY_ORDER:
                 city_rows = [row for row in source if text(row.get("地市")) == city]
-                city_total = order_count(city_rows)
-                city_auto = order_count(row for row in city_rows if text(row.get("配置激活处理人")) == "系统自动")
+                city_total = len(city_rows)
+                city_auto = sum(1 for row in city_rows if text(row.get("配置激活处理人")) == "系统自动")
                 output.append(result(city_code, "month_city", {"month": month, "city": city}, city_auto, city_total))
+            province_auto = sum(1 for row in source if text(row.get("配置激活处理人")) == "系统自动")
+            output.append(result(city_code, "month_city", {"month": month, "city": "全省合计"}, province_auto, denominator))
     return output
 
 
@@ -247,20 +332,26 @@ def comparison_results(results: list[dict[str, object]], current: str) -> list[d
             other = lookup.get((code, json.dumps({"month": comparison}, ensure_ascii=False, sort_keys=True)))
             other_value = int(other["numerator"]) if other else 0
             output.append(result(f"{code}_{label}", "month_comparison", {"month": current, "comparison_month": comparison}, current_value - other_value, other_value))
-    for product in KEY_PRODUCTS:
-        current_key = json.dumps({"month": current, "product": product}, ensure_ascii=False, sort_keys=True)
-        last_key = json.dumps({"month": last_year, "product": product}, ensure_ascii=False, sort_keys=True)
-        current_value = int((lookup.get(("internet_opening_orders", current_key)) or {"numerator": 0})["numerator"])
-        last_value = int((lookup.get(("internet_opening_orders", last_key)) or {"numerator": 0})["numerator"])
-        output.append(result("internet_product_opening_yoy", "month_product_comparison", {"month": current, "comparison_month": last_year, "product": product}, current_value - last_value, last_value))
+    for source_code, result_code, products in [
+        ("internet_opening_orders", "internet_product_opening_yoy", KEY_PRODUCTS),
+        ("mpls_opening_orders", "mpls_product_opening_yoy", MPLS_PRODUCTS),
+        ("transmission_opening_orders", "transmission_product_opening_yoy", TRANSMISSION_PRODUCTS),
+    ]:
+        for product in products:
+            current_key = json.dumps({"month": current, "product": product}, ensure_ascii=False, sort_keys=True)
+            last_key = json.dumps({"month": last_year, "product": product}, ensure_ascii=False, sort_keys=True)
+            current_value = int((lookup.get((source_code, current_key)) or {"numerator": 0})["numerator"])
+            last_value = int((lookup.get((source_code, last_key)) or {"numerator": 0})["numerator"])
+            output.append(result(result_code, "month_product_comparison", {"month": current, "comparison_month": last_year, "product": product}, current_value - last_value, last_value))
     return output
 
 
 def calculate(rows: list[dict[str, object]], start_month: str, end_month: str) -> dict[str, object]:
     trend_months = month_range(start_month, end_month)
     required = sorted(set(trend_months + [shift_month(end_month, -1), shift_month(end_month, -12)] + [shift_month(end_month, offset) for offset in range(-11, 1)]))
-    volumes = volume_results(rows, required)
-    results = volumes + current_distribution(rows, end_month) + automation_results(rows, end_month)
+    index, missing_month_rows = build_index(rows)
+    volumes = volume_results(index, required)
+    results = volumes + current_distribution(index, end_month) + automation_results(index, end_month)
     results += comparison_results(volumes, end_month)
 
     internet_month_counts = {
@@ -270,13 +361,12 @@ def calculate(rows: list[dict[str, object]], start_month: str, end_month: str) -
     }
     other_total = 0
     for month in [shift_month(end_month, offset) for offset in range(-11, 1)]:
-        source = select(rows, month=month, business_type=BUSINESS_TYPE)
-        count = order_count(source) - order_count(row for row in source if text(row.get("产品名称")) == "悦享专线动态IP版") - order_count(row for row in source if text(row.get("产品名称")) == "互联网专线套餐")
+        source = group_rows(index, month, BUSINESS_TYPE)
+        count = len(source) - sum(1 for row in source if text(row.get("产品名称")) == "悦享专线动态IP版") - sum(1 for row in source if text(row.get("产品名称")) == "互联网专线套餐")
         other_total += count
         results.append(result("other_internet_opening_orders", "month", {"month": month}, count))
     results.append(result("other_internet_average_monthly_orders", "rolling_12_months", {"end_month": end_month}, other_total, 12))
 
-    missing_month_rows = sum(1 for row in rows if row_month(row) is None)
     return {
         "metric_code": METRIC_CODE,
         "metric_version": METRIC_VERSION,
@@ -285,6 +375,141 @@ def calculate(rows: list[dict[str, object]], start_month: str, end_month: str) -
         "quality": {"database_rows": len(rows), "rows_missing_order_month": missing_month_rows},
         "results": results,
     }
+
+
+def print_report(report: dict[str, object]) -> None:
+    """按《专线产品情况》的子 Sheet 顺序打印指标日志。"""
+    current = str(report["end_month"])
+    previous = shift_month(current, -1)
+    last_year = shift_month(current, -12)
+    rows = list(report["results"])
+
+    def matching(code: str, dimension_type: str | None = None) -> list[dict[str, object]]:
+        return [
+            item for item in rows
+            if item["metric_code"] == code
+            and (dimension_type is None or item["dimension_type"] == dimension_type)
+        ]
+
+    def find(
+        code: str,
+        dimension_type: str | None = None,
+        **dimension: str,
+    ) -> dict[str, object] | None:
+        return next(
+            (
+                item for item in rows
+                if item["metric_code"] == code
+                and (dimension_type is None or item["dimension_type"] == dimension_type)
+                and all(item["dimension"].get(key) == value for key, value in dimension.items())
+            ),
+            None,
+        )
+
+    def number(item: dict[str, object] | None) -> int:
+        return int(item["numerator"]) if item else 0
+
+    def rate(item: dict[str, object] | None) -> str:
+        value = None if item is None else item["metric_value"]
+        return "无法计算" if value is None else f"{float(value):.2%}"
+
+    log("[Sheet 1/18] 互联网指标汇总")
+    for month in (last_year, previous, current):
+        log(f"  {month}：{number(find('internet_opening_orders', month=month))} 单")
+    log(f"  同比：{rate(find('internet_opening_orders_yoy'))}；环比：{rate(find('internet_opening_orders_mom'))}")
+
+    log("[Sheet 2/18] 互联网重点产品同比")
+    for product in KEY_PRODUCTS:
+        item = find("internet_product_opening_yoy", product=product)
+        baseline = int(item["denominator"]) if item else 0
+        delta = number(item)
+        log(f"  {product}：{last_year} {baseline} 单，{current} {baseline + delta} 单，增减 {delta} 单，同比 {rate(item)}")
+
+    log(f"[Sheet 3/18] 互联网全省{current}产品")
+    province_product_total = 0
+    for product in ALL_PRODUCTS:
+        count = number(find("internet_opening_orders", month=current, product=product))
+        province_product_total += count
+        log(f"  {product}：{count} 单")
+    log(f"  合计：{province_product_total} 单")
+
+    log(f"[Sheet 4/18] 互联网11地市{current}产品")
+    for city in CITY_ORDER:
+        values = [
+            f"{product}={number(find('internet_opening_orders', 'month_city_product', month=current, city=city, product=product))}"
+            for product in ALL_PRODUCTS
+        ]
+        total = number(find("internet_opening_orders", "month_city", month=current, city=city))
+        log(f"  {city}：{'，'.join(values)}，合计={total}")
+
+    log("[Sheet 5/18] 互联网月度分布")
+    for month in month_range(str(report["start_month"]), current):
+        enjoy = number(find("internet_opening_orders", month=month, product="悦享专线动态IP版"))
+        package = number(find("internet_opening_orders", month=month, product="互联网专线套餐"))
+        log(f"  {month}：悦享 {enjoy} 单，互联网套餐 {package} 单")
+
+    average = next(iter(matching("other_internet_average_monthly_orders")), None)
+    log("[Sheet 6/18] 互联网其他专线12月汇总")
+    if average:
+        log(f"  累计 {int(average['numerator'])} 单，平均每月 {float(average['metric_value']):.2f} 单")
+    log("[Sheet 7/18] 互联网其他专线12月明细")
+    for item in matching("other_internet_opening_orders", "month"):
+        month = item["dimension"]["month"]
+        values = [
+            f"{product}={number(find('internet_opening_orders', month=month, product=product))}"
+            for product in OTHER_PRODUCTS
+        ]
+        log(f"  {month}：{'，'.join(values)}，其他互联网专线合计={int(item['numerator'])}")
+
+    for sheet_no, label, code, products, comparison_code in [
+        (8, "MPLS-VPN", "mpls_opening_orders", MPLS_PRODUCTS, "mpls_product_opening_yoy"),
+        (11, "传输专线", "transmission_opening_orders", TRANSMISSION_PRODUCTS, "transmission_product_opening_yoy"),
+    ]:
+        log(f"[Sheet {sheet_no}/18] {label}指标汇总")
+        total_yoy = find(f"{code}_yoy")
+        total_baseline = int(total_yoy["denominator"]) if total_yoy else 0
+        total_delta = number(total_yoy)
+        log(f"  合计：{last_year} {total_baseline} 单，{current} {total_baseline + total_delta} 单，增减 {total_delta} 单，同比 {rate(total_yoy)}")
+        for product in products:
+            item = find(comparison_code, product=product)
+            baseline = int(item["denominator"]) if item else 0
+            delta = number(item)
+            log(f"  {product}：{last_year} {baseline} 单，{current} {baseline + delta} 单，增减 {delta} 单，同比 {rate(item)}")
+        log(f"[Sheet {sheet_no + 1}/18] {label}{current}地市")
+        for city in CITY_ORDER:
+            values = [
+                f"{product}={number(find(code, 'month_city_product', month=current, city=city, product=product))}"
+                for product in products
+            ]
+            total = number(find(code, "month_city", month=current, city=city))
+            log(f"  {city}：{'，'.join(values)}，合计={total}")
+        log(f"[Sheet {sheet_no + 2}/18] {label}月度分布")
+        for month in month_range(str(report["start_month"]), current):
+            values = [
+                f"{product}={number(find(code, month=month, product=product))}"
+                for product in products
+            ]
+            log(f"  {month}：{'，'.join(values)}，合计={number(find(code, month=month))}")
+
+    def print_automation(sheet_no: int, label: str, code: str) -> None:
+        log(f"[Sheet {sheet_no}/18] {label}_{current}")
+        for item in matching(code):
+            log(
+                f"  {item['dimension']['stage']}：{int(item['numerator'])}/"
+                f"{int(item['denominator'])}，{rate(item)}"
+            )
+
+    def print_city_automation(sheet_no: int, label: str, code: str) -> None:
+        log(f"[Sheet {sheet_no}/18] {label}_{current}")
+        for city in [*CITY_ORDER, "全省合计"]:
+            item = find(code, city=city)
+            log(f"  {city}：{number(item)}/{int(item['denominator']) if item else 0}，{rate(item)}")
+
+    print_automation(14, "互联网专线开通自动率", "internet_opening_automation_rate")
+    print_automation(15, "互联网专线移机自动率", "internet_move_automation_rate")
+    print_city_automation(16, "互联网专线移机地市自动率", "internet_move_activation_rate")
+    print_automation(17, "互联网专线拆机自动率", "internet_removal_automation_rate")
+    print_city_automation(18, "互联网专线拆机地市自动率", "internet_removal_activation_rate")
 
 
 def save_results(database: Path, report: dict[str, object], source_runs: list[str]) -> str:
@@ -303,15 +528,24 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
         connection.commit()
     try:
         with connect(database) as connection:
-            for item in report["results"]:
-                connection.execute(
-                    """INSERT INTO ads_metric_result (
-                       metric_run_id, metric_code, dimension_type, dimension_value,
-                       numerator, denominator, metric_value
-                       ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (run_id, item["metric_code"], item["dimension_type"], json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True), item["numerator"], item["denominator"], item["metric_value"]),
-                )
-            connection.execute("UPDATE metric_run SET finished_at=?, status='success' WHERE metric_run_id=?", (now, run_id))
+            connection.executemany(
+                """INSERT INTO ads_metric_result (
+                   metric_run_id, metric_code, dimension_type, dimension_value,
+                   numerator, denominator, metric_value
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                [
+                    (
+                        run_id, item["metric_code"], item["dimension_type"],
+                        json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True),
+                        item["numerator"], item["denominator"], item["metric_value"],
+                    )
+                    for item in report["results"]
+                ],
+            )
+            connection.execute(
+                "UPDATE metric_run SET finished_at=?, status='success' WHERE metric_run_id=?",
+                (datetime.now(timezone.utc).isoformat(timespec="seconds"), run_id),
+            )
     except Exception as exc:
         with connect(database) as connection:
             connection.execute(
@@ -326,17 +560,32 @@ def run(database: Path, start_month: str, end_month: str, *, mode: str = "both",
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
     database = database.expanduser().resolve()
-    rows, source_runs = load_rows(database)
+    trend_months = month_range(start_month, end_month)
+    required_months = sorted(set(
+        trend_months
+        + [shift_month(end_month, -1), shift_month(end_month, -12)]
+        + [shift_month(end_month, offset) for offset in range(-11, 1)]
+    ))
+    rows, source_runs = load_rows(database, required_months[0], required_months[-1])
     if not source_runs:
         raise RuntimeError("数据库中没有编排专线开通情况的成功取数批次")
+    log("正在单次遍历建立指标分组并计算…")
     report = calculate(rows, start_month, end_month)
+    log(f"指标计算完成，共 {len(report['results'])} 条结果")
+    print_report(report)
     report["source_runs"] = source_runs
-    report["metric_run_id"] = save_results(database, report, source_runs) if mode in {"database", "both"} else None
+    if mode in {"database", "both"}:
+        log("正在批量写入 metric_run 和 ads_metric_result…")
+        report["metric_run_id"] = save_results(database, report, source_runs)
+        log(f"指标入库完成：{report['metric_run_id']}")
+    else:
+        report["metric_run_id"] = None
     if mode in {"file", "both"}:
         output = (output or Path(f"outputs/编排专线指标_{end_month}.json")).expanduser().resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         report["output_file"] = str(output)
+        log(f"JSON 输出完成：{output}")
     else:
         report["output_file"] = None
     return report

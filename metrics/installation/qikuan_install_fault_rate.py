@@ -19,11 +19,28 @@ METRIC_VERSION = "1.0.0"
 
 def calculate(installs: list[dict[str, object]], complaints: list[dict[str, object]], start: str, end: str) -> dict[str, object]:
     start_time, end_time = period_bounds(start, end)
-    valid_installs, invalid_installs = [], []
+    # 与原 calculate_qikuan_install_fault_rate.py 保持一致：
+    # 新装分母不再按统计期二次过滤，只剔除完全相同的重复行。
+    deduplicated_installs: list[dict[str, object]] = []
+    seen_install_rows: set[str] = set()
     for row in installs:
+        fingerprint = json.dumps(
+            {key: value for key, value in row.items() if not key.startswith("_")},
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+        if fingerprint in seen_install_rows:
+            continue
+        seen_install_rows.add(fingerprint)
+        deduplicated_installs.append(row)
+    exact_duplicate_rows_removed = len(installs) - len(deduplicated_installs)
+
+    valid_installs, invalid_installs = [], []
+    for row in deduplicated_installs:
         row["_dataset_code"] = "youshu_install"
         account, order_id, assigned = identifier(row.get("宽带账号")), identifier(row.get("工单id")), parse_time(row.get("派单时间"))
-        if not account or not order_id or assigned is None or not start_time <= assigned <= end_time:
+        if not account or not order_id or assigned is None:
             invalid_installs.append(row)
             continue
         row["_account"] = account
@@ -54,8 +71,21 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
         "metric_version": METRIC_VERSION,
         "period_start": start,
         "period_end": end,
-        "rules": {"join_key": "宽带账号", "match": "统计期内存在派单时间晚于新装派单时间的投诉"},
-        "quality": {"raw_install_rows": len(installs), "raw_complaint_rows": len(complaints), "denominator_install_orders": len(valid_installs), "complaint_rows_in_period": valid_complaints, "numerator_install_orders": len(matched), "excluded_install_rows": len(invalid_installs)},
+        "rules": {
+            "join_key": "宽带账号",
+            "install_period_filter": "不二次过滤新装派单时间",
+            "install_deduplication": "仅剔除所有业务字段完全相同的行",
+            "match": "统计期内存在派单时间晚于新装派单时间的投诉",
+        },
+        "quality": {
+            "raw_install_rows": len(installs),
+            "raw_complaint_rows": len(complaints),
+            "denominator_install_orders": len(valid_installs),
+            "exact_duplicate_rows_removed": exact_duplicate_rows_removed,
+            "complaint_rows_in_period": valid_complaints,
+            "numerator_install_orders": len(matched),
+            "excluded_install_rows": len(invalid_installs),
+        },
         "results": results,
         "details": {"denominator": valid_installs, "numerator": matched, "excluded": invalid_installs},
     }

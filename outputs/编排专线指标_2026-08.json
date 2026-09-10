@@ -1,0 +1,5495 @@
+{
+  "metric_code": "orchestration_opening_metrics",
+  "metric_version": "1.0.0",
+  "start_month": "2025-08",
+  "end_month": "2026-08",
+  "quality": {
+    "database_rows": 231986,
+    "rows_missing_order_month": 0
+  },
+  "results": [
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-08"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-08"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-08"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-08",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-09"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-09"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-09"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-09",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-10"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-10"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-10"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-10",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-11"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-11"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-11"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-11",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-12"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-12"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-12"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2025-12",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-01"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-01"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-01"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-01",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-02"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-02"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-02"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-02",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-03"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-03"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-03"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-03",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-04"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-04"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-04"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-04",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-05"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-05"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-05"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-05",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-06"
+      },
+      "numerator": 6501,
+      "denominator": null,
+      "metric_value": 6501
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 3815,
+      "denominator": null,
+      "metric_value": 3815
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 1487,
+      "denominator": null,
+      "metric_value": 1487
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 1123,
+      "denominator": null,
+      "metric_value": 1123
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "直播专线"
+      },
+      "numerator": 65,
+      "denominator": null,
+      "metric_value": 65
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 4,
+      "denominator": null,
+      "metric_value": 4
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-06"
+      },
+      "numerator": 8051,
+      "denominator": null,
+      "metric_value": 8051
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 8038,
+      "denominator": null,
+      "metric_value": 8038
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 13,
+      "denominator": null,
+      "metric_value": 13
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-06"
+      },
+      "numerator": 1389,
+      "denominator": null,
+      "metric_value": 1389
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区间精品电路"
+      },
+      "numerator": 31,
+      "denominator": null,
+      "metric_value": 31
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 29,
+      "denominator": null,
+      "metric_value": 29
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 107,
+      "denominator": null,
+      "metric_value": 107
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区内精品电路"
+      },
+      "numerator": 39,
+      "denominator": null,
+      "metric_value": 39
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 550,
+      "denominator": null,
+      "metric_value": 550
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-06",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 633,
+      "denominator": null,
+      "metric_value": 633
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-07"
+      },
+      "numerator": 6666,
+      "denominator": null,
+      "metric_value": 6666
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 4042,
+      "denominator": null,
+      "metric_value": 4042
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 1477,
+      "denominator": null,
+      "metric_value": 1477
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 1035,
+      "denominator": null,
+      "metric_value": 1035
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "直播专线"
+      },
+      "numerator": 96,
+      "denominator": null,
+      "metric_value": 96
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 14,
+      "denominator": null,
+      "metric_value": 14
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-07"
+      },
+      "numerator": 7026,
+      "denominator": null,
+      "metric_value": 7026
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 7014,
+      "denominator": null,
+      "metric_value": 7014
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 12,
+      "denominator": null,
+      "metric_value": 12
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-07"
+      },
+      "numerator": 1139,
+      "denominator": null,
+      "metric_value": 1139
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区间精品电路"
+      },
+      "numerator": 92,
+      "denominator": null,
+      "metric_value": 92
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 43,
+      "denominator": null,
+      "metric_value": 43
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 86,
+      "denominator": null,
+      "metric_value": 86
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区内精品电路"
+      },
+      "numerator": 41,
+      "denominator": null,
+      "metric_value": 41
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 300,
+      "denominator": null,
+      "metric_value": 300
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-07",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 577,
+      "denominator": null,
+      "metric_value": 577
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-08"
+      },
+      "numerator": 6432,
+      "denominator": null,
+      "metric_value": 6432
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 4092,
+      "denominator": null,
+      "metric_value": 4092
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 1374,
+      "denominator": null,
+      "metric_value": 1374
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 878,
+      "denominator": null,
+      "metric_value": 878
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "直播专线"
+      },
+      "numerator": 74,
+      "denominator": null,
+      "metric_value": 74
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 13,
+      "denominator": null,
+      "metric_value": 13
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-08"
+      },
+      "numerator": 6079,
+      "denominator": null,
+      "metric_value": 6079
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 6061,
+      "denominator": null,
+      "metric_value": 6061
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 18,
+      "denominator": null,
+      "metric_value": 18
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-08"
+      },
+      "numerator": 1542,
+      "denominator": null,
+      "metric_value": 1542
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区间精品电路"
+      },
+      "numerator": 162,
+      "denominator": null,
+      "metric_value": 162
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 32,
+      "denominator": null,
+      "metric_value": 32
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 40,
+      "denominator": null,
+      "metric_value": 40
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区内精品电路"
+      },
+      "numerator": 102,
+      "denominator": null,
+      "metric_value": 102
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 643,
+      "denominator": null,
+      "metric_value": 643
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_product",
+      "dimension": {
+        "month": "2026-08",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 563,
+      "denominator": null,
+      "metric_value": 563
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 1333,
+      "denominator": null,
+      "metric_value": 1333
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 622,
+      "denominator": null,
+      "metric_value": 622
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "直播专线"
+      },
+      "numerator": 50,
+      "denominator": null,
+      "metric_value": 50
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市"
+      },
+      "numerator": 2013,
+      "denominator": null,
+      "metric_value": 2013
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 309,
+      "denominator": null,
+      "metric_value": 309
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 114,
+      "denominator": null,
+      "metric_value": 114
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 221,
+      "denominator": null,
+      "metric_value": 221
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "直播专线"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市"
+      },
+      "numerator": 645,
+      "denominator": null,
+      "metric_value": 645
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 461,
+      "denominator": null,
+      "metric_value": 461
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 54,
+      "denominator": null,
+      "metric_value": 54
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 212,
+      "denominator": null,
+      "metric_value": 212
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "直播专线"
+      },
+      "numerator": 3,
+      "denominator": null,
+      "metric_value": 3
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 4,
+      "denominator": null,
+      "metric_value": 4
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市"
+      },
+      "numerator": 734,
+      "denominator": null,
+      "metric_value": 734
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 311,
+      "denominator": null,
+      "metric_value": 311
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 40,
+      "denominator": null,
+      "metric_value": 40
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 240,
+      "denominator": null,
+      "metric_value": 240
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市"
+      },
+      "numerator": 591,
+      "denominator": null,
+      "metric_value": 591
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 412,
+      "denominator": null,
+      "metric_value": 412
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 219,
+      "denominator": null,
+      "metric_value": 219
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 11,
+      "denominator": null,
+      "metric_value": 11
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "直播专线"
+      },
+      "numerator": 11,
+      "denominator": null,
+      "metric_value": 11
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市"
+      },
+      "numerator": 660,
+      "denominator": null,
+      "metric_value": 660
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 392,
+      "denominator": null,
+      "metric_value": 392
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 47,
+      "denominator": null,
+      "metric_value": 47
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 11,
+      "denominator": null,
+      "metric_value": 11
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市"
+      },
+      "numerator": 451,
+      "denominator": null,
+      "metric_value": 451
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 204,
+      "denominator": null,
+      "metric_value": 204
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 110,
+      "denominator": null,
+      "metric_value": 110
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 59,
+      "denominator": null,
+      "metric_value": 59
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "直播专线"
+      },
+      "numerator": 9,
+      "denominator": null,
+      "metric_value": 9
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市"
+      },
+      "numerator": 382,
+      "denominator": null,
+      "metric_value": 382
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 257,
+      "denominator": null,
+      "metric_value": 257
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 34,
+      "denominator": null,
+      "metric_value": 34
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 47,
+      "denominator": null,
+      "metric_value": 47
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市"
+      },
+      "numerator": 338,
+      "denominator": null,
+      "metric_value": 338
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 170,
+      "denominator": null,
+      "metric_value": 170
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 86,
+      "denominator": null,
+      "metric_value": 86
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 29,
+      "denominator": null,
+      "metric_value": 29
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市"
+      },
+      "numerator": 285,
+      "denominator": null,
+      "metric_value": 285
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 177,
+      "denominator": null,
+      "metric_value": 177
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 27,
+      "denominator": null,
+      "metric_value": 27
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 31,
+      "denominator": null,
+      "metric_value": 31
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市"
+      },
+      "numerator": 235,
+      "denominator": null,
+      "metric_value": 235
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 66,
+      "denominator": null,
+      "metric_value": 66
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 21,
+      "denominator": null,
+      "metric_value": 21
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 10,
+      "denominator": null,
+      "metric_value": 10
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "直播专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "网吧专线套餐（2019版）"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "高品质互联网专线"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "internet_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市"
+      },
+      "numerator": 97,
+      "denominator": null,
+      "metric_value": 97
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 1241,
+      "denominator": null,
+      "metric_value": 1241
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市"
+      },
+      "numerator": 1241,
+      "denominator": null,
+      "metric_value": 1241
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 401,
+      "denominator": null,
+      "metric_value": 401
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市"
+      },
+      "numerator": 402,
+      "denominator": null,
+      "metric_value": 402
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 767,
+      "denominator": null,
+      "metric_value": 767
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市"
+      },
+      "numerator": 769,
+      "denominator": null,
+      "metric_value": 769
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 815,
+      "denominator": null,
+      "metric_value": 815
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市"
+      },
+      "numerator": 815,
+      "denominator": null,
+      "metric_value": 815
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 472,
+      "denominator": null,
+      "metric_value": 472
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市"
+      },
+      "numerator": 473,
+      "denominator": null,
+      "metric_value": 473
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 250,
+      "denominator": null,
+      "metric_value": 250
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市"
+      },
+      "numerator": 252,
+      "denominator": null,
+      "metric_value": 252
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 491,
+      "denominator": null,
+      "metric_value": 491
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 12,
+      "denominator": null,
+      "metric_value": 12
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市"
+      },
+      "numerator": 503,
+      "denominator": null,
+      "metric_value": 503
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 755,
+      "denominator": null,
+      "metric_value": 755
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市"
+      },
+      "numerator": 755,
+      "denominator": null,
+      "metric_value": 755
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 375,
+      "denominator": null,
+      "metric_value": 375
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市"
+      },
+      "numerator": 375,
+      "denominator": null,
+      "metric_value": 375
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 315,
+      "denominator": null,
+      "metric_value": 315
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市"
+      },
+      "numerator": 315,
+      "denominator": null,
+      "metric_value": 315
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 179,
+      "denominator": null,
+      "metric_value": 179
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "mpls_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市"
+      },
+      "numerator": 179,
+      "denominator": null,
+      "metric_value": 179
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 150,
+      "denominator": null,
+      "metric_value": 150
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 21,
+      "denominator": null,
+      "metric_value": 21
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 4,
+      "denominator": null,
+      "metric_value": 4
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 53,
+      "denominator": null,
+      "metric_value": 53
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 71,
+      "denominator": null,
+      "metric_value": 71
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 80,
+      "denominator": null,
+      "metric_value": 80
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市"
+      },
+      "numerator": 379,
+      "denominator": null,
+      "metric_value": 379
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 15,
+      "denominator": null,
+      "metric_value": 15
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 8,
+      "denominator": null,
+      "metric_value": 8
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 35,
+      "denominator": null,
+      "metric_value": 35
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 15,
+      "denominator": null,
+      "metric_value": 15
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市"
+      },
+      "numerator": 73,
+      "denominator": null,
+      "metric_value": 73
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 6,
+      "denominator": null,
+      "metric_value": 6
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 30,
+      "denominator": null,
+      "metric_value": 30
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 40,
+      "denominator": null,
+      "metric_value": 40
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 397,
+      "denominator": null,
+      "metric_value": 397
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市"
+      },
+      "numerator": 482,
+      "denominator": null,
+      "metric_value": 482
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 39,
+      "denominator": null,
+      "metric_value": 39
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 3,
+      "denominator": null,
+      "metric_value": 3
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市"
+      },
+      "numerator": 44,
+      "denominator": null,
+      "metric_value": 44
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 17,
+      "denominator": null,
+      "metric_value": 17
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市"
+      },
+      "numerator": 28,
+      "denominator": null,
+      "metric_value": 28
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 10,
+      "denominator": null,
+      "metric_value": 10
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 9,
+      "denominator": null,
+      "metric_value": 9
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市"
+      },
+      "numerator": 22,
+      "denominator": null,
+      "metric_value": 22
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 5,
+      "denominator": null,
+      "metric_value": 5
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 343,
+      "denominator": null,
+      "metric_value": 343
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 32,
+      "denominator": null,
+      "metric_value": 32
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市"
+      },
+      "numerator": 385,
+      "denominator": null,
+      "metric_value": 385
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 31,
+      "denominator": null,
+      "metric_value": 31
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 17,
+      "denominator": null,
+      "metric_value": 17
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市"
+      },
+      "numerator": 52,
+      "denominator": null,
+      "metric_value": 52
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 4,
+      "denominator": null,
+      "metric_value": 4
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 7,
+      "denominator": null,
+      "metric_value": 7
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 33,
+      "denominator": null,
+      "metric_value": 33
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市"
+      },
+      "numerator": 46,
+      "denominator": null,
+      "metric_value": 46
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 11,
+      "denominator": null,
+      "metric_value": 11
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 2,
+      "denominator": null,
+      "metric_value": 2
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市"
+      },
+      "numerator": 17,
+      "denominator": null,
+      "metric_value": 17
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区间精品电路"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区内精品电路"
+      },
+      "numerator": 1,
+      "denominator": null,
+      "metric_value": 1
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 13,
+      "denominator": null,
+      "metric_value": 13
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city_product",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "transmission_opening_orders",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市"
+      },
+      "numerator": 14,
+      "denominator": null,
+      "metric_value": 14
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "受理",
+        "field": "受理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 6432,
+      "denominator": 6432,
+      "metric_value": 1.0
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "方案设计",
+        "field": "方案设计处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 6431,
+      "denominator": 6432,
+      "metric_value": 0.9998445273631841
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "资源分配",
+        "field": "资源分配受理人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 6426,
+      "denominator": 6432,
+      "metric_value": 0.9990671641791045
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "配置激活",
+        "field": "配置激活处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 6184,
+      "denominator": 6432,
+      "metric_value": 0.9614427860696517
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "开通结果审核",
+        "field": "开通结果审核处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 6390,
+      "denominator": 6432,
+      "metric_value": 0.9934701492537313
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "报结",
+        "field": "报结人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 6420,
+      "denominator": 6432,
+      "metric_value": 0.9981343283582089
+    },
+    {
+      "metric_code": "internet_opening_automation_rate",
+      "dimension_type": "month_all_stages",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "6环节整体"
+      },
+      "numerator": 38283,
+      "denominator": 38592,
+      "metric_value": 0.9919931592039801
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "受理",
+        "field": "受理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 17327,
+      "denominator": 17330,
+      "metric_value": 0.9998268897864974
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "方案设计",
+        "field": "方案设计处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 2587,
+      "denominator": 17330,
+      "metric_value": 0.14927870744373917
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "资源分配",
+        "field": "资源分配受理人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 1541,
+      "denominator": 17330,
+      "metric_value": 0.08892094633583382
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "配置激活",
+        "field": "配置激活处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 13669,
+      "denominator": 17330,
+      "metric_value": 0.7887478361223312
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "开通结果审核",
+        "field": "开通结果审核处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 1335,
+      "denominator": 17330,
+      "metric_value": 0.07703404500865552
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "报结",
+        "field": "报结人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 17117,
+      "denominator": 17330,
+      "metric_value": 0.9877091748413156
+    },
+    {
+      "metric_code": "internet_move_automation_rate",
+      "dimension_type": "month_all_stages",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "6环节整体"
+      },
+      "numerator": 53576,
+      "denominator": 103980,
+      "metric_value": 0.5152529332563954
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市"
+      },
+      "numerator": 3696,
+      "denominator": 4697,
+      "metric_value": 0.7868852459016393
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市"
+      },
+      "numerator": 1286,
+      "denominator": 1525,
+      "metric_value": 0.8432786885245902
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市"
+      },
+      "numerator": 1509,
+      "denominator": 2083,
+      "metric_value": 0.7244359097455593
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市"
+      },
+      "numerator": 1131,
+      "denominator": 1564,
+      "metric_value": 0.7231457800511509
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市"
+      },
+      "numerator": 1144,
+      "denominator": 1552,
+      "metric_value": 0.7371134020618557
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市"
+      },
+      "numerator": 664,
+      "denominator": 748,
+      "metric_value": 0.8877005347593583
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市"
+      },
+      "numerator": 1557,
+      "denominator": 1926,
+      "metric_value": 0.8084112149532711
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市"
+      },
+      "numerator": 559,
+      "denominator": 730,
+      "metric_value": 0.7657534246575343
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市"
+      },
+      "numerator": 1203,
+      "denominator": 1416,
+      "metric_value": 0.8495762711864406
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市"
+      },
+      "numerator": 770,
+      "denominator": 881,
+      "metric_value": 0.8740068104426788
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市"
+      },
+      "numerator": 150,
+      "denominator": 208,
+      "metric_value": 0.7211538461538461
+    },
+    {
+      "metric_code": "internet_move_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "全省合计"
+      },
+      "numerator": 13669,
+      "denominator": 17330,
+      "metric_value": 0.7887478361223312
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "受理",
+        "field": "受理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 4592,
+      "denominator": 4592,
+      "metric_value": 1.0
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "资源查询",
+        "field": "资源查询受理人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 4592,
+      "denominator": 4592,
+      "metric_value": 1.0
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "配置激活",
+        "field": "配置激活处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 3604,
+      "denominator": 4592,
+      "metric_value": 0.7848432055749129
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "开通结果审核",
+        "field": "开通结果审核处理人",
+        "automatic_value": "系统自动"
+      },
+      "numerator": 4592,
+      "denominator": 4592,
+      "metric_value": 1.0
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_stage",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "报结",
+        "field": "报结人",
+        "automatic_value": "自动处理"
+      },
+      "numerator": 4590,
+      "denominator": 4592,
+      "metric_value": 0.9995644599303136
+    },
+    {
+      "metric_code": "internet_removal_automation_rate",
+      "dimension_type": "month_all_stages",
+      "dimension": {
+        "month": "2026-08",
+        "stage": "5环节整体"
+      },
+      "numerator": 21970,
+      "denominator": 22960,
+      "metric_value": 0.9568815331010453
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "杭州市"
+      },
+      "numerator": 816,
+      "denominator": 901,
+      "metric_value": 0.9056603773584906
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "嘉兴市"
+      },
+      "numerator": 146,
+      "denominator": 207,
+      "metric_value": 0.7053140096618358
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "宁波市"
+      },
+      "numerator": 504,
+      "denominator": 700,
+      "metric_value": 0.72
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "温州市"
+      },
+      "numerator": 965,
+      "denominator": 1295,
+      "metric_value": 0.7451737451737451
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "金华市"
+      },
+      "numerator": 204,
+      "denominator": 298,
+      "metric_value": 0.6845637583892618
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "绍兴市"
+      },
+      "numerator": 211,
+      "denominator": 236,
+      "metric_value": 0.8940677966101694
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "湖州市"
+      },
+      "numerator": 123,
+      "denominator": 147,
+      "metric_value": 0.8367346938775511
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "台州市"
+      },
+      "numerator": 215,
+      "denominator": 276,
+      "metric_value": 0.7789855072463768
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "衢州市"
+      },
+      "numerator": 202,
+      "denominator": 269,
+      "metric_value": 0.7509293680297398
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "丽水市"
+      },
+      "numerator": 188,
+      "denominator": 216,
+      "metric_value": 0.8703703703703703
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "舟山市"
+      },
+      "numerator": 30,
+      "denominator": 47,
+      "metric_value": 0.6382978723404256
+    },
+    {
+      "metric_code": "internet_removal_activation_rate",
+      "dimension_type": "month_city",
+      "dimension": {
+        "month": "2026-08",
+        "city": "全省合计"
+      },
+      "numerator": 3604,
+      "denominator": 4592,
+      "metric_value": 0.7848432055749129
+    },
+    {
+      "metric_code": "internet_opening_orders_mom",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2026-07"
+      },
+      "numerator": -234,
+      "denominator": 6666,
+      "metric_value": -0.0351035103510351
+    },
+    {
+      "metric_code": "internet_opening_orders_yoy",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08"
+      },
+      "numerator": 6432,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "mpls_opening_orders_mom",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2026-07"
+      },
+      "numerator": -947,
+      "denominator": 7026,
+      "metric_value": -0.13478508397381156
+    },
+    {
+      "metric_code": "mpls_opening_orders_yoy",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08"
+      },
+      "numerator": 6079,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_opening_orders_mom",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2026-07"
+      },
+      "numerator": 403,
+      "denominator": 1139,
+      "metric_value": 0.353819139596137
+    },
+    {
+      "metric_code": "transmission_opening_orders_yoy",
+      "dimension_type": "month_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08"
+      },
+      "numerator": 1542,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "internet_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "悦享专线动态IP版"
+      },
+      "numerator": 4092,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "internet_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "互联网专线套餐"
+      },
+      "numerator": 1374,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "internet_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "商务专线套餐（2020版）"
+      },
+      "numerator": 878,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "mpls_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区内MPLSVPN套餐"
+      },
+      "numerator": 6061,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "mpls_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "省内MPLSVPN套餐"
+      },
+      "numerator": 18,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区间精品电路"
+      },
+      "numerator": 162,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区间数字电路出租套餐"
+      },
+      "numerator": 32,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区内SPN电路出租"
+      },
+      "numerator": 40,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区内精品电路"
+      },
+      "numerator": 102,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "地区内数字电路出租套餐"
+      },
+      "numerator": 643,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "transmission_product_opening_yoy",
+      "dimension_type": "month_product_comparison",
+      "dimension": {
+        "month": "2026-08",
+        "comparison_month": "2025-08",
+        "product": "光纤出租套餐"
+      },
+      "numerator": 563,
+      "denominator": 0,
+      "metric_value": null
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-09"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-10"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-11"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2025-12"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-01"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-02"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-03"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-04"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-05"
+      },
+      "numerator": 0,
+      "denominator": null,
+      "metric_value": 0
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-06"
+      },
+      "numerator": 1199,
+      "denominator": null,
+      "metric_value": 1199
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-07"
+      },
+      "numerator": 1147,
+      "denominator": null,
+      "metric_value": 1147
+    },
+    {
+      "metric_code": "other_internet_opening_orders",
+      "dimension_type": "month",
+      "dimension": {
+        "month": "2026-08"
+      },
+      "numerator": 966,
+      "denominator": null,
+      "metric_value": 966
+    },
+    {
+      "metric_code": "other_internet_average_monthly_orders",
+      "dimension_type": "rolling_12_months",
+      "dimension": {
+        "end_month": "2026-08"
+      },
+      "numerator": 3312,
+      "denominator": 12,
+      "metric_value": 276.0
+    }
+  ],
+  "source_runs": [
+    "etl_20260910_112239_4c9ebbe6",
+    "etl_20260910_112324_1b19cfa2",
+    "etl_20260910_112410_225199e7",
+    "etl_20260910_112436_a96a8ce5",
+    "etl_20260910_112458_5142e87b",
+    "etl_20260910_112517_f06dc118",
+    "etl_20260910_112534_b8f991a6",
+    "etl_20260910_112551_8ea3c9d5",
+    "etl_20260910_112618_7c92ac31",
+    "etl_20260910_112649_0d7554ad",
+    "etl_20260910_112721_274a0a96",
+    "etl_20260910_112803_80ed981c",
+    "etl_20260910_112846_5666ae8d",
+    "etl_20260910_112911_5aaf5436",
+    "etl_20260910_112931_9a378927",
+    "etl_20260910_112950_2a3d971f",
+    "etl_20260910_113006_b6981116",
+    "etl_20260910_113026_223addd9",
+    "etl_20260910_113045_1eed343a",
+    "etl_20260910_113107_ffea2b06",
+    "etl_20260910_113137_8c47cd04",
+    "etl_20260910_113211_1aed7d8e",
+    "etl_20260910_113250_7297708e",
+    "etl_20260910_113320_e38b151a",
+    "etl_20260910_113347_5435e17c",
+    "etl_20260910_113409_6f0ecc40",
+    "etl_20260910_113429_09648005",
+    "etl_20260910_113447_a1d5002f",
+    "etl_20260910_113507_354f78d6",
+    "etl_20260910_113535_a9c3b2d6",
+    "etl_20260910_113603_e0a234a3"
+  ],
+  "metric_run_id": "metric_20260910_153506_08128ca9"
+}

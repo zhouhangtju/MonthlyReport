@@ -35,7 +35,7 @@ class ComplaintMetricsTest(unittest.TestCase):
         ]
         report = calculate(rows, "2026-08-01", "2026-08-31", LINE)
         province = report["results"][0]
-        self.assertEqual((province["numerator"], province["denominator"]), (2, 1))
+        self.assertEqual((province["numerator"], province["denominator"]), (1, 1))
         self.assertEqual(report["quality"]["duplicate_dispatch_removed_rows"], 1)
 
     def test_line_specific_return_rule_only_excludes_numerator(self):
@@ -48,7 +48,18 @@ class ComplaintMetricsTest(unittest.TestCase):
         ]
         report = calculate(rows, "2026-08-01", "2026-08-31", LINE)
         self.assertEqual((report["results"][0]["numerator"], report["results"][0]["denominator"]), (1, 2))
-        self.assertEqual(report["quality"]["numerator_only_excluded_rows"], 1)
+        self.assertEqual(report["quality"]["numerator_only_excluded_rows"], 0)
+
+    def test_line_uses_selfbuild_and_requires_completed_status(self):
+        category = "政企市场->通信连接->专线专网"
+        rows = [
+            row("1", "E551", category, "2026-08-01 08:00:00", **{"客服流水号": "", "工单状态": "正常结束"}),
+            row("2", "E551", category, "2026-08-03 08:00:00", **{"客服流水号": "", "工单状态": "已完成"}),
+            row("3", "E552", category, "2026-08-03 08:00:00", **{"是否自建": "1"}),
+            row("4", "E553", category, "2026-08-03 08:00:00", **{"工单状态": "已取消"}),
+        ]
+        report = calculate(rows, "2026-08-01", "2026-08-31", LINE)
+        self.assertEqual((report["results"][0]["numerator"], report["results"][0]["denominator"]), (1, 1))
 
     def test_qianliyan_uses_phone_fallback_and_24_hour_rule(self):
         category = "政企市场->视频监控->千里眼"
@@ -75,7 +86,19 @@ class ComplaintMetricsTest(unittest.TestCase):
         self.assertEqual(report["results"][0]["denominator"], 0)
         self.assertEqual(report["quality"]["excluded_rows"], 3)
 
+    def test_qianliyan_infers_city_from_area_and_camera_text(self):
+        category = "政企市场->视频监控->千里眼"
+        rows = [
+            row("1", "E551", category, "2026-08-01 08:00:00", **{"所属地市": "", "所属区县": "", "投诉内容": "【摄像头所属区县】：余杭区"}),
+            row("2", "E552", category, "2026-08-02 08:00:00", **{"所属地市": "", "所属区县": "", "投诉内容": "【摄像头所属地市】：宁波市海曙区"}),
+        ]
+        report = calculate(rows, "2026-08-01", "2026-08-31", QLY)
+        hangzhou = next(item for item in report["results"] if item["dimension"].get("city") == "杭州")
+        ningbo = next(item for item in report["results"] if item["dimension"].get("city") == "宁波")
+        self.assertEqual(hangzhou["denominator"], 1)
+        self.assertEqual(ningbo["denominator"], 1)
+        self.assertEqual(report["quality"]["location_filled_rows"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()
-
