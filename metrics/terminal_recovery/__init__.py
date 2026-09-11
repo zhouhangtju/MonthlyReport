@@ -1,0 +1,1 @@
+"""Terminal recovery Excel metrics."""

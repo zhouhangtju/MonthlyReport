@@ -14,6 +14,12 @@ class Dataset:
 
 
 DATASETS: dict[str, Dataset] = {
+    "terminal_material_names": Dataset("terminal_material_names", "终端物料名称映射", "本地配置", "导入行主键"),
+    "integration_removal_order": Dataset("integration_removal_order", "一体化专线拆机清单", "一体化", "工单号"),
+    "eoms_service_removal_order": Dataset("eoms_service_removal_order", "EOMS服务类拆机工单", "EOMS", "工单号"),
+    "integration_terminal_outbound": Dataset("integration_terminal_outbound", "终端出库", "一体化", "导入行主键"),
+    "integration_terminal_inbound": Dataset("integration_terminal_inbound", "终端入库", "一体化", "导入行主键"),
+    "integration_material_baseline": Dataset("integration_material_baseline", "全省物资基准库", "一体化", "导入行主键"),
     "orch_opening": Dataset("orch_opening", "编排专线开通情况", "编排", "订单号"),
     "orch_install": Dataset("orch_install", "编排互联网专线新装单", "编排", "订单号"),
     "integration_opening": Dataset(

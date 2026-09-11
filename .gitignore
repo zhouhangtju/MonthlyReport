@@ -11,3 +11,5 @@ collector/youshu/有数配置.json
 collector/youshu/edge_profile/
 collector/eoms/eoms_login.json
 collector/eoms/login.db
+collector/credentials/
+outputs/
