@@ -4,17 +4,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from metrics.installation.common import city, identifier, load_dataset, parse_time, period_bounds, result_row, save_metric, text, write_report
+from metrics.installation.common import city, load_dataset, parse_time, period_bounds, result_row, save_metric, text, write_report
 
 
 METRIC_CODE = "dedicated_line_install_fault_rate"
 METRIC_VERSION = "1.0.0"
+INVALID_IDS = {"", "/", "nan", "none", "null", "nat"}
+
+
+def normalize_id(value: object) -> str:
+    """与 export/calculate_internet_line_install_fault_rate.py 保持一致。"""
+    value_text = text(value)
+    value_text = re.sub(r"\.0$", "", value_text)
+    return "" if value_text.lower() in INVALID_IDS else value_text
 
 
 def calculate(installs: list[dict[str, object]], complaints: list[dict[str, object]], start: str, end: str) -> dict[str, object]:
@@ -22,44 +31,46 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
     valid_installs, invalid_installs = [], []
     for row in installs:
         row["_dataset_code"] = "orch_install"
-        account = identifier(row.get("产品实例编号"))
-        created = parse_time(row.get("派单时间"))
-        valid_scope = text(row.get("订单状态")) == "已完成" and text(row.get("订单类型")) == "开通" and text(row.get("业务类型")) == "互联网专线"
-        if not account or created is None or not start_time <= created <= end_time or not valid_scope:
+        account = normalize_id(row.get("产品实例编号"))
+        created = parse_time(row.get("订单创建时间"))
+        install_city = city(row.get("地市"))
+        if not account or not install_city or created is None or not start_time <= created <= end_time:
             invalid_installs.append(row); continue
-        row["_account"] = account; row["_install_time"] = created; row["_city"] = city(row.get("地市"))
+        row["_account"] = account; row["_install_time"] = created; row["_city"] = install_city
         valid_installs.append(row)
 
-    earliest: dict[tuple[str, str], object] = {}
-    for row in valid_installs:
-        key = (row["_account"], row["_city"])
-        if key not in earliest or row["_install_time"] < earliest[key]: earliest[key] = row["_install_time"]
-    complaint_rows, matched_keys = [], set()
+    complaint_rows = []
+    complaints_by_account: dict[str, list[tuple[str, object]]] = defaultdict(list)
     for row in complaints:
-        account = identifier(row.get("计费号码")); assigned = parse_time(row.get("派单时间")); complaint_city = city(row.get("所属地市"))
+        account = normalize_id(row.get("计费号码")); assigned = parse_time(row.get("派单时间")); complaint_city = city(row.get("所属地市"))
         if not account or assigned is None or not start_time <= assigned <= end_time: continue
         complaint_rows.append(row)
-        key = (account, complaint_city)
-        install_time = earliest.get(key)
-        if install_time is not None and assigned >= install_time: matched_keys.add(key)
+        complaints_by_account[account].append((complaint_city, assigned))
 
-    denominator_accounts = {row["_account"] for row in valid_installs}
-    numerator_accounts = denominator_accounts & {account for account, _ in matched_keys}
-    results = [result_row(METRIC_CODE, "province", {"scope": "全省"}, len(numerator_accounts), len(denominator_accounts))]
-    by_city: dict[str, set[str]] = defaultdict(set)
-    for row in valid_installs: by_city[row["_city"] or "（空）"].add(row["_account"])
+    # 不按产品实例编号去重：每条新装记录独立计入分母并判断分子。
+    matched_rows = []
+    for row in valid_installs:
+        if any(
+            complaint_city == row["_city"] and assigned >= row["_install_time"]
+            for complaint_city, assigned in complaints_by_account.get(row["_account"], [])
+        ):
+            matched_rows.append(row)
+
+    results = [result_row(METRIC_CODE, "province", {"scope": "全省"}, len(matched_rows), len(valid_installs))]
+    by_city: dict[str, list[dict[str, object]]] = defaultdict(list)
+    for row in valid_installs: by_city[row["_city"]].append(row)
+    matched_source_ids = {id(row) for row in matched_rows}
     for city_name in sorted(by_city):
-        accounts = by_city[city_name]
-        matched_city_accounts = {account for account, matched_city in matched_keys if matched_city == city_name}
-        results.append(result_row(METRIC_CODE, "city", {"city": city_name}, len(accounts & matched_city_accounts), len(accounts)))
-    numerator_rows = [row for row in valid_installs if (row["_account"], row["_city"]) in matched_keys]
+        city_rows = by_city[city_name]
+        city_matched = sum(id(row) in matched_source_ids for row in city_rows)
+        results.append(result_row(METRIC_CODE, "city", {"city": city_name}, city_matched, len(city_rows)))
     return {
         "metric_code": METRIC_CODE, "metric_version": METRIC_VERSION,
         "period_start": start, "period_end": end,
-        "rules": {"join_key": "产品实例编号=计费号码", "time": "投诉派单时间不早于新装派单时间", "city": "新装地市与投诉所属地市一致", "count_unit": "唯一计费号码"},
-        "quality": {"raw_install_rows": len(installs), "raw_complaint_rows": len(complaints), "valid_install_rows": len(valid_installs), "complaint_rows_in_period": len(complaint_rows), "denominator_accounts": len(denominator_accounts), "numerator_accounts": len(numerator_accounts), "excluded_install_rows": len(invalid_installs)},
+        "rules": {"join_key": "产品实例编号=计费号码", "install_time": "订单创建时间在统计期内", "time": "投诉派单时间不早于订单创建时间", "city": "新装地市与投诉所属地市一致", "deduplication": "不去重，每条有效新装记录独立计数", "count_unit": "新装记录"},
+        "quality": {"raw_install_rows": len(installs), "raw_complaint_rows": len(complaints), "valid_install_rows": len(valid_installs), "complaint_rows_in_period": len(complaint_rows), "denominator_install_rows": len(valid_installs), "numerator_install_rows": len(matched_rows), "excluded_install_rows": len(invalid_installs)},
         "results": results,
-        "details": {"denominator": valid_installs, "numerator": numerator_rows, "excluded": invalid_installs},
+        "details": {"denominator": valid_installs, "numerator": matched_rows, "excluded": invalid_installs},
     }
 
 

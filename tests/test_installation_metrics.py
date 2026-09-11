@@ -22,22 +22,41 @@ class InstallationMetricsTest(unittest.TestCase):
         hangzhou = next(item for item in report["results"] if item["dimension"].get("city") == "杭州")
         self.assertEqual((hangzhou["numerator"], hangzhou["denominator"]), (2, 2))
 
+    def test_qikuan_keeps_valid_install_outside_complaint_period(self):
+        installs = [
+            {"_source_record_id": "i1", "工单id": "i1", "宽带账号": "A", "派单时间": "2026-05-31 23:00:00", "地市": "杭州"},
+        ]
+        complaints = [{"宽带账号": "A", "派单时间": "2026-06-01 01:00:00"}]
+        report = calculate_qikuan(installs, complaints, "2026-06-01", "2026-08-31")
+        self.assertEqual(report["results"][0]["numerator"], 1)
+        self.assertEqual(report["results"][0]["denominator"], 1)
+
     def test_line_uses_unique_account_time_and_matching_city(self):
         installs = [
-            {"_source_record_id": "o1", "订单状态": "已完成", "订单类型": "开通", "业务类型": "互联网专线", "产品实例编号": "e551", "派单时间": "2026-08-01 10:00:00", "地市": "杭州市"},
-            {"_source_record_id": "o2", "订单状态": "已完成", "订单类型": "开通", "业务类型": "互联网专线", "产品实例编号": "e551", "派单时间": "2026-08-02 10:00:00", "地市": "杭州市"},
-            {"_source_record_id": "o3", "订单状态": "已完成", "订单类型": "开通", "业务类型": "互联网专线", "产品实例编号": "e552", "派单时间": "2026-08-02 10:00:00", "地市": "宁波市"},
-            {"_source_record_id": "o4", "订单状态": "已完成", "订单类型": "开通", "业务类型": "互联网专线", "产品实例编号": "e551", "派单时间": "2026-08-02 10:00:00", "地市": "宁波市"},
+            {"_source_record_id": "o1", "产品实例编号": "e551", "订单创建时间": "2026-08-01 10:00:00", "地市": "杭州市"},
+            {"_source_record_id": "o2", "产品实例编号": "e551", "订单创建时间": "2026-08-02 10:00:00", "地市": "杭州市"},
+            {"_source_record_id": "o3", "产品实例编号": "e552", "订单创建时间": "2026-08-02 10:00:00", "地市": "宁波市"},
+            {"_source_record_id": "o4", "产品实例编号": "e551", "订单创建时间": "2026-08-02 10:00:00", "地市": "宁波市"},
         ]
         complaints = [
-            {"计费号码": "E551", "派单时间": "2026-08-03 10:00:00", "所属地市": "杭州"},
-            {"计费号码": "E552", "派单时间": "2026-08-03 10:00:00", "所属地市": "杭州"},
+            {"计费号码": "e551", "派单时间": "2026-08-03 10:00:00", "所属地市": "杭州"},
+            {"计费号码": "e552", "派单时间": "2026-08-03 10:00:00", "所属地市": "杭州"},
         ]
         report = calculate_line(installs, complaints, "2026-08-01", "2026-08-31")
-        self.assertEqual(report["results"][0]["numerator"], 1)
-        self.assertEqual(report["results"][0]["denominator"], 2)
+        self.assertEqual(report["results"][0]["numerator"], 2)
+        self.assertEqual(report["results"][0]["denominator"], 4)
         ningbo = next(item for item in report["results"] if item["dimension"].get("city") == "宁波")
         self.assertEqual((ningbo["numerator"], ningbo["denominator"]), (0, 2))
+
+    def test_line_matches_export_scope_and_identifier_rules(self):
+        installs = [
+            {"_source_record_id": "o1", "产品实例编号": "/", "订单创建时间": "2026-08-01", "地市": "杭州"},
+            {"_source_record_id": "o2", "产品实例编号": "A.0", "订单创建时间": "2026-08-01", "地市": "杭州", "订单状态": "非已完成"},
+        ]
+        complaints = [{"计费号码": "A", "派单时间": "2026-08-01", "所属地市": "杭州"}]
+        report = calculate_line(installs, complaints, "2026-08-01", "2026-08-31")
+        self.assertEqual(report["results"][0]["denominator"], 1)
+        self.assertEqual(report["results"][0]["numerator"], 1)
 
     def test_commercial_customer_sums_numerators_and_denominators(self):
         dimension = json.dumps({"scope": "全省"}, ensure_ascii=False, sort_keys=True)

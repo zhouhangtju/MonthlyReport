@@ -59,6 +59,27 @@ class DedicatedLineMetricsTest(unittest.TestCase):
         self.assertEqual(stage["denominator"], 2)
         self.assertEqual(stage["metric_value"], 0.5)
 
+    def test_product_yoy_and_city_totals_match_workbook_dimensions(self):
+        current_mpls = opening("M1", "2026-08", product="地区内MPLSVPN套餐", city="宁波市")
+        current_mpls["业务类型"] = "MPLS-VPN专线"
+        previous_mpls = opening("M0", "2025-08", product="地区内MPLSVPN套餐", city="宁波市")
+        previous_mpls["业务类型"] = "MPLS-VPN专线"
+        report = calculate([current_mpls, previous_mpls], "2025-08", "2026-08")
+        product_yoy = next(
+            item for item in report["results"]
+            if item["metric_code"] == "mpls_product_opening_yoy"
+            and item["dimension"]["product"] == "地区内MPLSVPN套餐"
+        )
+        city_total = next(
+            item for item in report["results"]
+            if item["metric_code"] == "mpls_opening_orders"
+            and item["dimension_type"] == "month_city"
+            and item["dimension"]["city"] == "宁波市"
+        )
+        self.assertEqual(product_yoy["numerator"], 0)
+        self.assertEqual(product_yoy["metric_value"], 0)
+        self.assertEqual(city_total["metric_value"], 1)
+
     def test_results_are_written_to_metric_tables(self):
         report = calculate([opening("A", "2026-08")], "2026-08", "2026-08")
         with tempfile.TemporaryDirectory() as directory:

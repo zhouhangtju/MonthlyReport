@@ -1,0 +1,186 @@
+{
+  "metric_code": "qikuan_install_fault_rate",
+  "metric_version": "1.0.0",
+  "period_start": "2026-08-01",
+  "period_end": "2026-08-31",
+  "rules": {
+    "join_key": "宽带账号",
+    "match": "统计期内存在派单时间晚于新装派单时间的投诉"
+  },
+  "quality": {
+    "raw_install_rows": 229423,
+    "raw_complaint_rows": 30911,
+    "denominator_install_orders": 65929,
+    "complaint_rows_in_period": 12556,
+    "numerator_install_orders": 100,
+    "excluded_install_rows": 163494
+  },
+  "results": [
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "province",
+      "dimension": {
+        "scope": "全省"
+      },
+      "numerator": 100,
+      "denominator": 65929,
+      "metric_value": 0.0015167832061763413
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "丽水"
+      },
+      "numerator": 1,
+      "denominator": 3374,
+      "metric_value": 0.0002963841138114997
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "台州"
+      },
+      "numerator": 7,
+      "denominator": 4542,
+      "metric_value": 0.0015411712901805372
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "嘉兴"
+      },
+      "numerator": 9,
+      "denominator": 5218,
+      "metric_value": 0.0017247987734764277
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "宁波"
+      },
+      "numerator": 18,
+      "denominator": 9886,
+      "metric_value": 0.001820756625531054
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "杭州"
+      },
+      "numerator": 19,
+      "denominator": 11701,
+      "metric_value": 0.0016237928382189556
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "温州"
+      },
+      "numerator": 17,
+      "denominator": 8535,
+      "metric_value": 0.0019917984768599885
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "湖州"
+      },
+      "numerator": 2,
+      "denominator": 4071,
+      "metric_value": 0.0004912797838368951
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "绍兴"
+      },
+      "numerator": 10,
+      "denominator": 4943,
+      "metric_value": 0.0020230629172567267
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "舟山"
+      },
+      "numerator": 1,
+      "denominator": 1491,
+      "metric_value": 0.0006706908115358819
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "衢州"
+      },
+      "numerator": 2,
+      "denominator": 2207,
+      "metric_value": 0.0009062075215224287
+    },
+    {
+      "metric_code": "qikuan_install_fault_rate",
+      "dimension_type": "city",
+      "dimension": {
+        "city": "金华"
+      },
+      "numerator": 14,
+      "denominator": 9961,
+      "metric_value": 0.0014054813773717498
+    }
+  ],
+  "source_runs": [
+    "etl_20260910_110659_806e2c98",
+    "etl_20260910_110704_7a13683d",
+    "etl_20260910_110713_eb969743",
+    "etl_20260910_110722_5b0c5f1b",
+    "etl_20260910_110742_5c940dfc",
+    "etl_20260910_110807_6c83a442",
+    "etl_20260910_110823_a2cf434d",
+    "etl_20260910_110830_16abc487",
+    "etl_20260910_110841_43c15f2b",
+    "etl_20260910_110846_bb21f449",
+    "etl_20260910_110851_c81a75f7",
+    "etl_20260910_111024_cd3fd30b",
+    "etl_20260910_111024_d58d8d23",
+    "etl_20260910_111024_c77b74eb",
+    "etl_20260910_111024_51add961",
+    "etl_20260910_111025_1a95d0ac",
+    "etl_20260910_111025_f9c081c5",
+    "etl_20260910_111025_3c8b07c9",
+    "etl_20260910_111026_f87c8425",
+    "etl_20260910_111026_c4aeaafd",
+    "etl_20260910_111027_056596e5",
+    "etl_20260910_111027_c0c85035",
+    "etl_20260910_111027_3659cbd6",
+    "etl_20260910_111028_ba08f8dc",
+    "etl_20260910_111028_6c2e5609",
+    "etl_20260910_111029_292f0d23",
+    "etl_20260910_111029_51836b80",
+    "etl_20260910_111030_33bb0a0e",
+    "etl_20260910_111030_87cc24b2",
+    "etl_20260910_111031_aa7fb639",
+    "etl_20260910_111031_606c4ffe",
+    "etl_20260910_111032_f42759ed",
+    "etl_20260910_111032_f4af53be",
+    "etl_20260910_111033_5729bdeb",
+    "etl_20260910_111033_0234a634",
+    "etl_20260910_111034_03c8e081",
+    "etl_20260910_111034_9d0b3e2c",
+    "etl_20260910_111035_256371f7",
+    "etl_20260910_111036_1ea40163",
+    "etl_20260910_111036_6ec7cbce",
+    "etl_20260910_111037_fa0bfb7a",
+    "etl_20260910_111037_ec145dbd",
+    "etl_20260910_111241_20ef4ad4"
+  ],
+  "metric_run_id": "metric_20260910_160914_5a3ec588"
+}
