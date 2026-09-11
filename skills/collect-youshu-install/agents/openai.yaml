@@ -1,0 +1,3 @@
+interface:
+  display_name: "有数企宽新装清单取数"
+  short_description: "分日期和地市采集企宽新装单"

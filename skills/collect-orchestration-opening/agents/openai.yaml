@@ -1,0 +1,3 @@
+interface:
+  display_name: "编排专线开通情况取数"
+  short_description: "按订单结束时间采集专线开通工单"

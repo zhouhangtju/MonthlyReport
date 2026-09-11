@@ -194,7 +194,7 @@ def normalize_month(month_str=None):
     start_date = f"{export_month}-01"
 
     # 数据源存在约 6 天延迟：例如导出 2026-07 时，实际查询区间为
-    # 2026-07-01 00:00:00 至 2026-08-06 23:59:59。
+    # 2026-07-01 00:00:00 至 2026-08-03 23:59:59。
     if month_date.month == 12:
         next_month_year = month_date.year + 1
         next_month = 1

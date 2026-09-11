@@ -1,0 +1,3 @@
+interface:
+  display_name: "EOMS政企投诉工单取数"
+  short_description: "采集并补齐EOMS政企投诉工单"

@@ -12,7 +12,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
 from storage.terminal_recovery import REPORT_SHEETS, SOURCE_FILES, restore_sources, save_source
-from metrics.terminal_recovery import terminal_recovery_export as metrics
+from metrics.terminal_recovery import terminal_recovery_export_online as metrics
 from metrics.terminal_recovery.report import read_report
 from metrics.installation.common import save_metric
 

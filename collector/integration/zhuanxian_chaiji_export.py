@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-从原凭证文件读取 res/work 模块 token，按月份导出售中工单。
+复用物资脚本的一体化自动登录获取 token，按月份导出售中工单。
 
 筛选口径：工单结束时间、拆除、结束类状态、二编。
 
 示例：
-    python dfe4c07b-7b62-4096-8118-7e8e99d5d597.py --date 2026-08
+    python collector/integration/zhuanxian_chaiji_export.py --start-date 2026-08-01 --end-date 2026-08-31
 """
 
 import argparse
@@ -21,6 +21,7 @@ from collections import Counter
 from datetime import date
 
 from config.datasets import get_dataset
+from collector.integration import integration_dismantle as integration_auth
 from storage.importer import file_sha256, import_file, iter_rows, row_payload
 from storage.terminal_recovery import has_source_coverage, save_source
 
@@ -34,11 +35,6 @@ import pandas as pd
 import requests
 
 
-# 原代码的 token 读取逻辑（保持不变）
-CREDS_FILE = (
-    r"C:\Users\Administrator\.openclaw\workspace-zongdiaoxia"
-    r"\credentials\zhengqi_yitihua.json"
-)
 BASE_DIR = r"D:\edge_download"
 API_URL = (
     "http://188.105.165.237:18083"
@@ -47,12 +43,15 @@ API_URL = (
 
 
 def load_token():
-    with open(CREDS_FILE, encoding="utf-8") as f:
-        all_creds = json.load(f)
-    for key in ["9051_res_work", "9051"]:
-        if key in all_creds:
-            return all_creds[key]["zytoken"], all_creds[key].get("accountId", "?")
-    return list(all_creds.values())[0]["zytoken"], "?"
+    """与物资取数使用相同的登录、Token 提取和凭据保存流程。"""
+    account = integration_auth.DEFAULT_ACCOUNT
+    with requests.Session() as session:
+        session.verify = False
+        session.headers.update({"User-Agent": "Mozilla/5.0", "Origin": integration_auth.CAS})
+        session = integration_auth.login(session, account, integration_auth.DEFAULT_PASSWORD)
+        token = integration_auth.extract_token(session)
+        integration_auth.update_cred_json(account, token)
+    return token, account
 
 
 def build_headers(token):

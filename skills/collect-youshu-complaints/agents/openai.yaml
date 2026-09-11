@@ -1,0 +1,3 @@
+interface:
+  display_name: "有数企宽投诉清单取数"
+  short_description: "按日期分批采集企宽投诉单"

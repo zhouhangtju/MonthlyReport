@@ -1,0 +1,3 @@
+interface:
+  display_name: "商客新装报障率计算"
+  short_description: "合并企宽和专线分子分母计算"

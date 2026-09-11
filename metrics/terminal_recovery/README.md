@@ -3,7 +3,7 @@
 终端回收与项目其他指标使用相同的分工：collector 取数入库，metrics 从 SQLite 算数，mode 控制结果输出。
 
 三个取数脚本各自包含命令行参数、日期校验、下载目录管理、已取数判断和导入行主键生成逻辑，不再依赖 `collector/terminal_recovery.py`。这些规则调整时需同步维护三处；入库仍调用公共 `storage/importer.py` 和 `storage/terminal_recovery.py`。metrics 使用自身的日期校验。
-为保留原 Excel 算法及重复明细，算数仍使用数据库源快照恢复的临时 Excel；不改变业务规则。
+算数使用数据库源快照恢复的临时 Excel。正式入口为 `terminal_recovery_export_online.py`；关联单据号在筛选后的候选记录中去重，保留源表第一次出现的记录，不再应用人工指定的保留规则。
 
 ## 模式
 
@@ -33,16 +33,16 @@ $database = "D:/MonthlyReport/data/quality_assessment.db"
 py -3.10 collector/integration/zhuanxian_chaiji_export.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database $database
 py -3.10 collector/eoms/eoms_export_qiwan_auto_login.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database $database
 py -3.10 collector/integration/integration_dismantle.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database $database
-py -3.10 metrics/terminal_recovery/terminal_recovery_export.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database $database
+py -3.10 metrics/terminal_recovery/terminal_recovery_export_online.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database $database
 ```
 
 - 同一批次使用同一数据库和同一起止日期，日期必须在同一个月。
-- 终端出库、入库按原延迟取数规则查询统计月月初至次月 6 日（含当天）；例如参数为 2026-08-01 至 2026-08-31 时，实际查询到 2026-09-06 23:59:59。文件名及数据库所属周期仍为 8 月，其他 collector 的查询日期不变。升级前已取过同周期数据的，需加 `--refresh` 重新下载后再算数。
+- 终端出库、入库查询统计月月初至次月 3 日（含当天）；例如参数为 2026-08-01 至 2026-08-31 时，实际查询到 2026-09-03 23:59:59。文件名及数据库所属周期仍为 8 月，其他 collector 的查询日期不变。升级前已取过同周期数据的，需加 `--refresh` 重新下载后再算数。
 - collector 默认下载目录是 `D:\edge_download`，可通过 `--output-dir` 指定。
 - database/both 已存在完整、日期完全匹配的源快照时，collector 自动跳过取数；both 还要求对应本地文件存在。
 - `--refresh` 强制重新下载和入库。
 - `--reuse-existing` 跳过网络，直接从下载目录导入已有文件并补建快照，不删除已有文件；它优先于强制下载，不校验文件内实际日期。
-- 账号密码、原请求筛选条件和专线 Token 文件位置保持不变。
+- 账号密码和原请求筛选条件保持不变。专线拆机脚本复用物资脚本的自动登录获取新 Token，并保存至项目 `collector/credentials/zhengqi_yitihua.json`，不再读取旧 OpenClaw 工作区的凭据路径。
 - 物资 collector 同时导入物料名称映射表，优先使用指定下载目录的版本，否则采用模块自带版本。
 - metrics 不再接受 `--input-dir` 或 `--source`，统一使用 `--database`、`--mode`。
 - metrics 可用 `--output-dir` 指定本地输出目录，默认项目 `outputs`。
@@ -108,10 +108,10 @@ ORDER BY json_extract(dimension_value, '$.row_index');
 
 ## 本地验证
 
-2026-08 源快照在 `data/terminal_recovery_validation.db`，不是默认数据库。
+使用已经完成源数据入库的数据库运行线上版；以下默认数据库必须包含对应月份的源快照。
 ```powershell
-py -3.10 metrics/terminal_recovery/terminal_recovery_export.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database data/terminal_recovery_validation.db --output-dir outputs/terminal_recovery_aligned
+py -3.10 metrics/terminal_recovery/terminal_recovery_export_online.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database data/quality_assessment.db --output-dir outputs/terminal_recovery_online
 py -3.10 -m unittest discover -s tests -p 'test_terminal_recovery*.py' -v
 ```
 
-本次 2026-08 验证通过：完整 Excel 保留 11 个 sheet，JSON 只包含两个目标 sheet 的数据；SQLite 写入 197 条对应指标（含总计项）。逐项比对 Excel、JSON、数据库一致，Excel 工作表和样式与调整前一致。旧整份 Excel 表及旧分表没有新增记录。17 项终端回收测试通过，包括三种模式、自动跳过和强制刷新。
+删除复现版脚本不会删除或更新数据库中的历史结果。部署后应运行线上版生成新的结果批次，再生成 PPT；仅生成 PPT 仍会使用数据库里已有的结果。

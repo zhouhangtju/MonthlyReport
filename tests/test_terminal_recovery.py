@@ -10,7 +10,7 @@ from openpyxl import Workbook
 from collector.eoms import eoms_export_qiwan_auto_login as eoms
 from collector.integration import integration_dismantle as materials
 from collector.integration import zhuanxian_chaiji_export as lines
-from metrics.terminal_recovery.terminal_recovery_export import export, validate_dates
+from metrics.terminal_recovery.terminal_recovery_export_online import export, validate_dates, unique_rows_by_order
 
 
 class TerminalRecoveryTest(unittest.TestCase):
@@ -66,11 +66,49 @@ class TerminalRecoveryTest(unittest.TestCase):
                 self.assertTrue(download.call_args.args[0].startswith("2026-08-01"))
                 self.assertTrue(download.call_args.args[1].startswith("2026-08-31"))
 
-    def test_material_downloads_extend_to_next_month_sixth(self):
+    def test_online_dedup_keeps_first_filtered_occurrence(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["关联单据号", "物料编码"])
+        ws.append(["ZJ-SOC-17-01-260817-1293524", "first"])
+        ws.append(["other-order", "other"])
+        ws.append(["ZJ-SOC-17-01-260817-1293524", "13652"])
+        self.assertEqual(unique_rows_by_order(ws, [2, 3, 4], 1), [2, 3])
+        self.assertEqual(unique_rows_by_order(ws, [3, 4], 1), [3, 4])
+        wb.close()
+
+    def test_line_token_uses_material_auto_login(self):
+        with patch.object(lines.requests, "Session") as session_factory, \
+                patch.object(materials, "DEFAULT_ACCOUNT", "test-account"), \
+                patch.object(materials, "DEFAULT_PASSWORD", "test-password"), \
+                patch.object(materials, "login") as login, \
+                patch.object(materials, "extract_token", return_value="fresh-token") as extract, \
+                patch.object(materials, "update_cred_json") as save:
+            token, account = lines.load_token()
+            session = session_factory.return_value.__enter__.return_value
+            login.assert_called_once_with(session, "test-account", "test-password")
+            extract.assert_called_once_with(login.return_value)
+            save.assert_called_once_with("test-account", "fresh-token")
+            self.assertEqual((token, account), ("fresh-token", "test-account"))
+            session_factory.return_value.__exit__.assert_called_once()
+
+    def test_line_login_failure_stops_download_and_import(self):
+        with patch.object(materials, "login", side_effect=RuntimeError("login failed")), \
+                patch.object(materials, "update_cred_json") as save, \
+                patch.object(lines, "export_order_data") as download, \
+                patch.object(lines, "finish_exports") as finish:
+            with self.assertRaisesRegex(RuntimeError, "login failed"):
+                lines.collect("2026-08-01", "2026-08-31", database=self.database,
+                              output_dir=self.root, refresh=True)
+            save.assert_not_called()
+            download.assert_not_called()
+            finish.assert_not_called()
+
+    def test_material_downloads_extend_to_next_month_third(self):
         for start, end, query_end in [
-            ("2026-08-01", "2026-08-31", "2026-09-06"),
-            ("2026-12-01", "2026-12-31", "2027-01-06"),
-            ("2028-02-01", "2028-02-29", "2028-03-06"),
+            ("2026-08-01", "2026-08-31", "2026-09-03"),
+            ("2026-12-01", "2026-12-31", "2027-01-03"),
+            ("2028-02-01", "2028-02-29", "2028-03-03"),
         ]:
             with self.subTest(start=start), ExitStack() as stack:
                 stack.enter_context(patch.object(materials, "login"))

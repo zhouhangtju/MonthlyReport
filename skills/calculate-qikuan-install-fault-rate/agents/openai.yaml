@@ -1,0 +1,3 @@
+interface:
+  display_name: "企宽新装报障率计算"
+  short_description: "匹配企宽新装与投诉计算报障率"

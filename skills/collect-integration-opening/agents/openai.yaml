@@ -1,0 +1,3 @@
+interface:
+  display_name: "一体化售中开通工单取数"
+  short_description: "采集撤退单率所需的售中开通工单"

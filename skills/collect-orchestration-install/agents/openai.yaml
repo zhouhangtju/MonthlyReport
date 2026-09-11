@@ -1,0 +1,3 @@
+interface:
+  display_name: "编排互联网专线新装取数"
+  short_description: "按派单时间采集互联网专线新装单"

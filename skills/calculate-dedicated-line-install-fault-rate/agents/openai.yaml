@@ -1,0 +1,3 @@
+interface:
+  display_name: "专线新装报障率计算"
+  short_description: "匹配专线新装与EOMS投诉计算报障率"

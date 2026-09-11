@@ -1,0 +1,3 @@
+interface:
+  display_name: "千里眼重复投诉率计算"
+  short_description: "按24小时规则计算千里眼重复投诉率"
