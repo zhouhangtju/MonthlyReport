@@ -1,0 +1,4 @@
+interface:
+  display_name: "生成月报 PPT"
+  short_description: "从落库指标生成完整或分章节月报PPT并核对审计"
+  default_prompt: "使用 $generate-monthly-report-ppt 根据月报月份和指标数据库生成月报 PPT，并检查审计与版式。"
