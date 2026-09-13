@@ -155,6 +155,34 @@ def load_rows(
     return rows, [row["run_id"] for row in runs]
 
 
+def load_monthly_summaries(
+    database: Path,
+    first_month: str,
+    last_month: str,
+) -> list[dict[str, object]]:
+    """读取可替代已清理订单明细的基础月度指标。"""
+    initialize(database)
+    with connect(database) as connection:
+        records = connection.execute(
+            """SELECT metric_code, dimension_type, dimension_value,
+                      numerator, denominator, metric_value
+               FROM orch_opening_monthly_summary
+               WHERE metric_version=? AND month>=? AND month<=?""",
+            (METRIC_VERSION, first_month, last_month),
+        ).fetchall()
+    return [
+        {
+            "metric_code": row["metric_code"],
+            "dimension_type": row["dimension_type"],
+            "dimension": json.loads(row["dimension_value"]),
+            "numerator": row["numerator"],
+            "denominator": row["denominator"],
+            "metric_value": row["metric_value"],
+        }
+        for row in records
+    ]
+
+
 def order_count(rows: Iterable[dict[str, object]]) -> int:
     keys, empty = set(), 0
     for row in rows:
@@ -346,25 +374,54 @@ def comparison_results(results: list[dict[str, object]], current: str) -> list[d
     return output
 
 
-def calculate(rows: list[dict[str, object]], start_month: str, end_month: str) -> dict[str, object]:
+def _result_key(item: dict[str, object]) -> tuple[str, str, str]:
+    return (
+        str(item["metric_code"]),
+        str(item["dimension_type"]),
+        json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True),
+    )
+
+
+def calculate(
+    rows: list[dict[str, object]],
+    start_month: str,
+    end_month: str,
+    monthly_summaries: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
     trend_months = month_range(start_month, end_month)
     required = sorted(set(trend_months + [shift_month(end_month, -1), shift_month(end_month, -12)] + [shift_month(end_month, offset) for offset in range(-11, 1)]))
     index, missing_month_rows = build_index(rows)
     volumes = volume_results(index, required)
-    results = volumes + current_distribution(index, end_month) + automation_results(index, end_month)
-    results += comparison_results(volumes, end_month)
-
-    internet_month_counts = {
-        item["dimension"]["month"]: int(item["numerator"])
-        for item in volumes
-        if item["metric_code"] == "internet_opening_orders" and item["dimension_type"] == "month"
-    }
-    other_total = 0
+    base_results = volumes + current_distribution(index, end_month) + automation_results(index, end_month)
     for month in [shift_month(end_month, offset) for offset in range(-11, 1)]:
         source = group_rows(index, month, BUSINESS_TYPE)
         count = len(source) - sum(1 for row in source if text(row.get("产品名称")) == "悦享专线动态IP版") - sum(1 for row in source if text(row.get("产品名称")) == "互联网专线套餐")
-        other_total += count
-        results.append(result("other_internet_opening_orders", "month", {"month": month}, count))
+        base_results.append(result("other_internet_opening_orders", "month", {"month": month}, count))
+
+    # 有订单明细的月份以明细重算为准；没有明细的月份由永久月度快照补齐。
+    detail_months = {month for row in rows if (month := row_month(row)) is not None}
+    merged = {_result_key(item): item for item in base_results}
+    for item in monthly_summaries or []:
+        month = item.get("dimension", {}).get("month")
+        if month and month not in detail_months:
+            merged[_result_key(item)] = item
+    base_results = list(merged.values())
+
+    merged_volumes = [
+        item for item in base_results
+        if item["metric_code"] in {
+            "internet_opening_orders", "mpls_opening_orders", "transmission_opening_orders"
+        }
+        and item["dimension_type"] in {"month", "month_product"}
+    ]
+    results = base_results + comparison_results(merged_volumes, end_month)
+    other_total = sum(
+        int(item["numerator"])
+        for item in base_results
+        if item["metric_code"] == "other_internet_opening_orders"
+        and item["dimension_type"] == "month"
+        and item["dimension"].get("month") in {shift_month(end_month, offset) for offset in range(-11, 1)}
+    )
     results.append(result("other_internet_average_monthly_orders", "rolling_12_months", {"end_month": end_month}, other_total, 12))
 
     return {
@@ -372,7 +429,12 @@ def calculate(rows: list[dict[str, object]], start_month: str, end_month: str) -
         "metric_version": METRIC_VERSION,
         "start_month": start_month,
         "end_month": end_month,
-        "quality": {"database_rows": len(rows), "rows_missing_order_month": missing_month_rows},
+        "quality": {
+            "database_rows": len(rows),
+            "snapshot_database_rows": sum(1 for row in rows if row_month(row) == end_month),
+            "rows_missing_order_month": missing_month_rows,
+            "detail_months": sorted(detail_months),
+        },
         "results": results,
     }
 
@@ -542,6 +604,53 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
                     for item in report["results"]
                 ],
             )
+            snapshot_month = str(report["end_month"])
+            snapshot_rows = [
+                item for item in report["results"]
+                if item.get("dimension", {}).get("month") == snapshot_month
+                and not str(item["metric_code"]).endswith(("_mom", "_yoy"))
+                and item["dimension_type"] != "month_comparison"
+            ]
+            has_snapshot_detail = snapshot_month in report["quality"].get("detail_months", [])
+            connection.executemany(
+                """INSERT INTO orch_opening_monthly_summary (
+                       month, metric_version, metric_code, dimension_type,
+                       dimension_value, numerator, denominator, metric_value,
+                       source_metric_run_id, updated_at
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(month, metric_version, metric_code, dimension_type, dimension_value)
+                   DO UPDATE SET numerator=excluded.numerator,
+                       denominator=excluded.denominator, metric_value=excluded.metric_value,
+                       source_metric_run_id=excluded.source_metric_run_id,
+                       updated_at=excluded.updated_at""",
+                [
+                    (
+                        snapshot_month, METRIC_VERSION, item["metric_code"],
+                        item["dimension_type"],
+                        json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True),
+                        item["numerator"], item["denominator"], item["metric_value"],
+                        run_id, now,
+                    )
+                    for item in snapshot_rows if has_snapshot_detail
+                ],
+            )
+            quality = report["quality"]
+            if has_snapshot_detail:
+                connection.execute(
+                """INSERT INTO orch_opening_monthly_quality (
+                       month, metric_version, database_rows, rows_missing_order_month,
+                       source_metric_run_id, updated_at
+                   ) VALUES (?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(month, metric_version) DO UPDATE SET
+                       database_rows=excluded.database_rows,
+                       rows_missing_order_month=excluded.rows_missing_order_month,
+                       source_metric_run_id=excluded.source_metric_run_id,
+                       updated_at=excluded.updated_at""",
+                    (
+                        snapshot_month, METRIC_VERSION, quality["snapshot_database_rows"],
+                        quality["rows_missing_order_month"], run_id, now,
+                    ),
+                )
             connection.execute(
                 "UPDATE metric_run SET finished_at=?, status='success' WHERE metric_run_id=?",
                 (datetime.now(timezone.utc).isoformat(timespec="seconds"), run_id),
@@ -567,10 +676,11 @@ def run(database: Path, start_month: str, end_month: str, *, mode: str = "both",
         + [shift_month(end_month, offset) for offset in range(-11, 1)]
     ))
     rows, source_runs = load_rows(database, required_months[0], required_months[-1])
-    if not source_runs:
-        raise RuntimeError("数据库中没有编排专线开通情况的成功取数批次")
+    summaries = load_monthly_summaries(database, required_months[0], required_months[-1])
+    if not source_runs and not summaries:
+        raise RuntimeError("数据库中没有编排专线开通情况的成功取数批次或月度汇总")
     log("正在单次遍历建立指标分组并计算…")
-    report = calculate(rows, start_month, end_month)
+    report = calculate(rows, start_month, end_month, summaries)
     log(f"指标计算完成，共 {len(report['results'])} 条结果")
     print_report(report)
     report["source_runs"] = source_runs

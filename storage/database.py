@@ -99,6 +99,40 @@ CREATE TABLE IF NOT EXISTS ads_metric_detail (
 
 CREATE INDEX IF NOT EXISTS idx_ads_metric_detail_run_role
 ON ads_metric_detail(metric_run_id, metric_code, detail_role);
+
+CREATE TABLE IF NOT EXISTS orch_opening_monthly_summary (
+    month TEXT NOT NULL,
+    metric_version TEXT NOT NULL,
+    metric_code TEXT NOT NULL,
+    dimension_type TEXT NOT NULL,
+    dimension_value TEXT NOT NULL,
+    numerator REAL,
+    denominator REAL,
+    metric_value REAL,
+    source_metric_run_id TEXT NOT NULL REFERENCES metric_run(metric_run_id),
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (month, metric_version, metric_code, dimension_type, dimension_value)
+);
+
+CREATE TABLE IF NOT EXISTS orch_opening_monthly_quality (
+    month TEXT NOT NULL,
+    metric_version TEXT NOT NULL,
+    database_rows INTEGER NOT NULL,
+    rows_missing_order_month INTEGER NOT NULL,
+    source_metric_run_id TEXT NOT NULL REFERENCES metric_run(metric_run_id),
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (month, metric_version)
+);
+
+CREATE TABLE IF NOT EXISTS data_retention_purge (
+    purge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dataset_code TEXT NOT NULL,
+    period_start TEXT NOT NULL,
+    period_end TEXT NOT NULL,
+    purged_at TEXT NOT NULL,
+    archive_file TEXT NOT NULL,
+    rows_purged INTEGER NOT NULL
+);
 """
 
 
@@ -171,7 +205,14 @@ def has_successful_coverage(
                      AND period_start IS NOT NULL
                      AND period_end IS NOT NULL
                      AND period_end >= ?
-                     AND period_start <= ?""",
+                     AND period_start <= ?
+                     AND NOT EXISTS (
+                         SELECT 1 FROM data_retention_purge p
+                         WHERE p.dataset_code = etl_run.dataset_code
+                           AND etl_run.started_at <= p.purged_at
+                           AND etl_run.period_end >= p.period_start
+                           AND etl_run.period_start <= p.period_end
+                     )""",
                 (dataset_code, period_start, period_end),
             ).fetchall()
     except sqlite3.OperationalError:

@@ -150,3 +150,42 @@ CREATE TABLE IF NOT EXISTS ads_metric_detail (
 
 CREATE INDEX IF NOT EXISTS idx_ads_metric_detail_run_role
 ON ads_metric_detail(metric_run_id, metric_code, detail_role);
+
+-- 编排开通月度快照：明细清理后，趋势、同比和环比继续使用这些基础指标。
+CREATE TABLE IF NOT EXISTS orch_opening_monthly_summary (
+    month TEXT NOT NULL,
+    metric_version TEXT NOT NULL,
+    metric_code TEXT NOT NULL,
+    dimension_type TEXT NOT NULL,
+    dimension_value TEXT NOT NULL,
+    numerator REAL,
+    denominator REAL,
+    metric_value REAL,
+    source_metric_run_id TEXT NOT NULL REFERENCES metric_run(metric_run_id),
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (month, metric_version, metric_code, dimension_type, dimension_value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_orch_opening_monthly_summary_month
+ON orch_opening_monthly_summary(month, metric_version);
+
+CREATE TABLE IF NOT EXISTS orch_opening_monthly_quality (
+    month TEXT NOT NULL,
+    metric_version TEXT NOT NULL,
+    database_rows INTEGER NOT NULL,
+    rows_missing_order_month INTEGER NOT NULL,
+    source_metric_run_id TEXT NOT NULL REFERENCES metric_run(metric_run_id),
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (month, metric_version)
+);
+
+-- 记录已经清除明细的周期。覆盖检查会忽略清理前的 ETL 批次，避免误跳过重取。
+CREATE TABLE IF NOT EXISTS data_retention_purge (
+    purge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dataset_code TEXT NOT NULL,
+    period_start TEXT NOT NULL,
+    period_end TEXT NOT NULL,
+    purged_at TEXT NOT NULL,
+    archive_file TEXT NOT NULL,
+    rows_purged INTEGER NOT NULL
+);

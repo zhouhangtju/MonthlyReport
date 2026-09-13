@@ -4,7 +4,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from metrics.opening.dedicated_line_metrics import calculate, save_results
+from metrics.opening.dedicated_line_metrics import (
+    calculate,
+    load_monthly_summaries,
+    save_results,
+)
 from storage.database import connect
 
 
@@ -90,6 +94,25 @@ class DedicatedLineMetricsTest(unittest.TestCase):
                 count = connection.execute("SELECT COUNT(*) AS value FROM ads_metric_result WHERE metric_run_id=?", (run_id,)).fetchone()["value"]
             self.assertEqual(run["status"], "success")
             self.assertEqual(count, len(report["results"]))
+
+    def test_monthly_summary_replaces_deleted_historical_detail(self):
+        historical = calculate([opening("OLD", "2025-08")], "2025-08", "2025-08")
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "quality.db"
+            save_results(database, historical, ["etl_old"])
+            summaries = load_monthly_summaries(database, "2025-08", "2025-08")
+            report = calculate(
+                [opening("NOW", "2026-08")],
+                "2026-08",
+                "2026-08",
+                summaries,
+            )
+            yoy = next(
+                item for item in report["results"]
+                if item["metric_code"] == "internet_opening_orders_yoy"
+            )
+            self.assertEqual(yoy["denominator"], 1)
+            self.assertEqual(yoy["metric_value"], 0)
 
 
 if __name__ == "__main__":

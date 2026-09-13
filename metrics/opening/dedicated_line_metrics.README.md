@@ -59,3 +59,31 @@ python3 metrics/opening/dedicated_line_metrics.py \
 - JSON：文件模式下的审计结果。
 
 历史口径来源为 `stat_internet_line_metrics.py`，运行时不引用该文件。
+# 月度汇总与明细保留
+
+每次以数据库模式成功计算时，程序会把 `end-month` 的基础指标写入
+`orch_opening_monthly_summary`，并把数据质量写入
+`orch_opening_monthly_quality`。历史订单明细删除后，趋势、同比、环比和
+12 个月均值会自动用这些月度汇总补齐；存在明细的月份始终以明细重算为准。
+
+建议逐月取数并逐月执行指标计算。确认需要保留的月份均已生成汇总后，可先预览：
+
+```bash
+python3 storage/prune_orchestration_opening.py \
+  --database data/quality_assessment.db \
+  --before-month 2026-07
+```
+
+确认预览中的 `missing_summary_months` 为空后，再实际归档清理：
+
+```bash
+python3 storage/prune_orchestration_opening.py \
+  --database data/quality_assessment.db \
+  --before-month 2026-07 \
+  --apply
+```
+
+清理程序先将订单当前值和历史版本写入 `data/archive/orch_opening/*.jsonl.gz`，
+然后删除对应的 ODS、raw 和版本明细，记录清理周期并执行 `VACUUM`。它不会删除
+原始 Excel。`before-month` 为保留边界，例如 `2026-07` 表示删除 2026 年 7 月前
+的数据库明细。

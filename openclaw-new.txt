@@ -1,0 +1,15 @@
+python -m venv .venv
+./.venv/Scripts/python.exe -m pip install -r requirements.txt
+
+npm install --prefix reporting pptxgenjs
+
+openclaw agents add monthly-report \
+  --workspace D:/dev-projects/quality-assessment-pipeline \
+  --non-interactive
+
+openclaw agents set-identity \
+  --agent monthly-report \
+  --name monthly-report \
+  --emoji "📊"
+
+openclaw agents list

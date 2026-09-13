@@ -39,6 +39,8 @@ description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX
 
 缺失、空值或非有限数会被程序填为 0，而不是让构建失败，并记录到审计文件。生成前后都要核对指标批次；不得仅凭 PPTX 文件存在就宣称数据完整。
 
+如果缺少目标月的 `orchestration_opening_metrics`，或需要首次补齐其 12 个月趋势与同比基期，先使用 `prepare-orchestration-opening-monthly` 按月取数和汇总，再返回本技能生成 PPT。不要为方便而一次拉取 13 个月编排开通明细。是否清理过期明细取决于用户已明确的保留策略，生成 PPT 本身不授权删除数据。
+
 ## 运行前检查
 
 1. 在包含 `pyproject.toml`、`reporting` 和 `data` 的项目根目录执行。
