@@ -44,10 +44,18 @@ class MonthlyReportTest(unittest.TestCase):
     def test_opening_history_uses_month_dimension(self):
         self.seed('orchestration_opening_metrics', '2025-08-01', '2026-08-31', 'internet_opening_orders', 'month', {'month': '2026-08'}, 123)
         self.seed('orchestration_opening_metrics', '2025-08-01', '2026-08-31', 'internet_opening_orders', 'month', {'month': '2026-07'}, 456)
+        self.seed('orchestration_opening_metrics', '2025-08-01', '2026-08-31', 'internet_product_average_monthly_orders', 'rolling_12_months', {'end_month': '2026-08', 'product': '悦享专线动态IP版'}, 100, run='one')
+        with sqlite3.connect(self.database) as conn:
+            conn.execute(
+                """UPDATE ads_metric_result SET numerator=1200, denominator=12
+                   WHERE metric_code='internet_product_average_monthly_orders'"""
+            )
         data = build_data(self.database, '2026-08')
         self.assertEqual(data['currentTotal'], 123)
         self.assertEqual(len(data['months']), 12)
         self.assertEqual(data['months'][-1], '26.08')
+        self.assertEqual(data['trendSummary']['悦享专线动态IP版']['sum'], 1200)
+        self.assertEqual(data['trendSummary']['悦享专线动态IP版']['average'], 100)
 
     def test_missing_results_are_zero_and_database_is_read_only(self):
         before = self.database.read_bytes()

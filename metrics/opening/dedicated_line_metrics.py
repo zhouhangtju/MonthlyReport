@@ -415,14 +415,31 @@ def calculate(
         and item["dimension_type"] in {"month", "month_product"}
     ]
     results = base_results + comparison_results(merged_volumes, end_month)
+    rolling_months = {shift_month(end_month, offset) for offset in range(-11, 1)}
     other_total = sum(
         int(item["numerator"])
         for item in base_results
         if item["metric_code"] == "other_internet_opening_orders"
         and item["dimension_type"] == "month"
-        and item["dimension"].get("month") in {shift_month(end_month, offset) for offset in range(-11, 1)}
+        and item["dimension"].get("month") in rolling_months
     )
     results.append(result("other_internet_average_monthly_orders", "rolling_12_months", {"end_month": end_month}, other_total, 12))
+    for product in KEY_PRODUCTS[:2]:
+        product_total = sum(
+            int(item["numerator"])
+            for item in base_results
+            if item["metric_code"] == "internet_opening_orders"
+            and item["dimension_type"] == "month_product"
+            and item["dimension"].get("month") in rolling_months
+            and item["dimension"].get("product") == product
+        )
+        results.append(result(
+            "internet_product_average_monthly_orders",
+            "rolling_12_months",
+            {"end_month": end_month, "product": product},
+            product_total,
+            12,
+        ))
 
     return {
         "metric_code": METRIC_CODE,

@@ -210,7 +210,13 @@ def build_data(database, month):
         "packageTrend": {"name": "互联网专线套餐", "values": [get("internet_opening_orders", "month_product", month=m, product=PRODUCTS[1]) for m in months]},
         "otherTrend": {"name": "互联网专线其他产品", "values": [get("other_internet_opening_orders", "month", month=m) for m in months]},
         "trendPeriodText": f"{months[0]}–{month}", "trendPeriodShort": f"{short_month(months[0])}–{short_month(month)}",
-        "trendSummary": {p: {"sum": db.unavailable(f"trendSummary.{p}.sum"), "average": db.unavailable(f"trendSummary.{p}.average")} for p in PRODUCTS[:2]},
+        "trendSummary": {
+            p: {
+                "sum": get("internet_product_average_monthly_orders", "rolling_12_months", "numerator", end_month=month, product=p),
+                "average": get("internet_product_average_monthly_orders", "rolling_12_months", end_month=month, product=p),
+            }
+            for p in PRODUCTS[:2]
+        },
         "otherTrendSummary": {"sum": get("other_internet_average_monthly_orders", "rolling_12_months", "numerator", end_month=month), "average": get("other_internet_average_monthly_orders", "rolling_12_months", end_month=month)},
         "mpls": line_group("mpls", ["地区内MPLSVPN套餐", "省内MPLSVPN套餐"]),
         "transmission": line_group("transmission", ["光纤出租套餐", "地区内数字电路出租套餐", "地区间精品电路", "地区内SPN电路出租", "地区间数字电路出租套餐", "地区内精品电路"]),
