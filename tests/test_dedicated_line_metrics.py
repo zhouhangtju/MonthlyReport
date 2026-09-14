@@ -62,6 +62,14 @@ class DedicatedLineMetricsTest(unittest.TestCase):
         self.assertEqual(stage["numerator"], 1)
         self.assertEqual(stage["denominator"], 2)
         self.assertEqual(stage["metric_value"], 0.5)
+        package_summary = next(
+            item for item in results
+            if item["metric_code"] == "internet_product_average_monthly_orders"
+            and item["dimension"].get("product") == "互联网专线套餐"
+        )
+        self.assertEqual(package_summary["numerator"], 3)
+        self.assertEqual(package_summary["denominator"], 12)
+        self.assertAlmostEqual(package_summary["metric_value"], 3 / 12)
 
     def test_product_yoy_and_city_totals_match_workbook_dimensions(self):
         current_mpls = opening("M1", "2026-08", product="地区内MPLSVPN套餐", city="宁波市")
