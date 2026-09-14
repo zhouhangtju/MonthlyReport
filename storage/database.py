@@ -256,7 +256,14 @@ def has_collection_coverage(
                    WHERE dataset_code = ? AND status = 'success'
                      AND imported_files = produced_files
                      AND produced_files > 0
-                     AND period_end >= ? AND period_start <= ?""",
+                     AND period_end >= ? AND period_start <= ?
+                     AND NOT EXISTS (
+                         SELECT 1 FROM data_retention_purge p
+                         WHERE p.dataset_code=collection_run.dataset_code
+                           AND collection_run.started_at <= p.purged_at
+                           AND collection_run.period_end >= p.period_start
+                           AND collection_run.period_start <= p.period_end
+                     )""",
                 (dataset_code, period_start, period_end),
             ).fetchall()
     except sqlite3.OperationalError:

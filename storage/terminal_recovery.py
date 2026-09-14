@@ -75,6 +75,8 @@ def save_source(database, code, source, start, end, etl_run_id):
     source = Path(source)
     content = source.read_bytes()
     snapshot_id = uuid.uuid4().hex
+    from storage.raw_archive import archive_source
+    archive_source(source, database, code, start, end, etl_run_id, role="original")
     wb = load_workbook(BytesIO(content), read_only=True, data_only=False)
     try:
         ws = wb.active

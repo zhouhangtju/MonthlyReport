@@ -28,6 +28,7 @@ if __name__ == "__main__":
         None if args.no_archive else args.archive_root,
         args.period_start,
         args.period_end,
+        keep_local_source=not args.no_archive,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

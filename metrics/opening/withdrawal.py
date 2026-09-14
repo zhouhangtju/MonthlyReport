@@ -43,6 +43,8 @@ def parse_time(value: object) -> datetime | None:
 def load_rows(database: Path) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
+        from storage.source_guard import require_source_history
+        require_source_history(connection, database, DATASET_CODE)
         records = connection.execute(
             """SELECT source_record_id, source_data FROM raw_source_record
                WHERE dataset_code=?""",

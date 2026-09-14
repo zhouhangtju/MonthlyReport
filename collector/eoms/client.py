@@ -137,6 +137,9 @@ def collect(
     try:
         path = run_crawl(start, end, target, page_size=page_size, python=python)
         etl = None
+        if mode == "file":
+            from storage.raw_archive import archive_download
+            archive_download(path, database, DATASET_CODE, start, end)
         if mode in {"database", "both"}:
             etl = import_file(
                 database,

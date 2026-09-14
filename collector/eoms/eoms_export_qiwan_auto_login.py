@@ -489,6 +489,8 @@ def _finish_exports(files, start_date, end_date, mode, database, staging_dir):
         if mode != "database":
             result["files"][code] = str(source)
         if mode == "file":
+            from storage.raw_archive import archive_download
+            archive_download(source, database, code, start_date, end_date)
             continue
         dataset = get_dataset(code)
         import_source = source

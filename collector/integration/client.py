@@ -213,6 +213,9 @@ def collect(
             start, end, target_dir, resolved_token, timeout=timeout, overwrite=refresh, session=session
         )
         etl = None
+        if mode == "file":
+            from storage.raw_archive import archive_download
+            archive_download(path, database, DATASET_CODE, start, end)
         if mode in {"database", "both"}:
             etl = import_file(
                 database,
