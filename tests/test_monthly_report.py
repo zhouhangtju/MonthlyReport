@@ -57,6 +57,18 @@ class MonthlyReportTest(unittest.TestCase):
         self.assertEqual(data['trendSummary']['悦享专线动态IP版']['sum'], 1200)
         self.assertEqual(data['trendSummary']['悦享专线动态IP版']['average'], 100)
 
+    def test_opening_trend_summary_falls_back_for_old_metric_run(self):
+        for index, month in enumerate(('2025-09', '2025-10', '2025-11', '2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08'), 1):
+            self.seed(
+                'orchestration_opening_metrics', '2025-08-01', '2026-08-31',
+                'internet_opening_orders', 'month_product',
+                {'month': month, 'product': '悦享专线动态IP版'}, index,
+            )
+        data = build_data(self.database, '2026-08')
+        self.assertEqual(data['trendSummary']['悦享专线动态IP版']['sum'], 78)
+        self.assertEqual(data['trendSummary']['悦享专线动态IP版']['average'], 6.5)
+        self.assertNotIn('trendSummary.悦享专线动态IP版.sum', data['dataAudit']['missing'])
+
     def test_missing_results_are_zero_and_database_is_read_only(self):
         before = self.database.read_bytes()
         data = build_data(self.database, '2026-08')

@@ -138,6 +138,27 @@ def build_data(database, month):
             result.update(cities=CITIES, activationRates=[count(f"internet_{action}_activation_rate", "month_city", city=c) for c in CITIES])
         return result
 
+    product_trends = {
+        product: [get("internet_opening_orders", "month_product", month=value, product=product) for value in months]
+        for product in PRODUCTS[:2]
+    }
+
+    def product_trend_summary(product):
+        stored = db.find(
+            opening,
+            "internet_product_average_monthly_orders",
+            "rolling_12_months",
+            end_month=month,
+            product=product,
+        )
+        if stored is not None:
+            return {
+                "sum": get("internet_product_average_monthly_orders", "rolling_12_months", "numerator", end_month=month, product=product),
+                "average": get("internet_product_average_monthly_orders", "rolling_12_months", end_month=month, product=product),
+            }
+        total = sum(product_trends[product])
+        return {"sum": total, "average": total / 12}
+
     owner = "terminal_recovery"
     def terminal(column, label, table="city_summary"):
         code = "terminal_recovery_rate" if column == "终端回收率" else "terminal_recovery_count"
@@ -206,17 +227,11 @@ def build_data(database, month):
         "keyProductYoy": {p: count("internet_product_opening_yoy", "month_product_comparison", product=p) for p in PRODUCTS[:3]},
         "province": [{"name": p, "label": label, "value": count("internet_opening_orders", "month_product", product=p)} for p, label in zip(PRODUCTS, PRODUCT_LABELS)],
         "cities": CITIES, "citySeries": [{"name": label.replace('\n', ''), "values": [count("internet_opening_orders", "month_city_product", city=c, product=p) for c in CITIES]} for p, label in zip(PRODUCTS, PRODUCT_LABELS)],
-        "months": [short_month(m) for m in months], "trendSeries": [{"name": p, "values": [get("internet_opening_orders", "month_product", month=m, product=p) for m in months]} for p in PRODUCTS[:2]],
+        "months": [short_month(m) for m in months], "trendSeries": [{"name": p, "values": product_trends[p]} for p in PRODUCTS[:2]],
         "packageTrend": {"name": "互联网专线套餐", "values": [get("internet_opening_orders", "month_product", month=m, product=PRODUCTS[1]) for m in months]},
         "otherTrend": {"name": "互联网专线其他产品", "values": [get("other_internet_opening_orders", "month", month=m) for m in months]},
         "trendPeriodText": f"{months[0]}–{month}", "trendPeriodShort": f"{short_month(months[0])}–{short_month(month)}",
-        "trendSummary": {
-            p: {
-                "sum": get("internet_product_average_monthly_orders", "rolling_12_months", "numerator", end_month=month, product=p),
-                "average": get("internet_product_average_monthly_orders", "rolling_12_months", end_month=month, product=p),
-            }
-            for p in PRODUCTS[:2]
-        },
+        "trendSummary": {p: product_trend_summary(p) for p in PRODUCTS[:2]},
         "otherTrendSummary": {"sum": get("other_internet_average_monthly_orders", "rolling_12_months", "numerator", end_month=month), "average": get("other_internet_average_monthly_orders", "rolling_12_months", end_month=month)},
         "mpls": line_group("mpls", ["地区内MPLSVPN套餐", "省内MPLSVPN套餐"]),
         "transmission": line_group("transmission", ["光纤出租套餐", "地区内数字电路出租套餐", "地区间精品电路", "地区内SPN电路出租", "地区间数字电路出租套餐", "地区内精品电路"]),
@@ -225,6 +240,6 @@ def build_data(database, month):
     }
     data["dataAudit"] = {"database": str(db.database), "period_start": db.start, "period_end": db.end,
                          "selected_batches": list(db.runs.values()), "used_results": list(db.used.values()), "missing": list(db.missing.values()),
-                         "derived_results": {"terminalRecovery.city.expectedTotal": "sum of the eleven stored city expected counts", "terminalRecovery.city.completedTotal": "sum of the eleven stored city completed counts", "terminalRecovery.city.rate": "completedTotal / expectedTotal; zero when denominator is zero"},
+                         "derived_results": {"terminalRecovery.city.expectedTotal": "sum of the eleven stored city expected counts", "terminalRecovery.city.completedTotal": "sum of the eleven stored city completed counts", "terminalRecovery.city.rate": "completedTotal / expectedTotal; zero when denominator is zero", "trendSummary": "stored rolling-12-month metric when available; otherwise sum and average of the twelve stored month_product results from the selected orchestration run"},
                          "policy": "Monthly results; support metrics prefer the exact month, falling back to the latest successful period ending on that month, with actual periods displayed. Orchestration history uses explicit month dimensions. Missing/null results are zero; no raw-data calculations."}
     return data
