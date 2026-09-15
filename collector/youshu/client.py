@@ -213,10 +213,6 @@ def collect(
             chunk_days=chunk_days, interval=interval, timeout=timeout,
             poll_timeout=poll_timeout, two_phase=two_phase, python=python,
         )
-        if mode == "file":
-            from storage.raw_archive import archive_download
-            for path in files:
-                archive_download(path, database, dataset_code, start, end)
         if mode in {"database", "both"}:
             for path in files:
                 etl_results.append(

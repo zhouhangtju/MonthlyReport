@@ -11,7 +11,7 @@ collector：
 | mode | 行为 |
 | --- | --- |
 | file | 只下载 Excel 到本地 |
-| database | 临时下载后将源数据、源快照写入 SQLite，保存本地原始归档后清理临时文件 |
+| database | 临时下载后将源数据、源快照写入 SQLite，清理临时文件 |
 | both | 本地 Excel 和 SQLite 都保留 |
 
 metrics 的三种模式全部从 SQLite 取源：
@@ -46,7 +46,7 @@ py -3.10 metrics/terminal_recovery/terminal_recovery_export_online.py --start-da
 - 物资 collector 同时导入物料名称映射表，优先使用指定下载目录的版本，否则采用模块自带版本。
 - metrics 不再接受 `--input-dir` 或 `--source`，统一使用 `--database`、`--mode`。
 - metrics 可用 `--output-dir` 指定本地输出目录，默认项目 `outputs`。
-- database 模式的临时下载和算数中间文件自动清理，但导入文件和原始工作簿现在按平台、数据集、周期和批次归档至数据库同级的 `raw` 目录。算数后可使用 `skills/cleanup-source-data/SKILL.md` 清理库内明细；详见 `metrics/cleanup/README.md`。该新版清理功能尚未测试。
+- 原始下载、辅助 CSV、算数中间 Excel 在 database 模式下使用临时目录并自动清理。
 
 ## 源数据
 

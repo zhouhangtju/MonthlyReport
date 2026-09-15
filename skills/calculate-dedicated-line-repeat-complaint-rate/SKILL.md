@@ -35,9 +35,3 @@ python3 metrics/complaint/dedicated_line_repeat_complaint_rate.py \
 - 默认文件为 `outputs/专线专网重复投诉率_起始日期_结束日期.json`。
 
 详细口径见 `metrics/complaint/dedicated_line_repeat_complaint_rate.README.md`。
-
-## 默认收尾：清理源数据
-
-完成上述验证且本次结果成功入库后，默认调用 `skills/cleanup-source-data/SKILL.md`，传递本次数据库绝对路径、实际周期、成功指标批次及源批次，并合并当前任务待清理范围。候选数据集：`eoms_complaint`。
-
-按清理 Skill 执行预览及通过后的 `--apply`，无需再次询问是否清理。共享源数据仍有未完成的依赖或当前任务计划中的后续消费者时，登记待清理并继续算数，在相关算数结束后再评估；不能为了清理额外扩大算数任务。用户要求保留明细、仅预览，或本次为 `file` 模式、算数失败/未入库时，不执行删除。验证明细必须在清理之前完成。

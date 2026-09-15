@@ -138,17 +138,14 @@ def import_file(
     archive_root: Path | None = None,
     period_start: str | None = None,
     period_end: str | None = None,
-    keep_local_source: bool = True,
 ) -> dict[str, object]:
     source_path = source_path.expanduser().resolve()
     if not source_path.is_file():
         raise FileNotFoundError(source_path)
     initialize(database_path)
     digest = file_sha256(source_path)
+    archived = archive_file(source_path, archive_root, dataset, digest) if archive_root else None
     run_id = f"etl_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
-    from storage.raw_archive import archive_source
-    archived = archive_source(source_path, database_path, dataset.code, period_start,
-                              period_end, run_id, root=archive_root) if keep_local_source else None
     started_at = utc_now()
     counts = {"read": 0, "inserted": 0, "updated": 0, "unchanged": 0, "failed": 0}
 

@@ -260,9 +260,6 @@ def collect(
                     period_start=batch_start,
                     period_end=batch_end,
                 )
-            if mode == "file":
-                from storage.raw_archive import archive_download
-                archive_download(path, database, export.code, batch_start, batch_end)
             results.append(item)
             if index < len(ranges) and interval:
                 time.sleep(interval)

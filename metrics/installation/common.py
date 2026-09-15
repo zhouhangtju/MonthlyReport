@@ -52,9 +52,6 @@ def period_bounds(start: str, end: str) -> tuple[datetime, datetime]:
 def load_dataset(database: Path, dataset_code: str) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
-        if dataset_code != "orch_opening":
-            from storage.source_guard import require_source_history
-            require_source_history(connection, database, dataset_code)
         if dataset_code == "orch_opening":
             records = connection.execute("SELECT order_no AS source_record_id, source_data FROM ods_orch_opening").fetchall()
         elif dataset_code == "orch_install":

@@ -49,9 +49,3 @@ py -3.11 metrics/terminal_recovery/terminal_recovery_export_online.py --start-da
 同月重复算数会生成新结果批次，不删除旧记录。由复现版切到线上版时必须真正执行本入口才能产生新结果，仅删除旧脚本或重新生成 PPT 不会改变历史结果。
 
 本 Skill 不自动生成 PPT；用户另行要求时再执行 reporting 流程。PPT 默认从已存储结果中选批次，不检查是哪个脚本生成，核对其选择的批次 ID。详细规则见 `metrics/terminal_recovery/README.md`。
-
-## 默认收尾：清理源数据
-
-完成上述验证且本次结果成功入库后，默认调用 `skills/cleanup-source-data/SKILL.md`，传递本次数据库绝对路径、实际周期、成功指标批次及源批次，并合并当前任务待清理范围。候选数据集：`eoms_service_removal_order`、`integration_removal_order`、`integration_terminal_inbound`、`integration_material_baseline`、`terminal_material_names`，以及本次实际采集的 `integration_terminal_outbound`。
-
-按清理 Skill 执行预览及通过后的 `--apply`，无需再次询问是否清理。共享源数据仍有未完成的依赖或当前任务计划中的后续消费者时，登记待清理并继续算数，在相关算数结束后再评估；不能为了清理额外扩大算数任务。用户要求保留明细、仅预览，或本次为 `file` 模式、算数失败/未入库时，不执行删除。验证明细必须在清理之前完成。

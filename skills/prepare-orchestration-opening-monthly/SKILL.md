@@ -5,7 +5,7 @@ description: 采用低占用方式按月准备编排专线开通月报数据，�
 
 # 按月准备编排开通数据
 
-在项目根目录完成“单月取数 → 单月汇总 → 验证 → 归档清理”。每个月汇总成功后只处理当月对应采集批次，不连带清理更早月份。清理默认委托 `cleanup-source-data` 技能，先预览，检查通过后自动执行，无需重复确认。若计算技能已完成同范围清理，核对记录后跳过重复执行。用户要求保留明细时禁用默认清理，使用独立取数和计算技能，不自行编写 SQL 删除。
+在项目根目录使用已有入口完成“单月取数 → 单月汇总 → 验证 → 归档清理”。本技能采用零个月数据库明细保留策略：每个月汇总验证成功后，默认立即归档并删除该月及更早的编排开通数据库明细。用户明确调用本技能即表示选择这套低占用流程；如果用户要求保留明细，停止使用本技能并改用独立的取数和计算技能。不要自行实现接口、日期切片、统计口径或 SQL 删除。
 
 ## 确定月份
 
@@ -57,28 +57,28 @@ python3 metrics/opening/dedicated_line_metrics.py \
 
 ### 3. 立即归档并清理当月明细
 
-使用平台清理入口，起止日期为当前月，不再使用旧 `before-month` 清理入口。先读取 `metrics/cleanup/README.md`，确认没有其他取数、算数任务正在进行。
+本技能默认在单月汇总验证成功后执行清理，不额外等待一次确认。`before-month` 使用当前处理月的下一个自然月，因此会清理当前月及更早明细。例如处理完 `2025-08` 后使用 `2025-09`；处理完 `2025-12` 后使用 `2026-01`。
+
+`before-month` 表示保留边界：删除该月份之前的数据库明细。例如 `2025-09` 会清理 2025-08 及更早数据，不会删除 2025-09。
 
 先预览：
 
 ```bash
-python3 metrics/cleanup/orchestration.py \
+python3 storage/prune_orchestration_opening.py \
   --database data/quality_assessment.db \
-  --dataset orch_opening \
-  --start-date 2025-08-01 --end-date 2025-08-31
+  --before-month 2025-09
 ```
 
-预览成功后核对 `blockers` 必须为空，批次及条数符合当前月份，且无后续步骤需要该月原始明细；按默认收尾流程执行：
+预览成功后核对 `missing_summary_months` 必须为空，且清理月份和行数符合当前已完成的月份；随后立即实际执行：
 
 ```bash
-python3 metrics/cleanup/orchestration.py \
+python3 storage/prune_orchestration_opening.py \
   --database data/quality_assessment.db \
-  --dataset orch_opening \
-  --start-date 2025-08-01 --end-date 2025-08-31 \
+  --before-month 2025-09 \
   --apply
 ```
 
-脚本先验证原始文件及月度汇总，将将要删除的明细写入 gzip 归档并校验，再事务清理 ODS、raw/版本及对应审计明细，保留指标和月度汇总。确认退出为0、`applied=true`、manifest路径已记录后再处理下个月。无可删除记录时核对原因，不反复删除。保留原始Excel、月度JSON、清理归档；不默认每月执行 VACUUM。
+脚本会先把订单当前值和版本历史归档到 `data/archive/orch_opening/*.jsonl.gz`，再清理 `ods_orch_opening`、对应 raw/版本明细，登记已清理周期并执行 `VACUUM`。确认命令退出为 0、`archive_file` 存在且 `vacuumed=true` 后，再处理下一个月。这里只清理 SQLite 明细；必须保留第1步的原始 Excel、第2步的月度指标 JSON 和本步骤的 gzip 归档。不要手工执行 `DELETE`。
 
 ## 生成目标月完整指标
 
