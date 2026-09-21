@@ -109,6 +109,7 @@ def run_fetch(
     before = {path.resolve() for path in matching_files(output_dir, kind)}
     command = [
         python,
+        "-u",
         str(FETCH_SCRIPT),
         "--task", str(TASKS[kind]["task_name"]),
         "--start", start,
@@ -142,7 +143,7 @@ def collect(
     *,
     mode: str = "both",
     output_dir: Path = Path("data/raw/youshu"),
-    database: Path = Path("data/quality_assessment.db"),
+    database: Path | None = None,
     chunk_days: int = 3,
     interval: float = 0.5,
     timeout: int = 120,
@@ -166,11 +167,13 @@ def collect(
         database.expanduser().resolve()
         if database.is_absolute()
         else (PROJECT_ROOT / database).resolve()
-    )
+    ) if database is not None else None
     chunks = day_chunks(start, end, chunk_days)
     if not chunks:
         raise ValueError("日期范围为空")
     dataset_code = str(TASKS[kind]["dataset_code"])
+    if mode in {"database", "both"} and not refresh:
+        print("[数据库] 开始初始化并检查采集覆盖范围", flush=True)
     if mode in {"database", "both"} and not refresh and has_collection_coverage(
         database, dataset_code, start, end
     ):
@@ -189,13 +192,14 @@ def collect(
     collection_id = f"collect_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
     expected = expected_file_count(kind, start, end, chunk_days)
     if mode in {"database", "both"}:
+        print("[数据库] 开始初始化并创建采集记录", flush=True)
         initialize(database)
         with connect(database) as connection:
             connection.execute(
                 """INSERT INTO collection_run (
                     collection_run_id, dataset_code, period_start, period_end,
-                    started_at, status, expected_files
-                ) VALUES (?, ?, ?, ?, ?, 'running', ?)""",
+                    started_at, status, expected_files, source_files, etl_run_ids
+                ) VALUES (?, ?, ?, ?, ?, 'running', ?, '[]', '[]')""",
                 (collection_id, dataset_code, start, end, now(), expected),
             )
 
@@ -208,13 +212,15 @@ def collect(
     files: list[Path] = []
     etl_results: list[dict[str, object]] = []
     try:
+        print(f"[取数] 开始下载，输出目录：{working_dir}", flush=True)
         files = run_fetch(
             kind, start, end, working_dir,
             chunk_days=chunk_days, interval=interval, timeout=timeout,
             poll_timeout=poll_timeout, two_phase=two_phase, python=python,
         )
         if mode in {"database", "both"}:
-            for path in files:
+            for index, path in enumerate(files, 1):
+                print(f"[入库 {index}/{len(files)}] 开始：{path.name}（整批完成后提交）", flush=True)
                 etl_results.append(
                     import_file(
                         database,
@@ -225,6 +231,7 @@ def collect(
                         period_end=end,
                     )
                 )
+                print(f"[入库 {index}/{len(files)}] 已提交：{path.name}", flush=True)
             with connect(database) as connection:
                 connection.execute(
                     """UPDATE collection_run SET finished_at=?, status='success',
@@ -269,7 +276,7 @@ def run_script(kind: str) -> None:
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw/youshu"))
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--chunk-days", type=int, default=3)
     parser.add_argument("--interval", type=float, default=0.5)
     parser.add_argument("--timeout", type=int, default=120)

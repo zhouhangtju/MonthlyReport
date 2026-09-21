@@ -1,5 +1,67 @@
 const pptxgen = require('pptxgenjs');
 const fs = require('fs');
+// BEGIN REPORT NARRATIVES
+const narratives = (() => {
+// Presentation copy follows the approved template; all values come from the data model.
+function num(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? String(value) : '待填充';
+}
+function percent(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(2)}%` : '待填充';
+}
+function topCities(cities, rates) {
+  return cities.map((city, i) => ({ city, rate: rates?.[i], i }))
+    .filter(x => typeof x.rate === 'number' && Number.isFinite(x.rate))
+    .sort((a, b) => b.rate - a.rate || a.i - b.i).slice(0, 3).map(x => x.city).join('、') || '待填充';
+}
+function period(month, repeatYear) {
+  const [year, m] = month.split('-').map(Number);
+  const start = new Date(Date.UTC(year, m - 3, 1));
+  const startText = `${String(start.getUTCFullYear()).slice(-2)}年${start.getUTCMonth() + 1}月`;
+  return `${startText}至${repeatYear || start.getUTCFullYear() !== year ? String(year).slice(-2) + '年' : ''}${m}月`;
+}
+function withdrawal(D) {
+  const w = D.withdrawal;
+  const missing = new Set((D.dataAudit?.missing || []).map(x => x.ppt_field));
+  const value = key => missing.has('withdrawal.' + key) ? null : w[key];
+  const [year, month] = D.currentMonth.split('-').map(Number);
+  const previous = month === 1 ? `${year - 1}年12月` : `${month - 1}月`;
+  return `${D.displayMonth}全省专线开通单竣工量${num(value('completionCount'))}单（其中${D.displayMonth}受理的竣工量${num(value('currentAcceptedCompletion'))}单，${previous}之前受理的竣工量${num(value('previousAcceptedCompletion'))}单），撤退单${num(value('withdrawalCount'))}单，撤退率${percent(value('withdrawalRate'))}。主要原因有网络建设原因${num(value('networkCount'))}单（${percent(value('networkShare'))}），用户原因${num(value('customerCount'))}单（${percent(value('customerShare'))}），前台原因${num(value('frontDeskCount'))}单（${percent(value('frontDeskShare'))}），其他原因${num(value('otherCount'))}单（${percent(value('otherShare'))}）。`;
+}
+function qikuan(D, data, isReturn) {
+  const label = isReturn ? '企宽退单（不含一次性撤单）' : '企宽撤退单(含撤退单后重录并报结)';
+  const rateLabel = isReturn ? '退单率' : '撤退率';
+  const reasons = data?.reasons || {};
+  const names = {customer: '用户原因', frontDesk: '前台原因', construction: '建设原因', other: '其它原因', network: '网络原因'};
+  const detail = Object.entries(names).map(([key, name]) => `${name}${num(reasons[key]?.count)}单占比${percent(reasons[key]?.share)}`).join('，');
+  return `${D.displayMonth}${label}${num(data?.withdrawalTotal)}单，${rateLabel}${percent(data?.overallRate)}，其中${topCities(data?.cities || [], data?.rates)}${rateLabel}较高。根据${D.displayMonth}编排原因数据，${detail}。`;
+}
+function repeat(D) {
+  const r = D.complaintFault.repeat;
+  return `${period(D.currentMonth, true)}，三个月内商客业务整体重复投诉率${percent(r.totalAverage)}，其中专线重复投诉率${percent(r.lineAverage)}，${topCities(r.cities, r.lineRates)}较高；企宽重复投诉率${percent(r.qikuanAverage)}，${topCities(r.cities, r.qikuanRates)}较高。`;
+}
+function fault(D) {
+  const f = D.complaintFault.fault;
+  return `${period(D.currentMonth, false)}，三个月内商客业务整体新装报障率${percent(f.totalAverage)}，其中专线类新装报障率${percent(f.lineAverage)}，企宽新装报障率${percent(f.broadbandAverage)}。新装报障率较高地市为${topCities(f.cities, f.totalRates)}。`;
+}
+function network(D) {
+  const reasons = D.internetAuto.manualReasons;
+  const r = reasons?.province || {};
+  const allConstruction = (reasons?.cities || []).filter(city => {
+    const row = reasons.byCity?.[city];
+    return row && row['非自动工单数'] > 0 && row['工程施工工单数'] === row['非自动工单数'];
+  });
+  return {
+    title: '组网环节：',
+    summary: `主要非自动原因：工程施工（占比${percent(r['工程施工占比'])}）、非自动原因为空（占比${percent(r['空原因占比'])}）`,
+    cities: allConstruction.join('、'),
+    suffix: allConstruction.length ? '非自动原因为工程施工（占比100%）' : '暂无地市的工程施工原因占比达到100%',
+  };
+}
+return {num, percent, topCities, period, withdrawal, qikuan, repeat, fault, network};
+
+})();
+// END REPORT NARRATIVES
 const path = require('path');
 
 const dataFile = process.argv[2] || 'output/internet_line_ppt_data.json';
@@ -54,8 +116,27 @@ const enjoySeries = [trendSeries.find(item => item.name === '悦享专线动态I
 const packageSeries = [D.packageTrend];
 const otherSeries = [D.otherTrend];
 
-function fmt(value) { return Number(value).toLocaleString('en-US'); }
-function pct(value) { return `${Math.abs(Number(value) * 100).toFixed(2)}%`; }
+function fmt(value) { return value == null ? '待补充' : Number(value).toLocaleString('en-US'); }
+function pct(value) { return value == null ? '无数据' : `${(Number(value) * 100).toFixed(2)}%`; }
+
+// Manual metrics use their own order-level denominators; database stage rates remain unchanged.
+function manualBar(slide, title, labels, values, box, percent = true) {
+  if (!values) {
+    slide.addText('待补充手工数据', { ...box, fontSize: 12, color: C.gray, align: 'center', valign: 'mid' });
+    return;
+  }
+  slide.addChart(pptx.ChartType.bar, [{ name: title, labels, values }], {
+    ...box, catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
+    catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
+    valAxisMinVal: 0, valAxisMaxVal: Math.max(percent ? .01 : 1, ...values.filter(v => v != null)) * 1.3,
+    valAxisLabelColor: C.white, valAxisLineColor: C.white,
+    valGridLine: { color: C.white, transparency: 100 }, showLegend: false,
+    showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: SINGLE_METRIC_BLUE,
+    dataLabelFontSize: 8, dataLabelFormatCode: percent ? '0.00%' : '0',
+    chartColors: [SINGLE_METRIC_BLUE], gapWidthPct: 90,
+  });
+}
+
 function nameList(values) { return values.join('、'); }
 function deviceList(values) {
   return values.map(item => `${item.name} ${fmt(item.value)} 台`).join('；');
@@ -632,8 +713,8 @@ slide5.addText([
   fontFace: 'Microsoft YaHei', fontSize: 16, margin: 0, valign: 'mid', fit: 'shrink',
 });
 
-addPanel(slide5, 0.58, 1.42, 5.82, 2.18);
-addPanel(slide5, 6.48, 1.42, 6.25, 2.18);
+addPanel(slide5, 0.48, 1.42, 5.82, 1.96);
+addPanel(slide5, 6.38, 1.42, 6.25, 1.96);
 addPanel(slide5, 0.58, 4.18, 5.82, 2.55);
 slide5.addText('开通各环节自动率', {
   x: 2.15, y: 1.53, w: 2.7, h: 0.24, fontFace: 'Microsoft YaHei', fontSize: 11,
@@ -650,7 +731,7 @@ slide5.addText('非自动原因工单数（工程施工）', {
 slide5.addChart(pptx.ChartType.bar, [{
   name: '自动率', labels: D.internetAuto.labels, values: D.internetAuto.rates,
 }], {
-  x: 0.77, y: 1.78, w: 5.42, h: 1.62,
+  x: 0.67, y: 1.72, w: 5.42, h: 1.50,
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: 1.08,
@@ -661,12 +742,24 @@ slide5.addChart(pptx.ChartType.bar, [{
   dataLabelFormatCode: '0.00%', chartColors: [SINGLE_METRIC_BLUE], gapWidthPct: 95,
   border: { color: C.white, transparency: 100 },
 });
-slide5.addText('口径：自动率=自动环节数/总环节数；本页仅展示当前数据表可支持的开通各环节自动率。', {
+manualBar(slide5, '组网方案自动率', D.cities, D.internetAuto.network?.rates,
+  { x: 6.57, y: 1.72, w: 5.85, h: 1.50 });
+manualBar(slide5, '工程施工工单数', D.cities, D.internetAuto.manualReasons?.constructionCounts,
+  { x: 0.77, y: 4.61, w: 5.42, h: 1.78 }, false);
+const networkCopy = narratives.network(D);
+slide5.addText([
+  { text: networkCopy.title, options: { bold: true, breakLine: true } },
+  { text: networkCopy.summary, options: { breakLine: true } },
+  { text: networkCopy.cities, options: { color: 'FF0000', bold: true } },
+  { text: networkCopy.suffix, options: { color: '000000' } },
+], { x: .43, y: 3.52, w: 6.3, h: .65, fontFace: 'Microsoft YaHei',
+     fontSize: 11.5, color: '000000', margin: 0, valign: 'top', breakLine: false });
+slide5.addText('口径：自动率=自动环节数/总环节数；组网方案按去重工单计算，目标环节全部记录自动才计为自动。', {
   x: 0.45, y: 7.16, w: 11.9, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide5.addText('8', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide5.addNotes('本页数据来自动态工作表“互联网自动率YYYY年M月”。仅左上图有数据；地市组网自动率和非自动原因数据尚未提供，因此保留空白区域。');
+slide5.addNotes('本页数据来自动态工作表“互联网自动率YYYY年M月”。地市组网自动率与工程施工原因来自手工资管统计。');
 
 // Page 9: Internet-line move automation. Two of the four panels have source data.
 const slide6 = pptx.addSlide();
@@ -717,12 +810,16 @@ slide6.addChart(pptx.ChartType.bar, [{
   name: '配置激活自动率', labels: D.internetMoveAuto.cities, values: D.internetMoveAuto.activationRates,
 }], { ...moveChartBase, x: 7.03, y: 4.31, w: 5.63, h: 1.76, catAxisLabelFontSize: 8 });
 
-slide6.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/移机订单总数。', {
+manualBar(slide6, '组网方案自动率', D.cities, D.internetMoveAuto.network?.rates,
+  { x: 7.03, y: 1.82, w: 5.63, h: 1.76 });
+manualBar(slide6, '资源反馈自动率', D.cities, D.internetMoveAuto.resource?.rates,
+  { x: 0.94, y: 4.31, w: 5.63, h: 1.76 });
+slide6.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/移机订单总数；手工组网和资源反馈按工单计算，变更暂按移机统计。', {
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide6.addText('9', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide6.addNotes('本页来自互联网专线移机自动率和互联网专线移机地市自动率工作表。左上及右下有数据，另外两个区域按要求保留空白。');
+slide6.addNotes('本页来自互联网专线移机自动率和互联网专线移机地市自动率工作表。组网方案与资源反馈地市图来自手工资管统计，变更暂按移机统计。');
 
 // Page 10: Internet-line removal automation. The third panel is intentionally blank.
 const slide7 = pptx.addSlide();
@@ -759,12 +856,14 @@ slide7.addChart(pptx.ChartType.bar, [{
   name: '配置激活自动率', labels: D.internetRemovalAuto.cities, values: D.internetRemovalAuto.activationRates,
 }], { ...moveChartBase, x: 6.64, y: 1.82, w: 5.94, h: 1.62, catAxisLabelFontSize: 8 });
 
-slide7.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/拆机订单总数。', {
+manualBar(slide7, '组织资源释放自动率', D.cities, D.internetRemovalAuto.release?.rates,
+  { x: 0.72, y: 4.26, w: 5.42, h: 1.82 });
+slide7.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/拆机订单总数；组织资源释放按包含该环节的去重工单计算。', {
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide7.addText('10', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide7.addNotes('本页来自互联网专线拆机自动率和互联网专线拆机地市自动率工作表。左上及右上有数据，地市组织资源释放区域按要求保留空白。');
+slide7.addNotes('本页来自互联网专线拆机自动率和互联网专线拆机地市自动率工作表。地市组织资源释放自动率来自手工资管统计。');
 
 // Page 11: Terminal recovery section divider.
 const terminal = D.terminalRecovery;
@@ -1033,123 +1132,86 @@ businessSupportToc.addText('14', {
 });
 businessSupportToc.addNotes('章节目录页：高亮“04 业务支撑情况”，承接后续业务支撑页面。');
 
-// Page 15: Withdrawal order page, modeled after the supplied template.
+// Page 15: Dedicated-line and enterprise-broadband withdrawal metrics.
 const withdrawal = D.withdrawal;
-
 const withdrawalSlide = pptx.addSlide();
 addTemplateBackground(withdrawalSlide);
 withdrawalSlide.addText('业务情况-集团撤退单', {
-  x: 0.11, y: 0.14, w: 3.56, h: 0.48,
-  fontFace: 'Microsoft YaHei', fontSize: 24, bold: true, color: C.white,
-  margin: 0, fit: 'shrink',
+  x: 0.16, y: 0.14, w: 8.0, h: 0.48, fontFace: 'Microsoft YaHei',
+  fontSize: 24, bold: true, color: C.white, margin: 0,
 });
-withdrawalSlide.addText(`${D.displayMonth}全省专线开通单竣工量${fmt(withdrawal.completionCount)}单（其中${D.displayMonth}受理的竣工量${fmt(withdrawal.currentAcceptedCompletion)}单，本月之前受理的竣工量${fmt(withdrawal.previousAcceptedCompletion)}单），撤退单${fmt(withdrawal.withdrawalCount)}单，撤退率${pct(withdrawal.withdrawalRate)}。主要原因有网络建设原因${fmt(withdrawal.networkCount)}单（${pct(withdrawal.networkShare)}），用户原因${fmt(withdrawal.customerCount)}单（${pct(withdrawal.customerShare)}），前台原因${fmt(withdrawal.frontDeskCount)}单（${pct(withdrawal.frontDeskShare)}），其他原因${fmt(withdrawal.otherCount)}单（${pct(withdrawal.otherShare)}）。`, {
-  x: 0.4, y: 0.70, w: 12.4, h: 0.82,
-  fontFace: 'Microsoft YaHei', fontSize: 12, color: '0B336F',
-  margin: 0.02, breakLine: false, fit: 'shrink', lineSpacingMultiple: 1.5,
-});
-
-addPanel(withdrawalSlide, 0.35, 1.48, 12.38, 1.34);
-
-withdrawalSlide.addChart([
-  {
-    type: pptx.ChartType.bar,
-    data: [
-      { name: '网络建设原因', labels: withdrawal.cities, values: withdrawal.networkReasons },
-      { name: '用户原因', labels: withdrawal.cities, values: withdrawal.customerReasons },
-      { name: '前台原因', labels: withdrawal.cities, values: withdrawal.frontDeskReasons },
+const withdrawalText = { x: 0.36, w: 12.55, fontFace: 'Microsoft YaHei', fontSize: 11.5, color: '0B336F', margin: 0 };
+function withdrawalCombo(title, labels, bars, rates, y) {
+  addPanel(withdrawalSlide, 0.36, y, 12.55, 1.28);
+  withdrawalSlide.addChart([
+    { type: pptx.ChartType.bar, data: bars.map(b => ({name: b.name, labels, values: b.values})),
+      options: { showValue: true, dataLabelPosition: 'outEnd', dataLabelFontSize: 8,
+        dataLabelFormatCode: '0', gapWidthPct: 65 } },
+    { type: pptx.ChartType.line, data: [{ name: '撤退单率', labels, values: rates }],
+      options: { secondaryValAxis: true, secondaryCatAxis: true, showValue: true,
+        dataLabelPosition: 'above', dataLabelFontSize: 8, dataLabelColor: '2EA8CB',
+        dataLabelFormatCode: '0.00%', lineSize: 1.0, showMarker: true, markerSize: 4,
+        lineDataSymbolLineColor: '43B0CD', lineDataSymbolLineSize: 1 } },
+  ], {
+    x: 0.36, y, w: 12.55, h: 1.28,
+    catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
+    catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
+    catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
+    valAxes: [
+      { valAxisMinVal: 0, valAxisMaxVal: Math.max(1, ...bars.flatMap(b => b.values).filter(v => v != null)) * 1.6,
+        valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+      { valAxisMinVal: 0, valAxisMaxVal: Math.max(.01, ...rates.filter(v => v != null)) * 1.6,
+        valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
     ],
-    options: {
-      showValue: true,
-      dataLabelPosition: 'outEnd',
-      dataLabelColor: C.ink,
-      dataLabelFontFace: 'Microsoft YaHei',
-      dataLabelFontSize: 8.5,
-      dataLabelFormatCode: '0',
-      gapWidthPct: 55,
-      overlap: 0,
-    },
-  },
-  {
-    type: pptx.ChartType.line,
-    data: [{ name: '撤退单率', labels: withdrawal.cities, values: withdrawal.rates }],
-    options: {
-      secondaryValAxis: true,
-      secondaryCatAxis: true,
-      showValue: true,
-      dataLabelPosition: 'above',
-      dataLabelColor: '2EA8CB',
-      dataLabelFontFace: 'Microsoft YaHei',
-      dataLabelFontSize: 8.5,
-      dataLabelFormatCode: '0.00%',
-      lineSize: 1.5,
-      showMarker: true,
-      markerSize: 5,
-      lineDataSymbolLineColor: '9BBB59',
-      lineDataSymbolLineSize: 1.0,
-    },
-  },
-], {
-  x: 0.35, y: 1.48, w: 12.38, h: 1.34,
-  catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8.5,
-  catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
-  catAxes: [
-    {
-      catAxisLabelFontFace: 'Microsoft YaHei',
-      catAxisLabelFontSize: 8.5,
-      catAxisLabelColor: C.ink,
-      catAxisLineColor: C.lightGray,
-    },
-    {
-      catAxisLabelPos: 'none',
-      catAxisLineColor: C.white,
-    },
-  ],
-  valAxes: [
-    {
-      valAxisMinVal: 0,
-      valAxisMaxVal: 60,
-      valAxisLabelColor: C.white,
-      valAxisLineColor: C.white,
-      valGridLine: { color: C.white, transparency: 100 },
-    },
-    {
-      valAxisMinVal: 0,
-      valAxisMaxVal: 0.06,
-      valAxisLabelFormatCode: '0.00%',
-      valAxisLabelColor: C.white,
-      valAxisLineColor: C.white,
-      valGridLine: { color: C.white, transparency: 100 },
-    },
-  ],
-  valGridLine: { color: C.white, transparency: 100 },
-  showLegend: true,
-  legendPos: 't',
-  legendFontFace: 'Microsoft YaHei',
-  legendFontSize: 9,
-  showTitle: true,
-  title: '专线开通报结撤退率情况',
-  titleFontFace: 'Microsoft YaHei',
-  titleFontSize: 11.5,
-  titleBold: true,
-  titleColor: '000000',
-  chartColors: ['4F81BD', 'C0504D', '9BBB59', '43B0CD'],
-  border: { color: C.white, transparency: 100 },
-});
-withdrawalSlide.addText('注：1. 业务工单类型：专线开通撤退单；2. 专线开通撤退率=撤退单量/（正常开通单量+撤退单量）。', {
-  x: 0.34, y: 2.95, w: 12.6, h: 0.28,
-  fontFace: 'Microsoft YaHei', fontSize: 10, color: '000000',
-  margin: 0, fit: 'shrink',
-});
-withdrawalSlide.addText('15', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-withdrawalSlide.addNotes('业务情况-集团撤退单，页面数据来自撤退单结果表。');
+    showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
+    showTitle: true, title, titleFontFace: 'Microsoft YaHei', titleFontSize: 10, titleBold: true,
+    chartColors: bars.length === 2 ? ['C0504D', '9BBB59', '43B0CD'] : ['4F81BD', 'C0504D', '9BBB59', '43B0CD'],
+  });
+}
+function sortedCityData(data, ascending = false) {
+  const indexes = data.cities.map((_,i) => i).sort((a,b) =>
+    ((data.rates[a] ?? -1) - (data.rates[b] ?? -1)) * (ascending ? 1 : -1));
+  return { labels: indexes.map(i => data.cities[i]), pick: values => indexes.map(i => values[i]) };
+}
+withdrawalSlide.addText(narratives.withdrawal(D),
+  { ...withdrawalText, y: .77, h: .53, valign: 'top' });
+const lineOrder = sortedCityData(withdrawal);
+withdrawalCombo('专线开通报结撤退率情况', lineOrder.labels,
+  [{name: '网络建设原因', values: lineOrder.pick(withdrawal.networkReasons)},
+   {name: '用户原因', values: lineOrder.pick(withdrawal.customerReasons)},
+   {name: '前台原因', values: lineOrder.pick(withdrawal.frontDeskReasons)}], lineOrder.pick(withdrawal.rates), 1.32);
+withdrawalSlide.addText('注：专线撤退率取数据库指标；原因来自手工反馈样本，样本周期和全量撤退单范围可能不同。',
+  { ...withdrawalText, y: 2.64, h: .19, fontSize: 8, color: C.ink });
+const qikuan = D.qikuanWithdrawal;
+withdrawalSlide.addText(narratives.qikuan(D, qikuan, false), { ...withdrawalText, y: 2.87, h: .48 });
+if (qikuan) {
+  const order = sortedCityData(qikuan);
+  withdrawalCombo(`${D.displayMonth}企宽撤退单率`, order.labels,
+    [{name: '退单量', values: order.pick(qikuan.returnCounts)}, {name: '撤单量', values: order.pick(qikuan.cancellationCounts)}], order.pick(qikuan.rates), 3.41);
+}
+withdrawalSlide.addText('注：撤退率=（退单完成+撤单完成）/提供文件的全部受理明细；每行计1单，按文件指定周期统计。',
+  { ...withdrawalText, y: 4.73, h: .19, fontSize: 8, color: C.ink });
+const qikuanReturn = D.qikuanReturn;
+withdrawalSlide.addText(narratives.qikuan(D, qikuanReturn, true), { ...withdrawalText, y: 4.96, h: .48 });
+if (qikuanReturn) {
+  const order = sortedCityData(qikuanReturn, true);
+  addPanel(withdrawalSlide, .36, 5.5, 12.55, 1.27);
+  withdrawalSlide.addText(`${D.displayMonth}企宽退单率（不含一次性撤单）`, {
+    x: 3.5, y: 5.55, w: 6.2, h: .22, fontSize: 11, bold: true, align: 'center', margin: 0 });
+  manualBar(withdrawalSlide, '企宽退单率', order.labels, order.pick(qikuanReturn.rates),
+    {x: .5, y: 5.81, w: 12.2, h: .91});
+}
+withdrawalSlide.addText('注：退单率=退单完成/提供文件的全部受理明细；撤单完成不计入分子。',
+  { ...withdrawalText, y: 6.84, h: .21, fontSize: 8, color: C.ink });
+withdrawalSlide.addText('15', { x: 12.58, y: 7.18, w: .35, h: .18, fontSize: 8, color: C.gray, margin: 0 });
+withdrawalSlide.addNotes('专线原因、企宽撤退与企宽退单分别来自标准化手工结果；企宽两个口径分别存储，不互相覆盖。');
 
 // Page 16: Repeat complaint and new-install fault report.
 const complaintFault = D.complaintFault;
 const repeat = complaintFault.repeat;
 const fault = complaintFault.fault;
 // Keep both axes aligned and leave headroom for values above the old fixed limits.
-const repeatAxisMax = Math.max(0.04, ...repeat.lineRates, ...repeat.broadbandRates, ...repeat.totalRates) * 1.2;
+const repeatAxisMax = Math.max(0.04, ...repeat.lineRates, ...repeat.broadbandRates, ...(repeat.qikuanRates || []), ...repeat.totalRates) * 1.2;
 const faultAxisMax = Math.max(0.008, ...fault.lineRates, ...fault.broadbandRates, ...fault.totalRates) * 1.2;
 const repeatBox = { x: 0.53, y: 1.25, w: 12.17, h: 2.49 };
 const faultBox = { x: 0.53, y: 4.56, w: 12.17, h: 2.57 };
@@ -1160,7 +1222,7 @@ complaintFaultSlide.addText('业务情况-商客业务重复投诉与新装报�
   fontFace: 'Microsoft YaHei', fontSize: 24, bold: true, color: C.white,
   margin: 0, fit: 'shrink',
 });
-complaintFaultSlide.addText(`${complaintFault.repeatPeriod || complaintFault.period}，全省整体商客业务累计重复投诉率${pct(repeat.totalAverage)}，其中专线重复投诉率${pct(repeat.lineAverage)}，${nameList(repeat.lineHighNames)}较高；千里眼重复投诉率${pct(repeat.broadbandAverage)}，${nameList(repeat.broadbandHighNames)}较高。`, {
+complaintFaultSlide.addText(narratives.repeat(D), {
   x: 0.33, y: 0.76, w: 12.64, h: 0.45,
   fontFace: 'Microsoft YaHei', fontSize: 12, color: '0B336F',
   margin: 0.02, fit: 'shrink',
@@ -1172,6 +1234,7 @@ complaintFaultSlide.addChart([
     data: [
       { name: '专线重复投诉率', labels: repeat.cities, values: repeat.lineRates },
       { name: '千里眼重复投诉率', labels: repeat.cities, values: repeat.broadbandRates },
+      { name: '企宽重复投诉率', labels: repeat.cities, values: repeat.qikuanRates || repeat.cities.map(() => null) },
     ],
     options: {
       showValue: true,
@@ -1186,7 +1249,7 @@ complaintFaultSlide.addChart([
   },
   {
     type: pptx.ChartType.line,
-    data: [{ name: '合计', labels: repeat.cities, values: repeat.totalRates }],
+    data: [{ name: '合计（专线+企宽）', labels: repeat.cities, values: repeat.totalRates }],
     options: {
       secondaryValAxis: true,
       secondaryCatAxis: true,
@@ -1215,15 +1278,15 @@ complaintFaultSlide.addChart([
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 9,
   showTitle: true, title: '重复投诉率', titleFontFace: 'Microsoft YaHei', titleFontSize: 11, titleBold: true,
   showValue: true,
-  chartColors: ['4F81BD', 'C0504D', '9BBB59'],
+  chartColors: ['4F81BD', 'C0504D', '8064A2', '9BBB59'],
   border: { color: C.white, transparency: 100 },
 });
-complaintFaultSlide.addText('注：重复投诉率=前期已投诉工单与当期投诉工单匹配得出的重复投诉工单量/当期投诉工单量；千里眼按照宽带账号匹配，专线按照计费号匹配；本页直接使用数据库已计算结果。', {
+complaintFaultSlide.addText('注：合计=(专线分子+企宽分子)/(专线分母+企宽分母)，千里眼不参与；按指定口径合并各自周期。企宽含历史判重，省级含“其他”地市。', {
   x: 0.41, y: 3.81, w: 10.32, h: 0.25,
   fontFace: 'Microsoft YaHei', fontSize: 8.5, color: C.gray,
   margin: 0, fit: 'shrink',
 });
-complaintFaultSlide.addText(`${complaintFault.faultPeriod || complaintFault.period}，全省整体商客业务累计新装报障率${pct(fault.totalAverage)}，其中专线新装报障率${pct(fault.lineAverage)}，小微宽带新装报障率${pct(fault.broadbandAverage)}，新装报障率较高的地市为${nameList(fault.highNames)}。`, {
+complaintFaultSlide.addText(narratives.fault(D), {
   x: 0.33, y: 4.07, w: 12.53, h: 0.45,
   fontFace: 'Microsoft YaHei', fontSize: 12, color: '0B336F',
   margin: 0.02, fit: 'shrink',

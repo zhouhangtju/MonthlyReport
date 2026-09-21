@@ -18,12 +18,13 @@ description: 从 EOMS 获取终端回收所需的服务类产品支撑工单，�
 ## 执行
 
 ```powershell
-py -3.11 collector/eoms/eoms_export_qiwan_auto_login.py --start-date 2026-07-31 --end-date 2026-08-31 --mode both --database D:/MonthlyReport/data/quality_assessment.db --output-dir D:/edge_download
+py -3.11 collector/eoms/eoms_export_qiwan_auto_login.py --start-date 2026-07-31 --end-date 2026-08-31 --mode both
 ```
 
 上例对应对话中的月报时间 `2026-08-31`。日期和路径按实际部署替换，不将示例月份当作默认业务周期。
 
 - `both`：保留本地文件，并调用现有 importer 入库、保存源快照；默认模式。
+- 默认保存到项目 `data/raw/eoms/eoms_service_removal_order/`；可用 `--output-dir` 指定其他目录。
 - `database`：临时下载并入库，自动清理本次临时文件，不要求保留本地 Excel。
 - `file`：仅下载，不写库；后续算数前仍需入库。
 - 已有完整同周期快照时可跳过，`both` 还检查文件存在。只有明确要求重取时使用 `--refresh`。

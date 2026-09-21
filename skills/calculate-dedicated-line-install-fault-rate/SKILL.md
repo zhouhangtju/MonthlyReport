@@ -7,6 +7,8 @@ description: 从编排互联网专线新装单和 EOMS 投诉工单计算专线�
 
 调用 `metrics/installation/dedicated_line_install_fault_rate.py`，读取 `orch_install` 和 `eoms_complaint`。
 
+默认统计周期：用于月报 PPT 时，若用户只给出月报月份而未显式指定起止日期，本指标按月报月及前两个月的三个自然月计算。也就是 `end-date` 取月报月最后一天，`start-date` 取月报月往前数第 2 个月的第一天。例如绘制 2026 年 8 月汇报 PPT 时，默认使用 `2026-06-01` 至 `2026-08-31`，不是 8 月单月。
+
 ## 口径
 
 - 新装记录按 `订单创建时间` 限定统计期。
@@ -19,8 +21,7 @@ description: 从编排互联网专线新装单和 EOMS 投诉工单计算专线�
 
 ```bash
 python3 metrics/installation/dedicated_line_install_fault_rate.py \
-  --database data/quality_assessment.db \
-  --start-date 2026-08-01 \
+  --start-date 2026-06-01 \
   --end-date 2026-08-31 \
   --mode both
 ```

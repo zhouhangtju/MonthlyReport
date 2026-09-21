@@ -54,7 +54,7 @@ TARGET = f"{EOMS_WEB_BASE}/fouraLogin"
 # 导出配置
 # ============================================================
 
-OUTPUT_DIR = r"D:\edge_download"
+OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data/raw/eoms/eoms_service_removal_order"
 EOMS_EXPORT_API = "http://188.104.246.86/prod-api"
 
 REQUEST_TIMEOUT = 30
@@ -444,8 +444,8 @@ def parser(description):
     result.add_argument("--start-date", required=True)
     result.add_argument("--end-date", required=True)
     result.add_argument("--mode", choices=("file", "database", "both"), default="both")
-    result.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
-    result.add_argument("--output-dir", type=Path, default=Path(r"D:\edge_download"))
+    result.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
+    result.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     result.add_argument("--reuse-existing", action="store_true", help="Import existing exports without downloading")
     result.add_argument("--refresh", action="store_true", help="Download again even if the database already covers the period")
     return result
@@ -492,24 +492,7 @@ def _finish_exports(files, start_date, end_date, mode, database, staging_dir):
             continue
         dataset = get_dataset(code)
         import_source = source
-        # Keep the Excel untouched. Content + occurrence preserves duplicate detail
-        # lines and makes re-imports independent of the exported row order.
-        if dataset.key_column == "导入行主键":
-            target_dir = staging_dir / code
-            target_dir.mkdir(parents=True, exist_ok=True)
-            import_source = target_dir / f"{file_sha256(source)[:12]}_{source.stem}.csv"
-            rows = iter_rows(source)
-            first = next(rows, None)
-            occurrences = Counter()
-            with import_source.open("w", encoding="utf-8-sig", newline="") as stream:
-                writer = csv.DictWriter(stream, fieldnames=[dataset.key_column, *(first or {})])
-                writer.writeheader()
-                for row in itertools.chain([first] if first is not None else [], rows):
-                    _, digest = row_payload(row)
-                    occurrences[digest] += 1
-                    key = f"{start_date[:7]}:{digest}:{occurrences[digest]}"
-                    writer.writerow({dataset.key_column: key, **row})
-        etl = import_file(Path(database), dataset, import_source,
+        etl = import_file(database, dataset, import_source,
                           period_start=start_date, period_end=end_date)
         result["etl"][code] = etl
         if etl["failed"]:
@@ -519,7 +502,7 @@ def _finish_exports(files, start_date, end_date, mode, database, staging_dir):
 
 
 
-def collect(start_date, end_date, *, mode="both", database=Path("data/quality_assessment.db"),
+def collect(start_date, end_date, *, mode="both", database=None,
             output_dir=Path(OUTPUT_DIR), reuse_existing=False, refresh=False):
     month = validate_dates(start_date, end_date)
     if mode not in {"file", "database", "both"}:

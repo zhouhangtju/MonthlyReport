@@ -7,11 +7,14 @@ import shutil
 import subprocess
 import tempfile
 import zipfile
+import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape
 
-from database_results import build_data, month_bounds
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from reporting.database_results import build_data, month_bounds
+from reporting.manual_results import DEFAULT_DIRECTORY, METRIC_SETS, AUTOMATION, WITHDRAWAL, QIKUAN, RETURN, REPEAT
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -23,7 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = BASE_DIR / "templates"
 DATA_SOURCE_DIR = BASE_DIR / "data_sources"
 OUTPUT_DIR = BASE_DIR.parent / "outputs" / "monthly_report"
-DEFAULT_DATABASE = BASE_DIR.parent / "data" / "quality_assessment.db"
 DEFAULT_INPUT = DATA_SOURCE_DIR / "专线产品情况_2026-07.xlsx"
 DEFAULT_OUTPUT = OUTPUT_DIR / "互联网专线产品开通情况_2026年7月.pptx"
 DRAW_SCRIPT = BASE_DIR / "create_internet_line_ppt.js"
@@ -306,7 +308,7 @@ def format_complaint_fault_charts(pptx_path):
                 '<c:legend><c:legendPos val="t"/>'
                 '<c:layout><c:manualLayout>'
                 '<c:layoutTarget val="inner"/><c:xMode val="edge"/><c:yMode val="edge"/>'
-                '<c:x val="0.38"/><c:y val="0.11"/><c:w val="0.30"/><c:h val="0.08"/>'
+                '<c:x val="0.18"/><c:y val="0.11"/><c:w val="0.68"/><c:h val="0.08"/>'
                 '</c:manualLayout></c:layout>'
             ),
             "plot_layout": (
@@ -890,9 +892,9 @@ def keep_selected_slides(pptx_path, keep_slide_numbers):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="从 SQLite 结果数据生成指定月份的月报 PPTX")
+    parser = argparse.ArgumentParser(description="从数据库结果数据生成指定月份的月报 PPTX")
     parser.add_argument("--month", "--end-month", dest="end_month", required=True, type=month_argument, help="月报月份，格式 YYYY-MM")
-    parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE, help="SQLite 结果数据库")
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--output", type=Path, help="输出PPTX；不传时根据 end-month 自动命名")
     parser.add_argument("--background-mode", choices=["ppt", "image"], default="ppt", help="底层模板来源：ppt（默认，使用模板PPT）或 image（图片背景）")
     parser.add_argument("--template", type=Path, help="模板PPT路径，默认使用 reporting/templates/通用模板.pptx；仅适用于 ppt 模式")
@@ -902,6 +904,7 @@ def main():
         help="可选：只生成指定章节，可选值：业务发展情况、专线自动情况、终端回收情况、业务支撑情况；不传则生成全部",
     )
     parser.add_argument("--keep-json", action="store_true", help="保留中间JSON数据")
+    parser.add_argument('--manual-metrics-dir', type=Path, default=DEFAULT_DIRECTORY, help='标准化手工指标JSON目录，默认 outputs/manual_metrics')
     args = parser.parse_args()
     if args.background_mode == "image" and args.template:
         parser.error("--template 不能与 --background-mode image 同时使用")
@@ -918,17 +921,18 @@ def main():
     TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)
     DATA_SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    database_path = args.database.resolve()
     output_path = (args.output or default_output).resolve()
     template_path = (args.template or DEFAULT_TEMPLATE).resolve() if args.background_mode == "ppt" else None
-    if not database_path.is_file():
-        raise FileNotFoundError(f"找不到数据库：{database_path}")
     if not NODE_BIN.exists():
         raise FileNotFoundError(f"找不到Node运行时：{NODE_BIN}")
     if template_path is not None and not template_path.exists():
         raise FileNotFoundError(f"找不到PPT模板：{template_path}")
 
-    data = build_data(database_path, str(args.end_month))
+    required_manual = {
+        '业务发展情况': set(), '终端回收情况': set(),
+        '专线自动情况': {AUTOMATION}, '业务支撑情况': {WITHDRAWAL, QIKUAN, RETURN, REPEAT},
+    }.get(args.section, METRIC_SETS)
+    data = build_data(args.database, str(args.end_month), args.manual_metrics_dir if required_manual else None, required_manual)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     data_json = output_path.with_suffix(".json")
     data_json.write_text(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")

@@ -10,7 +10,7 @@
 取数后支持两种数据形态：
 
 - 保存原始 Excel 文件，供人工核查和留档；
-- 将 Excel 中的数据写入 SQLite 数据库，供后续指标计算。
+- 将 Excel 中的数据写入 MySQL，供后续指标计算。
 
 默认使用 `both` 模式，即同时保留文件并入库。
 
@@ -35,14 +35,9 @@ collector/orchestration/
 | 专线开通情况 | `fetch_opening.py` | `orch_opening` | `订单号` | 开通量、同比环比、产品和地市分布、自动率等 |
 | 互联网专线新装单 | `fetch_install.py` | `orch_install` | `订单号` | 专线新装报障率的分母及新装时间、地市来源 |
 
-两类数据除继续进入通用原始审计表外，还会分别写入独立业务表：
+两类数据按 XLSX 表头逐列写入 `orch_opening`、`orch_install`，主键均为“订单号”。审计和历史版本另表保存，算数直接读取原始表，不再维护 ODS 副本或执行历史补写。
 
-| 数据集 | 独立业务表 | 接口周期时间 | 独立时间列 |
-|---|---|---|---|
-| 专线开通情况 | `ods_orch_opening` | 结束时间 | `order_finished_at` |
-| 互联网专线新装单 | `ods_orch_install` | 派单时间 | `dispatched_at` |
-
-两张业务表都保留完整 `source_data`，并提取订单号、地市、状态、业务类型、产品等常用字段。升级已有数据库时，初始化过程会从 `raw_source_record`自动补建尚未进入独立表的编排记录，无需重新取数。
+专线开通指标按“订单结束时间”筛选；互联网专线新装报障率继续使用原始表中的“订单创建时间”等字段，计算口径不变。
 
 `产品实例编号`不是记录主键。它用于将互联网专线新装单与 EOMS 投诉工单的计费号码进行关联。
 
@@ -188,7 +183,7 @@ python3 collector/orchestration/fetch_install.py \
 | `--end-date` | 是 | 无 | 结束日期，格式为 `YYYY-MM-DD`，包含当天 |
 | `--mode` | 否 | `both` | `file`、`database` 或 `both` |
 | `--output-dir` | 否 | `data/raw/orchestration` | 文件输出根目录 |
-| `--database` | 否 | `data/quality_assessment.db` | SQLite 数据库路径 |
+| `--database` | 否 | 可省略 | 兼容旧命令；MySQL 连接信息写在 `storage/database.py` |
 | `--chunk-days` | 否 | `3` | 每个下载批次包含的自然日数 |
 | `--interval` | 否 | `2` | 相邻批次之间等待的秒数 |
 | `--timeout` | 否 | `180` | 单次请求超时秒数 |

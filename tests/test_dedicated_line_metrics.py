@@ -10,6 +10,7 @@ from metrics.opening.dedicated_line_metrics import (
     save_results,
 )
 from storage.database import connect
+import test_split_raw_tables_integration as fixed_tests
 
 
 def opening(order: str, month: str, *, product: str = "互联网专线套餐", city: str = "杭州市", automatic: bool = False) -> dict[str, object]:
@@ -42,6 +43,9 @@ def opening(order: str, month: str, *, product: str = "互联网专线套餐", c
 
 
 class DedicatedLineMetricsTest(unittest.TestCase):
+    setUp = fixed_tests.FixedRawTablesTest.setUp
+    drop_database = fixed_tests.FixedRawTablesTest.drop_database
+
     def test_counts_deduplicate_orders_and_calculates_comparisons(self):
         rows = [
             opening("A", "2026-08", automatic=True),
@@ -99,7 +103,7 @@ class DedicatedLineMetricsTest(unittest.TestCase):
             run_id = save_results(database, report, ["etl_source"])
             with connect(database) as connection:
                 run = connection.execute("SELECT * FROM metric_run WHERE metric_run_id=?", (run_id,)).fetchone()
-                count = connection.execute("SELECT COUNT(*) AS value FROM ads_metric_result WHERE metric_run_id=?", (run_id,)).fetchone()["value"]
+                count = connection.execute("SELECT COUNT(*) AS value FROM result_orchestration_opening WHERE metric_run_id=?", (run_id,)).fetchone()["value"]
             self.assertEqual(run["status"], "success")
             self.assertEqual(count, len(report["results"]))
 

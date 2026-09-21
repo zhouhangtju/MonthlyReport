@@ -19,11 +19,11 @@ description: 从一体化平台获取终端回收所需的专线拆机清单并�
 在 Windows 项目根目录执行，替换实际日期与路径：
 
 ```powershell
-py -3.11 collector/integration/zhuanxian_chaiji_export.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database D:/MonthlyReport/data/quality_assessment.db --output-dir D:/edge_download
+py -3.11 collector/integration/zhuanxian_chaiji_export.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
 
 - 数据集 `integration_removal_order`，主键为工单号；文件 `一体化专线拆机清单_YYYY-MM.xlsx`。
-- 默认 `both` 保留 Excel 和 SQLite 源记录、源快照。`database` 临时下载后入库并清理临时文件；`file` 仅下载。
+- 默认 `both` 将 Excel 保存在项目 `data/raw/integration/integration_removal_order/`，并写入 MySQL 源记录、源快照。`database` 临时下载后入库并清理临时文件；`file` 仅下载。可用 `--output-dir` 指定其他目录。
 - 同周期已覆盖可正常跳过，`both` 还要求本地文件存在。强制重取只在用户明确要求时加 `--refresh`。
 - `--reuse-existing` 用于用户指定的本地文件复用，不访问平台、不自动确认文件内日期；与 `--refresh` 不应同时用于真实下载验证。
 - Linux/WSL 需显式指定适用的下载目录和数据库路径，不能直接照搬 Windows 示例。

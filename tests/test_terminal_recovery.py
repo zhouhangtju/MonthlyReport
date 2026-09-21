@@ -236,13 +236,18 @@ class TerminalRecoveryTest(unittest.TestCase):
                 validate_dates(start, end)
 
     def test_collectors_keep_uniform_cli_defaults(self):
+        output_dirs = {
+            eoms: eoms.OUTPUT_DIR,
+            lines: lines.BASE_DIR,
+            materials: materials.EXPORT_DIR,
+        }
         for module in (eoms, lines, materials):
             with self.subTest(module=module.__name__):
                 cli = module.parser("test")
                 args = cli.parse_args(["--start-date", "2026-08-01", "--end-date", "2026-08-31"])
                 self.assertEqual(args.mode, "both")
-                self.assertEqual(args.database, Path("data/quality_assessment.db"))
-                self.assertEqual(args.output_dir, Path(r"D:\edge_download"))
+                self.assertIsNone(args.database)
+                self.assertEqual(args.output_dir, output_dirs[module])
                 self.assertFalse(args.reuse_existing)
                 self.assertFalse(args.refresh)
                 args = cli.parse_args(["--start-date", "2026-08-01", "--end-date", "2026-08-31",

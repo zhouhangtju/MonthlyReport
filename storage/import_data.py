@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="导入已有质量评估数据文件")
     parser.add_argument("--dataset", required=True, choices=sorted(DATASETS))
     parser.add_argument("--file", required=True, type=Path)
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--archive-root", type=Path, default=Path("data/raw"))
     parser.add_argument("--no-archive", action="store_true")
     parser.add_argument("--period-start")

@@ -2,7 +2,7 @@
 
 ## 1. 模块范围
 
-本模块只负责获取 EOMS 政企投诉原始工单，并同时支持文件留存和 SQLite 入库。专线、千里眼重复投诉率以及专线投诉率属于 `metrics` 指标模块，不在取数时计算。
+本模块只负责获取 EOMS 政企投诉原始工单，并同时支持文件留存和 MySQL 入库。专线、千里眼重复投诉率以及专线投诉率属于 `metrics` 指标模块，不在取数时计算。
 
 | 数据集 | 编码 | 主键 | 指标用途 |
 |---|---|---|---|
@@ -120,7 +120,7 @@ Authorization: Bearer <token>
 | `--end-date` | 必填 | 结束日期，包含当天 |
 | `--mode` | `both` | `file`、`database`或`both` |
 | `--output-dir` | `data/raw/eoms` | 文件输出根目录 |
-| `--database` | `data/quality_assessment.db` | SQLite路径 |
+| `--database` | 可省略 | 兼容旧命令；MySQL 连接信息写在 `storage/database.py` |
 | `--page-size` | `500` | 列表接口每页条数 |
 | `--login-first` | 关闭 | 取数前刷新Token |
 | `--refresh` | 关闭 | 忽略数据库周期覆盖并重新取数 |

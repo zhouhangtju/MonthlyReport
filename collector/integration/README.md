@@ -81,8 +81,7 @@ export INTEGRATION_PASSWORD="4A密码"
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode both
 ```
 
@@ -90,15 +89,14 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 
 ```text
 data/raw/integration/integration_opening/
-售中开通工单_2026-08-01_至_2026-08-31.xlsx
+售中开通工单_2026-07-26_至_2026-08-25.xlsx
 ```
 
 ### 6.2 只保存文件
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode file
 ```
 
@@ -106,8 +104,7 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode database
 ```
 
@@ -117,8 +114,7 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode both \
   --refresh
 ```
@@ -127,11 +123,12 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 
 | 参数 | 必填 | 默认值 | 说明 |
 |---|---|---|---|
-| `--start-date` | 是 | 无 | 工单结束时间开始日期，格式 `YYYY-MM-DD` |
-| `--end-date` | 是 | 无 | 工单结束时间结束日期，包含当天 |
+| `--month` | 条件必填 | 无 | 月报月份`YYYY-MM`，自动取上月26日至本月25日 |
+| `--start-date` | 条件必填 | 无 | 与`--end-date`同时使用，不能与`--month`并用 |
+| `--end-date` | 条件必填 | 无 | 工单结束时间结束日期，包含当天 |
 | `--mode` | 否 | `both` | `file`、`database`或`both` |
 | `--output-dir` | 否 | `data/raw/integration` | 文件输出根目录 |
-| `--database` | 否 | `data/quality_assessment.db` | SQLite数据库路径 |
+| `--database` | 否 | 可省略 | 兼容旧命令；MySQL 连接信息写在 `storage/database.py` |
 | `--timeout` | 否 | `180` | 导出请求超时秒数 |
 | `--refresh` | 否 | 关闭 | 忽略数据库周期和已有文件，强制重新拉取 |
 | `--overwrite` | 否 | 关闭 | `--refresh`的兼容别名 |
@@ -157,8 +154,8 @@ POST http://188.105.165.237:18083/api/work/workmng/exop/exportHalfWayNew
 
 ```json
 {
-  "endTimeStart": "2026-08-01 00:00:00",
-  "endTimeEnd": "2026-08-31 23:59:59",
+  "endTimeStart": "2026-07-26 00:00:00",
+  "endTimeEnd": "2026-08-25 23:59:59",
   "ordertypeList": ["开通"],
   "statusList": [],
   "dataSources": "二编",
@@ -233,7 +230,7 @@ Token通过请求头 `Zy_token`、`Zytoken`和Cookie `zy_token`携带。
 
 1. 剔除测试单；
 2. 筛选正式专线业务范围；
-3. 按工单号取最新状态；
+3. 直接统计周期内原始表记录，指标阶段不二次去重；
 4. 统计开通工单分母；
 5. 根据正式确认的撤退状态计算分子。
 

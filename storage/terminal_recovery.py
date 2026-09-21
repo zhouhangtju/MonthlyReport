@@ -2,14 +2,14 @@
 
 import hashlib
 import json
-import sqlite3
 import uuid
-from contextlib import closing
 from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
 
 from openpyxl import load_workbook
+
+from storage.database import connect, initialize as initialize_database
 
 
 SOURCE_FILES = {
@@ -26,31 +26,6 @@ REPORT_SHEETS = (
     "按地市回收率汇总", "匹配后拆回设备清单（三类标签已去重）",
     "sheet2", "sheet3", "sheet1",
 )
-
-
-def connection(database):
-    database = Path(database)
-    database.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(database, timeout=60)
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
-
-
-def initialize(conn):
-    conn.executescript("""
-        CREATE TABLE IF NOT EXISTS tr_source_snapshot (
-            snapshot_id TEXT PRIMARY KEY, dataset_code TEXT NOT NULL,
-            period_start TEXT NOT NULL, period_end TEXT NOT NULL,
-            etl_run_id TEXT NOT NULL, created_at TEXT NOT NULL,
-            filename TEXT NOT NULL, sha256 TEXT NOT NULL,
-            row_count INTEGER NOT NULL, workbook BLOB NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS tr_source_row (
-            snapshot_id TEXT NOT NULL REFERENCES tr_source_snapshot(snapshot_id),
-            row_number INTEGER NOT NULL, cells_json TEXT NOT NULL,
-            PRIMARY KEY(snapshot_id, row_number)
-        );
-    """)
 
 
 def encode_cell(value):
@@ -78,17 +53,32 @@ def save_source(database, code, source, start, end, etl_run_id):
     wb = load_workbook(BytesIO(content), read_only=True, data_only=False)
     try:
         ws = wb.active
-        with closing(connection(database)) as conn:
-            initialize(conn)
-            with conn:
-                conn.execute("INSERT INTO tr_source_snapshot VALUES (?,?,?,?,?,?,?,?,?,?)",
-                             (snapshot_id, code, start, end, etl_run_id,
-                              datetime.now().isoformat(), source.name,
-                              hashlib.sha256(content).hexdigest(), ws.max_row, content))
-                conn.executemany("INSERT INTO tr_source_row VALUES (?,?,?)", (
-                    (snapshot_id, number, json.dumps([encode_cell(v) for v in row], ensure_ascii=False))
+        initialize_database(database)
+        with connect(database) as conn:
+            conn.execute(
+                """INSERT INTO tr_source_snapshot (
+                       snapshot_id, dataset_code, period_start, period_end,
+                       etl_run_id, created_at, filename, sha256, row_count, workbook
+                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    snapshot_id, code, start, end, etl_run_id,
+                    datetime.now().isoformat(), source.name,
+                    hashlib.sha256(content).hexdigest(), ws.max_row, content,
+                ),
+            )
+            conn.executemany(
+                """INSERT INTO tr_source_row (
+                       snapshot_id, source_row_number, cells_json
+                   ) VALUES (?, ?, ?)""",
+                (
+                    (
+                        snapshot_id,
+                        number,
+                        json.dumps([encode_cell(v) for v in row], ensure_ascii=False),
+                    )
                     for number, row in enumerate(ws.iter_rows(values_only=True), 1)
-                ))
+                ),
+            )
     finally:
         wb.close()
     return snapshot_id
@@ -96,33 +86,36 @@ def save_source(database, code, source, start, end, etl_run_id):
 
 def restore_sources(database, start, end, output_dir):
     """Select exact-period snapshots, never fall back to raw latest-state records."""
-    if not Path(database).is_file():
-        raise FileNotFoundError(database)
+    initialize_database(database)
     output_dir = Path(output_dir)
     snapshots = {}
-    with closing(connection(database)) as conn:
-        conn.row_factory = sqlite3.Row
-        if not conn.execute("SELECT 1 FROM sqlite_master WHERE name='tr_source_snapshot'").fetchone():
-            raise ValueError("No terminal source snapshots; import sources first")
+    with connect(database) as conn:
         for code in SOURCE_FILES:
             row = conn.execute("""SELECT * FROM tr_source_snapshot
                 WHERE dataset_code=? AND period_start=? AND period_end=?
-                ORDER BY created_at DESC, rowid DESC LIMIT 1""", (code, start, end)).fetchone()
+                ORDER BY created_at DESC, snapshot_id DESC LIMIT 1""", (code, start, end)).fetchone()
             if row is None:
                 raise ValueError(f"Missing source snapshot: {code} ({start}..{end})")
             snapshots[code] = row
         output_dir.mkdir(parents=True, exist_ok=True)
         for code, snapshot in snapshots.items():
-            if hashlib.sha256(snapshot["workbook"]).hexdigest() != snapshot["sha256"]:
+            workbook = bytes(snapshot["workbook"])
+            if hashlib.sha256(workbook).hexdigest() != snapshot["sha256"]:
                 raise ValueError(f"Corrupted source snapshot: {code}")
-            wb = load_workbook(BytesIO(snapshot["workbook"]), data_only=False)
+            wb = load_workbook(BytesIO(workbook), data_only=False)
             try:
                 ws = wb.active
                 count = 0
-                for number, cells_json in conn.execute(
-                    "SELECT row_number,cells_json FROM tr_source_row WHERE snapshot_id=? ORDER BY row_number",
+                rows = conn.execute(
+                    """SELECT source_row_number, cells_json
+                       FROM tr_source_row
+                       WHERE snapshot_id=?
+                       ORDER BY source_row_number""",
                     (snapshot["snapshot_id"],),
-                ):
+                )
+                for record in rows:
+                    number = record["source_row_number"]
+                    cells_json = record["cells_json"]
                     count += 1
                     if number != count:
                         raise ValueError(f"Non-contiguous source rows: {code}")
@@ -140,20 +133,24 @@ def restore_sources(database, start, end, output_dir):
 
 
 def source_run_ids(database, snapshots):
-    with closing(connection(database)) as conn:
+    initialize_database(database)
+    with connect(database) as conn:
         return list(dict.fromkeys(
-            conn.execute("SELECT etl_run_id FROM tr_source_snapshot WHERE snapshot_id=?", (snapshot,)).fetchone()[0]
+            conn.execute(
+                "SELECT etl_run_id FROM tr_source_snapshot WHERE snapshot_id=?",
+                (snapshot,),
+            ).fetchone()["etl_run_id"]
             for snapshot in snapshots.values()
         ))
 
 
 def has_source_coverage(database, codes, start, end):
-    if not Path(database).is_file():
+    try:
+        initialize_database(database)
+        with connect(database) as conn:
+            return all(conn.execute(
+                "SELECT 1 FROM tr_source_snapshot WHERE dataset_code=? AND period_start=? AND period_end=? LIMIT 1",
+                (code, start, end),
+            ).fetchone() for code in codes)
+    except Exception:
         return False
-    with closing(connection(database)) as conn:
-        if not conn.execute("SELECT 1 FROM sqlite_master WHERE name='tr_source_snapshot'").fetchone():
-            return False
-        return all(conn.execute(
-            "SELECT 1 FROM tr_source_snapshot WHERE dataset_code=? AND period_start=? AND period_end=? LIMIT 1",
-            (code, start, end),
-        ).fetchone() for code in codes)

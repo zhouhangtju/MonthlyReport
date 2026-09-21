@@ -4,8 +4,14 @@ import calendar
 import json
 import math
 import re
-import sqlite3
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from storage.metric_results import read_results, TABLES
+from storage.database import _database_name, connect
+from reporting.manual_results import load_results, apply_results, METRIC_SETS
+from config.report_periods import integration_opening_period
 
 PRODUCTS = ["悦享专线动态IP版", "互联网专线套餐", "商务专线套餐（2020版）", "直播专线", "网吧专线套餐（2019版）", "高品质互联网专线"]
 PRODUCT_LABELS = ["悦享专线\n动态IP版", "互联网\n专线套餐", "商务专线套餐\n（2020版）", "直播专线", "网吧专线套餐\n（2019版）", "高品质\n互联网专线"]
@@ -42,27 +48,37 @@ class Results:
     def __init__(self, database, month):
         self.month = month
         self.start, self.end = month_bounds(month)
-        self.database = Path(database).resolve()
+        self.withdrawal_start, self.withdrawal_end = integration_opening_period(month)
+        self.support_start = f"{shifted(month, -2)}-01"
+        self.database = _database_name()
         self.used = {}
         self.missing = {}
         self.rows = {}
         self.runs = {}
-        # A read-only connection prevents report generation from changing source data.
-        with sqlite3.connect(self.database.as_uri() + "?mode=ro", uri=True) as conn:
-            conn.row_factory = sqlite3.Row
+        with connect(database) as conn:
             runs = conn.execute(
-                "SELECT * FROM metric_run WHERE status='success' AND period_end=? "
-                "ORDER BY (period_start=?) DESC, started_at DESC, rowid DESC", (self.end, self.start)
+                "SELECT * FROM metric_run WHERE status='success' AND period_end IN (?, ?) "
+                "ORDER BY started_at DESC, metric_run_id DESC", (self.end, self.withdrawal_end)
             ).fetchall()
             for run in runs:
                 owner = run["metric_code"]
+                if owner not in TABLES:
+                    continue
                 is_trend = owner == "orchestration_opening_metrics"
-                if owner in self.runs or (run["period_start"] != self.start and not is_trend and owner not in SUPPORT_METRICS):
+                if owner in self.runs:
+                    continue
+                if owner == "dedicated_line_opening_withdrawal_rate":
+                    if (run["period_start"], run["period_end"]) != (self.withdrawal_start, self.withdrawal_end):
+                        continue
+                elif owner in SUPPORT_METRICS:
+                    if run["period_start"] != self.support_start:
+                        continue
+                elif not is_trend and run["period_start"] != self.start:
                     continue
                 if run["period_start"] > self.start:
                     continue
                 self.runs[owner] = dict(run)
-                rows = conn.execute("SELECT * FROM ads_metric_result WHERE metric_run_id=? ORDER BY result_id", (run["metric_run_id"],)).fetchall()
+                rows = read_results(conn, owner, run["metric_run_id"])
                 self.rows[owner] = [dict(row, dimension=json.loads(row["dimension_value"])) for row in rows]
 
     def find(self, owner, code, kind, **dimension):
@@ -97,7 +113,8 @@ class Results:
         return 0
 
 
-def build_data(database, month):
+def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_SETS):
+    manual, manual_audit = load_results(manual_metrics_dir, month, required_manual) if manual_metrics_dir is not None else ({}, [])
     db = Results(database, month)
     opening = "orchestration_opening_metrics"
     months = [shifted(month, n) for n in range(-11, 1)]
@@ -194,8 +211,18 @@ def build_data(database, month):
     for name in ("networkReasons", "customerReasons", "frontDeskReasons", "otherReasons"):
         db.unavailable("withdrawal." + name)
         withdrawal[name] = [0] * len(CITIES)
-    for name in ("completionCount", "currentAcceptedCompletion", "previousAcceptedCompletion", "networkCount", "customerCount", "frontDeskCount", "otherCount", "networkShare", "customerShare", "frontDeskShare", "otherShare"):
+    for name in ("networkCount", "customerCount", "frontDeskCount", "otherCount", "networkShare", "customerShare", "frontDeskShare", "otherShare"):
         withdrawal[name] = db.unavailable("withdrawal." + name)
+
+    for name, code in {
+        "completionCount": "dedicated_line_opening_completed_count",
+        "currentAcceptedCompletion": "dedicated_line_opening_completed_current_accepted_count",
+        "previousAcceptedCompletion": "dedicated_line_opening_completed_previous_accepted_count",
+        "unknownAcceptedCompletion": "dedicated_line_opening_completed_unknown_accepted_count",
+    }.items():
+        row = db.find(withdrawal_code, code, "province", scope="全省")
+        withdrawal[name] = (db.value(withdrawal_code, code, "province", scope="全省")
+                            if row is not None else None)
 
     def rates(code):
         return [db.value(code, code, "city", city=c) for c in CITIES]
@@ -221,7 +248,7 @@ def build_data(database, month):
                            "broadbandAverage": province_rate("qikuan_install_fault_rate"), "totalAverage": province_rate("commercial_customer_install_fault_rate"),
                            "highNames": rank(CITIES, fault_total)}}
     data = {
-        "sourceFileName": db.database.name, "currentMonth": month, "displayMonth": f"{month_number}月", "displayMonthFull": f"{year}年{month_number}月",
+        "sourceFileName": db.database, "currentMonth": month, "displayMonth": f"{month_number}月", "displayMonthFull": f"{year}年{month_number}月",
         "currentTotal": count("internet_opening_orders", "month"), "yoy": count("internet_opening_orders_yoy", "month_comparison"), "mom": count("internet_opening_orders_mom", "month_comparison"),
         "keyProducts": {p: count("internet_opening_orders", "month_product", product=p) for p in PRODUCTS[:3]},
         "keyProductYoy": {p: count("internet_product_opening_yoy", "month_product_comparison", product=p) for p in PRODUCTS[:3]},
@@ -241,5 +268,7 @@ def build_data(database, month):
     data["dataAudit"] = {"database": str(db.database), "period_start": db.start, "period_end": db.end,
                          "selected_batches": list(db.runs.values()), "used_results": list(db.used.values()), "missing": list(db.missing.values()),
                          "derived_results": {"terminalRecovery.city.expectedTotal": "sum of the eleven stored city expected counts", "terminalRecovery.city.completedTotal": "sum of the eleven stored city completed counts", "terminalRecovery.city.rate": "completedTotal / expectedTotal; zero when denominator is zero", "trendSummary": "stored rolling-12-month metric when available; otherwise sum and average of the twelve stored month_product results from the selected orchestration run"},
-                         "policy": "Monthly results; support metrics prefer the exact month, falling back to the latest successful period ending on that month, with actual periods displayed. Orchestration history uses explicit month dimensions. Missing/null results are zero; no raw-data calculations."}
+                         "policy": "Opening withdrawal uses the previous-month 26th through current-month 25th; other monthly results use their configured natural or support periods. Orchestration history uses explicit month dimensions. Missing/null results are zero; no raw-data calculations."}
+    data['dataAudit']['selected_manual_inputs'] = manual_audit
+    apply_results(data, manual, data['dataAudit'], db)
     return data

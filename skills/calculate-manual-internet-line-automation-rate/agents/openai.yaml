@@ -1,0 +1,5 @@
+interface:
+  display_name: "手工计算互联网专线自动率"
+  short_description: "按工单统计各地市专线目标环节自动率"
+  default_prompt: "使用 $calculate-manual-internet-line-automation-rate 读取我上传的资管专线 CSV，按工单计算开通、移机和拆机的各地市目标环节自动率。"
+

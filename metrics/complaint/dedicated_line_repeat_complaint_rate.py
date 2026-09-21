@@ -14,7 +14,7 @@ from metrics.complaint.repeat_rate import LINE, run_metric
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="从数据库计算专线/专网重复投诉率")
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--start-date", required=True)
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
@@ -26,4 +26,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

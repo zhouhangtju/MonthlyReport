@@ -1,0 +1,5 @@
+interface:
+  display_name: "手工计算企宽重复投诉率"
+  short_description: "合并月度投诉明细并计算企宽重复投诉率"
+  default_prompt: "使用 $calculate-manual-qikuan-repeat-complaint-rate 合并我上传的月度投诉 Excel，计算目标月全省和各业务地市企宽重复投诉率。"
+

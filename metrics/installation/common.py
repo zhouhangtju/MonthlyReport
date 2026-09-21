@@ -7,7 +7,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from storage.metric_results import insert_results
 from storage.database import connect, initialize
+from storage.raw_tables import read_records
 
 
 EMPTY_IDENTIFIERS = {"", "/", "nan", "none", "null", "无"}
@@ -52,25 +54,12 @@ def period_bounds(start: str, end: str) -> tuple[datetime, datetime]:
 def load_dataset(database: Path, dataset_code: str) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
-        if dataset_code == "orch_opening":
-            records = connection.execute("SELECT order_no AS source_record_id, source_data FROM ods_orch_opening").fetchall()
-        elif dataset_code == "orch_install":
-            records = connection.execute("SELECT order_no AS source_record_id, source_data FROM ods_orch_install").fetchall()
-        else:
-            records = connection.execute(
-                "SELECT source_record_id, source_data FROM raw_source_record WHERE dataset_code=?",
-                (dataset_code,),
-            ).fetchall()
+        records = read_records(connection, dataset_code)
         runs = connection.execute(
             "SELECT run_id FROM etl_run WHERE dataset_code=? AND status='success' ORDER BY started_at",
             (dataset_code,),
         ).fetchall()
-    rows = []
-    for record in records:
-        row = json.loads(record["source_data"])
-        row["_source_record_id"] = record["source_record_id"]
-        rows.append(row)
-    return rows, [row["run_id"] for row in runs]
+    return records, [row["run_id"] for row in runs]
 
 
 def result_row(metric_code: str, dimension_type: str, dimension: dict[str, str], numerator: int, denominator: int) -> dict[str, object]:
@@ -103,13 +92,7 @@ def save_metric(
         )
     try:
         with connect(database) as connection:
-            for item in report["results"]:
-                connection.execute(
-                    """INSERT INTO ads_metric_result (metric_run_id, metric_code,
-                       dimension_type, dimension_value, numerator, denominator, metric_value)
-                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (run_id, item["metric_code"], item["dimension_type"], json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True), item["numerator"], item["denominator"], item["metric_value"]),
-                )
+            insert_results(connection, report["metric_code"], run_id, report["results"])
             scope = json.dumps({"period_start": report["period_start"], "period_end": report["period_end"]}, ensure_ascii=False, sort_keys=True)
             for role, records in (details or {}).items():
                 for row in records:

@@ -161,7 +161,7 @@ data/raw/youshu/youshu_complaint/
 | `--end-date` | 必填 | 结束日期，包含当天 |
 | `--mode` | `both` | `file`、`database`或`both` |
 | `--output-dir` | `data/raw/youshu` | 文件输出根目录 |
-| `--database` | `data/quality_assessment.db` | SQLite数据库路径 |
+| `--database` | 可省略 | 兼容旧命令；MySQL 连接信息写在 `storage/database.py` |
 | `--chunk-days` | `3` | 每个日期批次天数 |
 | `--interval` | `0.5` | 提交任务之间的等待秒数 |
 | `--timeout` | `120` | 普通HTTP请求超时秒数 |

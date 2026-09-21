@@ -14,8 +14,8 @@ from typing import Any
 
 from collector.integration.login import BASE_URL, credentials, login_token
 from config.datasets import get_dataset
+from config.report_periods import integration_opening_period
 from storage.database import has_successful_coverage
-from storage.importer import import_file
 
 
 EXPORT_URL = f"{BASE_URL}/api/work/workmng/exop/exportHalfWayNew"
@@ -172,7 +172,7 @@ def collect(
     *,
     mode: str = "both",
     output_dir: Path = Path("data/raw/integration"),
-    database: Path = Path("data/quality_assessment.db"),
+    database: Path | None = None,
     timeout: float = 180,
     refresh: bool = False,
     token: str | None = None,
@@ -214,6 +214,7 @@ def collect(
         )
         etl = None
         if mode in {"database", "both"}:
+            from storage.importer import import_file
             etl = import_file(
                 database,
                 get_dataset(DATASET_CODE),
@@ -238,20 +239,32 @@ def collect(
 
 def run_script() -> None:
     parser = argparse.ArgumentParser(description="从一体化平台获取售中开通工单")
-    parser.add_argument("--start-date", required=True)
-    parser.add_argument("--end-date", required=True)
+    parser.add_argument("--month", help="月报月份 YYYY-MM；自动取上月26日至本月25日")
+    parser.add_argument("--start-date")
+    parser.add_argument("--end-date")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw/integration"))
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument("--refresh", "--overwrite", dest="refresh", action="store_true")
     parser.add_argument("--token", help="一体化 zy_token，推荐改用 INTEGRATION_ZYTOKEN")
     parser.add_argument("--account", help="4A 账号，推荐改用 INTEGRATION_ACCOUNT")
     parser.add_argument("--password", help="4A 密码，推荐改用 INTEGRATION_PASSWORD")
     args = parser.parse_args()
+    if args.month:
+        if args.start_date or args.end_date:
+            parser.error("--month 不能与 --start-date/--end-date 同时使用")
+        try:
+            start_date, end_date = integration_opening_period(args.month)
+        except ValueError as exc:
+            parser.error(str(exc))
+    else:
+        if not args.start_date or not args.end_date:
+            parser.error("请指定 --month，或同时指定 --start-date 和 --end-date")
+        start_date, end_date = args.start_date, args.end_date
     result = collect(
-        args.start_date,
-        args.end_date,
+        start_date,
+        end_date,
         mode=args.mode,
         output_dir=args.output_dir,
         database=args.database,

@@ -1,6 +1,6 @@
 ---
 name: calculate-orchestration-opening-metrics
-description: 从 SQLite 的编排专线开通数据计算《专线产品情况》前18个子 Sheet 对应的开通量、趋势、产品分布和自动率。用户提到编排专线开通指标、专线产品情况、开通量、同比环比或开通自动率时使用。
+description: 从 MySQL 的编排专线开通数据计算《专线产品情况》前18个子 Sheet 对应的开通量、趋势、产品分布和自动率。用户提到编排专线开通指标、专线产品情况、开通量、同比环比或开通自动率时使用。
 ---
 
 # 编排专线开通指标集
@@ -9,11 +9,10 @@ description: 从 SQLite 的编排专线开通数据计算《专线产品情况�
 
 ## 执行
 
-统计月份按订单结束时间归属。将用户周期转换成 `YYYY-MM`；`start-month` 是趋势起点，`end-month` 是最新统计月。未指定模式时用 `both`，未指定库时用 `data/quality_assessment.db`。
+统计月份按订单结束时间归属。将用户周期转换成 `YYYY-MM`；`start-month` 是趋势起点，`end-month` 是最新统计月。未指定模式时用 `both`。`--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`。
 
 ```bash
 python3 metrics/opening/dedicated_line_metrics.py \
-  --database data/quality_assessment.db \
   --start-month 2025-09 \
   --end-month 2026-08 \
   --mode both
@@ -24,7 +23,7 @@ python3 metrics/opening/dedicated_line_metrics.py \
 ## 验证
 
 - 运行日志应从 `[Sheet 1/18]` 到 `[Sheet 18/18]`，并打印各项摘要。
-- 数据库模式应产生成功的 `metric_run`，结果写入 `ads_metric_result`。
+- 数据库模式应产生成功的 `metric_run`，结果写入 `result_orchestration_opening`。
 - 核对 `quality.rows_missing_order_month`；缺失业务月份的记录不会进入结果。
 - 分母为0的自动率应为 `null`，不能解释成0%。
 - 核对 `internet_product_average_monthly_orders`：悦享专线动态 IP 版和互联网专线套餐都应保存滚动12个月累计量（`numerator`）及月均量（`metric_value`）；有趋势数据时不得缺失或显示为0。

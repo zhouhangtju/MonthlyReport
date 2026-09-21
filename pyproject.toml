@@ -3,7 +3,7 @@ name = "quality-assessment-pipeline"
 version = "0.1.0"
 description = "政企质量评估取数、入库与指标计算平台"
 requires-python = ">=3.10"
-dependencies = ["openpyxl>=3.1", "pandas>=2.0", "requests>=2.31", "xlrd>=2.0"]
+dependencies = ["openpyxl>=3.1", "pandas>=2.0", "pymysql>=1.1", "requests>=2.31", "xlrd>=2.0"]
 
 [tool.setuptools]
 py-modules = []
@@ -18,4 +18,5 @@ pythonpath = ["."]
 testpaths = ["tests"]
 
 [tool.setuptools.package-data]
+"config" = ["raw_columns.json"]
 "metrics.terminal_recovery" = ["*.xlsx"]

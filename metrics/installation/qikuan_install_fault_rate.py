@@ -93,7 +93,7 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
 
 def run(database: Path, start: str, end: str, *, mode: str = "both", output: Path | None = None) -> dict[str, object]:
     if mode not in {"file", "database", "both"}: raise ValueError("mode 必须是 file、database 或 both")
-    database = database.expanduser().resolve()
+    database = database.expanduser().resolve() if database is not None else None
     installs, install_runs = load_dataset(database, "youshu_install")
     complaints, complaint_runs = load_dataset(database, "youshu_complaint")
     if not install_runs or not complaint_runs:
@@ -107,7 +107,7 @@ def run(database: Path, start: str, end: str, *, mode: str = "both", output: Pat
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="从数据库计算企宽新装报障率")
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--start-date", required=True); parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both"); parser.add_argument("--output", type=Path)
     args = parser.parse_args()

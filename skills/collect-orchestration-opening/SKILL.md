@@ -1,6 +1,6 @@
 ---
 name: collect-orchestration-opening
-description: 从编排系统获取“专线开通情况”并保存为原始 Excel、写入 SQLite 或双存储。用户提到编排专线开通情况、专线开通工单、按订单结束时间取数、ods_orch_opening，或准备专线开通类指标数据时使用。
+description: 从编排系统获取“专线开通情况”并保存为原始 Excel、写入 MySQL。用户提到编排专线开通情况、专线开通工单、按订单结束时间取数、orch_opening，或准备专线开通类指标数据时使用。
 ---
 
 # 编排：专线开通情况取数
@@ -10,7 +10,7 @@ description: 从编排系统获取“专线开通情况”并保存为原始 Exc
 ## 数据口径
 
 - 数据集：`orch_opening`
-- 业务表：`ods_orch_opening`
+- 原始表（算数直接读取）：`orch_opening`
 - 源记录主键：`订单号`
 - 日期口径：订单结束时间；接口参数为 `finish_start_time`、`finish_end_time`
 - 文件目录：`data/raw/orchestration/orch_opening/`
@@ -21,13 +21,12 @@ description: 从编排系统获取“专线开通情况”并保存为原始 Exc
 1. 在包含入口脚本的项目根目录执行。
 2. 将日期转换为明确的 `YYYY-MM-DD`：用户未显式指定日期时，`end-date` 默认取当前对话中的月报时间，`start-date` 取该月报时间向前推 12 个月的同一日期，即默认获取最近一年的数据；用户显式指定起止日期时，以用户输入为准；当前对话没有可确定的月报时间时先询问，不得擅自使用系统当前日期代替。
 3. 未指定存储模式时用 `both`；只要文件用 `file`，只入库用 `database`。
-4. 未指定数据库时用 `data/quality_assessment.db`，用户指定测试库时原样使用。
+4. MySQL 连接信息写在 `storage/database.py`；切换测试库需修改该文件中的数据库配置。
 5. 默认不加 `--refresh`，只有用户明确要求强制重取或覆盖异常文件时才加。
 
 ```bash
 # 对话中的月报时间为 2026-08-31
 python3 collector/orchestration/fetch_opening.py \
-  --database data/quality_assessment.db \
   --start-date 2025-08-31 \
   --end-date 2026-08-31 \
   --mode both
@@ -79,7 +78,4 @@ python3 collector/orchestration/fetch_opening.py \
 - 不把产品实例编号当主键，不绕过 Excel 响应校验，不另写日期切片或入库逻辑。
 - 不删除原始文件，不在用户未授权时使用 `--refresh`。
 
-## 月报逐月低占用流程
-
-当用户要逐月补齐月报历史数据、生成月度汇总并控制数据库大小时，使用
-`prepare-orchestration-opening-monthly` 工作流；本技能仍只负责取数，不在取数命令后直接计算或删除数据。
+本技能只负责取数，不在取数命令后直接计算或删除数据。月报需要历史趋势时，按用户指定月份取数后运行开通类指标计算。

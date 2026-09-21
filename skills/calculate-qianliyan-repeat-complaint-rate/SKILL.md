@@ -7,6 +7,8 @@ description: 从 EOMS 政企投诉工单计算千里眼重复投诉率，输出�
 
 调用 `metrics/complaint/qianliyan_repeat_complaint_rate.py`，读取数据库 `eoms_complaint`，按 `派单时间` 截取周期。
 
+默认统计周期：用于月报 PPT 时，若用户只给出月报月份而未显式指定起止日期，本指标按月报月及前两个月的三个自然月计算。也就是 `end-date` 取月报月最后一天，`start-date` 取月报月往前数第 2 个月的第一天。例如绘制 2026 年 8 月汇报 PPT 时，默认使用 `2026-06-01` 至 `2026-08-31`，不是 8 月单月。
+
 ## 核心口径
 
 - 业务类别为千里眼，或视频监控但不含专线专网。
@@ -21,15 +23,14 @@ description: 从 EOMS 政企投诉工单计算千里眼重复投诉率，输出�
 
 ```bash
 python3 metrics/complaint/qianliyan_repeat_complaint_rate.py \
-  --database data/quality_assessment.db \
-  --start-date 2026-08-01 \
+  --start-date 2026-06-01 \
   --end-date 2026-08-31 \
   --mode both
 ```
 
 ## 验证
 
-- `metric_run` 成功，`ads_metric_result` 有全省与地市结果。
+- `metric_run` 成功，`result_qianliyan_repeat_complaint` 有全省与地市结果。
 - `ads_metric_detail` 区分分母、分子和剔除记录。
 - 不用“最后处理人”替代“结单人”，不把24小时规则作用到分母。
 - 默认文件为 `outputs/千里眼重复投诉率_起始日期_结束日期.json`。

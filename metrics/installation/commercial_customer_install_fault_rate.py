@@ -10,6 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from metrics.installation.common import result_row, save_metric, write_report
+from storage.metric_results import read_results
 from storage.database import connect, initialize
 
 
@@ -23,16 +24,12 @@ def latest_component(database: Path, metric_code: str, start: str, end: str) -> 
         run = connection.execute(
             """SELECT metric_run_id FROM metric_run WHERE metric_code=?
                AND period_start=? AND period_end=? AND status='success'
-               ORDER BY finished_at DESC, started_at DESC LIMIT 1""",
+               ORDER BY finished_at DESC, started_at DESC, metric_run_id DESC LIMIT 1""",
             (metric_code, start, end),
         ).fetchone()
         if run is None:
             raise RuntimeError(f"缺少同周期已成功计算的上游指标：{metric_code}")
-        rows = connection.execute(
-            """SELECT dimension_type, dimension_value, numerator, denominator
-               FROM ads_metric_result WHERE metric_run_id=? AND metric_code=?""",
-            (run["metric_run_id"], metric_code),
-        ).fetchall()
+        rows = read_results(connection, metric_code, run["metric_run_id"])
     return run["metric_run_id"], [dict(row) for row in rows]
 
 
@@ -58,7 +55,8 @@ def calculate(components: dict[str, list[dict[str, object]]], start: str, end: s
 
 def run(database: Path, start: str, end: str, *, mode: str = "both", output: Path | None = None) -> dict[str, object]:
     if mode not in {"file", "database", "both"}: raise ValueError("mode 必须是 file、database 或 both")
-    database = database.expanduser().resolve(); initialize(database)
+    database = database.expanduser().resolve() if database is not None else None
+    initialize(database)
     components, source_runs = {}, []
     for code in COMPONENT_CODES:
         run_id, rows = latest_component(database, code, start, end); source_runs.append(run_id); components[code] = rows
@@ -70,7 +68,7 @@ def run(database: Path, start: str, end: str, *, mode: str = "both", output: Pat
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="汇总企宽和专线计算商客新装报障率")
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db")); parser.add_argument("--start-date", required=True); parser.add_argument("--end-date", required=True)
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置"); parser.add_argument("--start-date", required=True); parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both"); parser.add_argument("--output", type=Path); args = parser.parse_args()
     report = run(args.database, args.start_date, args.end_date, mode=args.mode, output=args.output)
     print(json.dumps({"metric_run_id": report["metric_run_id"], "formula": report["formula"], "results": report["results"], "output_file": report["output_file"]}, ensure_ascii=False, indent=2))

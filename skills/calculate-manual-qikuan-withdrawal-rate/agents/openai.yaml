@@ -1,0 +1,4 @@
+interface:
+  display_name: "手工计算企宽退单率"
+  short_description: "计算企宽退单总量、比率、前三地市和原因"
+  default_prompt: "使用 $calculate-manual-qikuan-withdrawal-rate 读取我上传的企宽 Excel，计算退单总量、退单率、前三地市、原因占比和分地市退单率。"

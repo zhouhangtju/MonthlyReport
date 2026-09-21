@@ -7,13 +7,16 @@ import calendar
 import json
 import sys
 import uuid
-from collections import defaultdict
+from collections import Counter, defaultdict
+import sqlite3
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from storage.metric_results import insert_results
 from storage.database import connect, initialize
 
 
@@ -53,6 +56,167 @@ REMOVAL_STAGES = [
     ("开通结果审核", "开通结果审核处理人", "系统自动"),
     ("报结", "报结人", "自动处理"),
 ]
+
+READ_COLUMNS = list(dict.fromkeys([
+    '订单号', '订单结束时间', '订单状态', '业务类型', '订单类型', '地市', '产品名称',
+    *[field for _, field, _ in OPENING_STAGES + REMOVAL_STAGES],
+]))
+
+
+def summarize_month(batches, month, include_current=False, temp_dir=None):
+    """Bounded batches + disk-backed last-record-wins dedup; never retain raw lists."""
+    raw_count = missing_month = empty_sequence = 0
+    detail_months = set()
+    with tempfile.TemporaryDirectory(prefix='opening_month_', dir=temp_dir) as directory:
+        cache = sqlite3.connect(str(Path(directory) / 'dedup.sqlite'))
+        try:
+            cache.execute('PRAGMA cache_size=-4096')
+            cache.execute('PRAGMA temp_store=FILE')
+            cache.execute('''CREATE TABLE records (
+                month TEXT, business TEXT, kind TEXT, order_no TEXT, payload TEXT,
+                PRIMARY KEY (month,business,kind,order_no)) WITHOUT ROWID''')
+            for batch in batches:
+                pending = []
+                for row in batch:
+                    raw_count += 1
+                    row_period = row_month(row)
+                    if row_period is None:
+                        missing_month += 1
+                        continue
+                    detail_months.add(row_period)
+                    if text(row.get('订单状态')) != STATUS:
+                        continue
+                    key = text(row.get('订单号'))
+                    if not key:
+                        empty_sequence += 1
+                        key = f'__empty_order_{empty_sequence}'
+                    compact = {field: text(row.get(field)) for field in READ_COLUMNS}
+                    pending.append((row_period, compact['业务类型'], compact['订单类型'], key,
+                                    json.dumps(compact, ensure_ascii=False)))
+                cache.executemany('INSERT OR REPLACE INTO records VALUES (?,?,?,?,?)', pending)
+                cache.commit()
+                log(f'{month}：已读取 {raw_count} 条，月内去重暂存完成一批')
+            totals, products, cities, stages, activation, city_denominators = (Counter() for _ in range(6))
+            groups = [(BUSINESS_TYPE, ALL_PRODUCTS, 'internet_opening_orders'),
+                      (MPLS_BUSINESS_TYPE, MPLS_PRODUCTS, 'mpls_opening_orders'),
+                      (TRANSMISSION_BUSINESS_TYPE, TRANSMISSION_PRODUCTS, 'transmission_opening_orders')]
+            allowed = {business: set(names) for business, names, _ in groups}
+            actions = {'开通': OPENING_STAGES, '变更': OPENING_STAGES, '拆除': REMOVAL_STAGES}
+            for (payload,) in cache.execute('SELECT payload FROM records WHERE month=?', (month,)):
+                row = json.loads(payload)
+                business, kind, product, city = (row[k] for k in ['业务类型', '订单类型', '产品名称', '地市'])
+                if business not in allowed or kind not in actions:
+                    continue
+                totals[business, kind] += 1
+                if kind == '开通' and product in allowed[business]:
+                    products[business, product] += 1
+                    if city in CITY_ORDER:
+                        cities[business, city, product] += 1
+                if include_current and business == BUSINESS_TYPE:
+                    for _, field, automatic in actions[kind]:
+                        if row[field] == automatic:
+                            stages[kind, field] += 1
+                    if city in CITY_ORDER:
+                        city_denominators[kind, city] += 1
+                    if row['配置激活处理人'] == '系统自动':
+                        activation[kind, 'province'] += 1
+                        if city in CITY_ORDER:
+                            activation[kind, city] += 1
+            output = []
+            for business, names, code in groups:
+                count = totals[business, '开通'] if business == BUSINESS_TYPE else sum(products[business, p] for p in names)
+                output.append(result(code, 'month', {'month': month}, count))
+                for product in names:
+                    output.append(result(code, 'month_product', {'month': month, 'product': product}, products[business, product]))
+                if include_current:
+                    for city in CITY_ORDER:
+                        for product in names:
+                            output.append(result(code, 'month_city_product', {'month': month, 'city': city, 'product': product}, cities[business, city, product]))
+                        output.append(result(code, 'month_city', {'month': month, 'city': city}, sum(cities[business, city, p] for p in names)))
+            other = totals[BUSINESS_TYPE, '开通'] - sum(products[BUSINESS_TYPE, p] for p in KEY_PRODUCTS[:2])
+            output.append(result('other_internet_opening_orders', 'month', {'month': month}, other))
+            if include_current:
+                for kind, prefix in [('开通', 'opening'), ('变更', 'move'), ('拆除', 'removal')]:
+                    code = f'internet_{prefix}_automation_rate'
+                    denominator = totals[BUSINESS_TYPE, kind]
+                    for stage, field, automatic in actions[kind]:
+                        output.append(result(code, 'month_stage', {'month': month, 'stage': stage, 'field': field, 'automatic_value': automatic}, stages[kind, field], denominator))
+                    output.append(result(code, 'month_all_stages', {'month': month, 'stage': f'{len(actions[kind])}环节整体'}, sum(stages[kind, f] for _, f, _ in actions[kind]), denominator * len(actions[kind])))
+                    if kind != '开通':
+                        for city in CITY_ORDER:
+                            output.append(result(f'internet_{prefix}_activation_rate', 'month_city', {'month': month, 'city': city}, activation[kind, city], city_denominators[kind, city]))
+                        output.append(result(f'internet_{prefix}_activation_rate', 'month_city', {'month': month, 'city': '全省合计'}, activation[kind, 'province'], denominator))
+            return output, {'database_rows': raw_count, 'rows_missing_order_month': missing_month,
+                            'detail_months': detail_months}
+        finally:
+            cache.close()
+
+
+def calculate_month_batches(month_batches, start_month, end_month, summaries=(), temp_dir=None):
+    """Consume one month at a time; retain only small aggregate results."""
+    base = []
+    quality = {'database_rows': 0, 'snapshot_database_rows': 0,
+               'rows_missing_order_month': 0, 'detail_months': []}
+    detail_months = set()
+    rolling = {shift_month(end_month, offset) for offset in range(-11, 1)}
+    for month, batches in month_batches:
+        output, stats = summarize_month(batches, month, month == end_month, temp_dir)
+        base.extend(r for r in output if r['metric_code'] != 'other_internet_opening_orders' or month in rolling)
+        quality['database_rows'] += stats['database_rows']
+        quality['rows_missing_order_month'] += stats['rows_missing_order_month']
+        if month == end_month:
+            quality['snapshot_database_rows'] = stats['database_rows'] - stats['rows_missing_order_month']
+        detail_months.update(stats['detail_months'])
+        log(f'{month}：汇总完成，已释放月内明细')
+    merged = {_result_key(r): r for r in base}
+    for row in summaries:
+        if row['dimension'].get('month') not in detail_months:
+            merged[_result_key(row)] = row
+    # Reuse unchanged comparison/rolling formulas on aggregates, with no raw rows.
+    report = calculate([], start_month, end_month, list(merged.values()))
+    quality['detail_months'] = sorted(detail_months)
+    report['quality'] = quality
+    return report
+
+
+def load_and_calculate(database, start_month, end_month, batch_size=5000, temp_dir=None):
+    from pymysql.cursors import SSDictCursor
+    if batch_size < 1:
+        raise ValueError('batch_size 必须大于 0')
+    required = sorted(set(month_range(start_month, end_month) +
+                          [shift_month(end_month, -1), shift_month(end_month, -12)] +
+                          [shift_month(end_month, n) for n in range(-11, 1)]))
+    initialize(database)
+    # One snapshot for all month queries, source runs and historical summaries.
+    with connect(database) as connection:
+        connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ')
+        connection.execute('START TRANSACTION WITH CONSISTENT SNAPSHOT')
+        source_runs = [r['run_id'] for r in connection.execute(
+            "SELECT run_id FROM etl_run WHERE dataset_code=? AND status='success' ORDER BY started_at", (DATASET_CODE,)).fetchall()]
+        summaries = [dict(r, dimension=json.loads(r['dimension_value'])) for r in connection.execute(
+            'SELECT metric_code,dimension_type,dimension_value,numerator,denominator,metric_value '
+            'FROM orch_opening_monthly_summary WHERE metric_version=? AND month>=? AND month<=?',
+            (METRIC_VERSION, required[0], required[-1])).fetchall()]
+        if not source_runs and not summaries:
+            raise RuntimeError('数据库中没有编排专线开通情况的成功取数批次或月度汇总')
+        def batches(month):
+            # Dedicated unbuffered cursor: no other queries until fully consumed.
+            with connection._connection.cursor(SSDictCursor) as cursor:
+                cursor.execute('SELECT ' + ','.join(f'`{c}`' for c in READ_COLUMNS) +
+                    " FROM orch_opening WHERE NULLIF(TRIM(`订单结束时间`), '') >= %s "
+                    "AND NULLIF(TRIM(`订单结束时间`), '') < %s",
+                    (f'{month}-01', f'{shift_month(month, 1)}-01'))
+                while True:
+                    batch = cursor.fetchmany(batch_size)
+                    if not batch:
+                        break
+                    yield batch
+        def months():
+            for month in required:
+                log(f'开始流式读取 {month}，每批 {batch_size} 条，仅查询 {len(READ_COLUMNS)} 列')
+                yield month, batches(month)
+        report = calculate_month_batches(months(), start_month, end_month, summaries, temp_dir)
+    return report, source_runs
 
 
 def log(message: str) -> None:
@@ -119,20 +283,21 @@ def load_rows(
     first_month: str | None = None,
     last_month: str | None = None,
 ) -> tuple[list[dict[str, object]], list[str]]:
+    """Legacy materialized reader for compatibility/tests; CLI uses load_and_calculate."""
     log(f"正在初始化数据库：{database}")
     initialize(database)
     where = ""
     parameters: tuple[str, ...] = ()
     if first_month and last_month:
-        where = " WHERE order_finished_at >= ? AND order_finished_at < ?"
+        where = " WHERE NULLIF(TRIM(`订单结束时间`), '') >= ? AND NULLIF(TRIM(`订单结束时间`), '') < ?"
         parameters = (f"{first_month}-01", f"{shift_month(last_month, 1)}-01")
     log(
-        "正在读取 ods_orch_opening"
+        "正在读取原始表 orch_opening"
         + (f"（结束时间 {first_month} 至 {last_month}）" if where else "")
     )
     with connect(database) as connection:
         cursor = connection.execute(
-            "SELECT order_no, source_data FROM ods_orch_opening" + where,
+            "SELECT * FROM orch_opening" + where,
             parameters,
         )
         rows: list[dict[str, object]] = []
@@ -141,8 +306,8 @@ def load_rows(
             if not records:
                 break
             for record in records:
-                row = json.loads(record["source_data"])
-                row["_source_record_id"] = record["order_no"]
+                row = dict(record)
+                row["_source_record_id"] = record["订单号"]
                 rows.append(row)
             if len(rows) % 50000 == 0:
                 log(f"已读取并解析 {len(rows)} 条…")
@@ -607,20 +772,7 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
         connection.commit()
     try:
         with connect(database) as connection:
-            connection.executemany(
-                """INSERT INTO ads_metric_result (
-                   metric_run_id, metric_code, dimension_type, dimension_value,
-                   numerator, denominator, metric_value
-                   ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                [
-                    (
-                        run_id, item["metric_code"], item["dimension_type"],
-                        json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True),
-                        item["numerator"], item["denominator"], item["metric_value"],
-                    )
-                    for item in report["results"]
-                ],
-            )
+            insert_results(connection, METRIC_CODE, run_id, report["results"])
             snapshot_month = str(report["end_month"])
             snapshot_rows = [
                 item for item in report["results"]
@@ -635,11 +787,12 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
                        dimension_value, numerator, denominator, metric_value,
                        source_metric_run_id, updated_at
                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                   ON CONFLICT(month, metric_version, metric_code, dimension_type, dimension_value)
-                   DO UPDATE SET numerator=excluded.numerator,
-                       denominator=excluded.denominator, metric_value=excluded.metric_value,
-                       source_metric_run_id=excluded.source_metric_run_id,
-                       updated_at=excluded.updated_at""",
+                   ON DUPLICATE KEY UPDATE
+                       numerator=VALUES(numerator),
+                       denominator=VALUES(denominator),
+                       metric_value=VALUES(metric_value),
+                       source_metric_run_id=VALUES(source_metric_run_id),
+                       updated_at=VALUES(updated_at)""",
                 [
                     (
                         snapshot_month, METRIC_VERSION, item["metric_code"],
@@ -658,11 +811,11 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
                        month, metric_version, database_rows, rows_missing_order_month,
                        source_metric_run_id, updated_at
                    ) VALUES (?, ?, ?, ?, ?, ?)
-                   ON CONFLICT(month, metric_version) DO UPDATE SET
-                       database_rows=excluded.database_rows,
-                       rows_missing_order_month=excluded.rows_missing_order_month,
-                       source_metric_run_id=excluded.source_metric_run_id,
-                       updated_at=excluded.updated_at""",
+                   ON DUPLICATE KEY UPDATE
+                       database_rows=VALUES(database_rows),
+                       rows_missing_order_month=VALUES(rows_missing_order_month),
+                       source_metric_run_id=VALUES(source_metric_run_id),
+                       updated_at=VALUES(updated_at)""",
                     (
                         snapshot_month, METRIC_VERSION, quality["snapshot_database_rows"],
                         quality["rows_missing_order_month"], run_id, now,
@@ -682,27 +835,18 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
     return run_id
 
 
-def run(database: Path, start_month: str, end_month: str, *, mode: str = "both", output: Path | None = None) -> dict[str, object]:
+def run(database: Path, start_month: str, end_month: str, *, mode: str = "both", output: Path | None = None,
+        batch_size: int = 5000, temp_dir: Path | None = None) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
-    database = database.expanduser().resolve()
-    trend_months = month_range(start_month, end_month)
-    required_months = sorted(set(
-        trend_months
-        + [shift_month(end_month, -1), shift_month(end_month, -12)]
-        + [shift_month(end_month, offset) for offset in range(-11, 1)]
-    ))
-    rows, source_runs = load_rows(database, required_months[0], required_months[-1])
-    summaries = load_monthly_summaries(database, required_months[0], required_months[-1])
-    if not source_runs and not summaries:
-        raise RuntimeError("数据库中没有编排专线开通情况的成功取数批次或月度汇总")
-    log("正在单次遍历建立指标分组并计算…")
-    report = calculate(rows, start_month, end_month, summaries)
+    database = database.expanduser().resolve() if database is not None else None
+    log("开始按月流式计算，跨批去重使用临时磁盘文件")
+    report, source_runs = load_and_calculate(database, start_month, end_month, batch_size, temp_dir)
     log(f"指标计算完成，共 {len(report['results'])} 条结果")
     print_report(report)
     report["source_runs"] = source_runs
     if mode in {"database", "both"}:
-        log("正在批量写入 metric_run 和 ads_metric_result…")
+        log("正在批量写入 metric_run 和 result_orchestration_opening…")
         report["metric_run_id"] = save_results(database, report, source_runs)
         log(f"指标入库完成：{report['metric_run_id']}")
     else:
@@ -720,13 +864,15 @@ def run(database: Path, start_month: str, end_month: str, *, mode: str = "both",
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="从数据库计算编排专线开通类指标")
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--start-month", required=True, help="趋势起始月份，YYYY-MM")
     parser.add_argument("--end-month", required=True, help="最新统计月份，YYYY-MM")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--batch-size", type=int, default=5000, help="每批读取条数，默认5000")
+    parser.add_argument("--temp-dir", type=Path, help="月内去重临时文件目录，需要有可用磁盘空间")
     args = parser.parse_args()
-    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output)
+    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir)
     print(json.dumps({
         "metric_run_id": report["metric_run_id"],
         "result_count": len(report["results"]),

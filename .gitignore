@@ -1,10 +1,13 @@
 .venv/
+.idea/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+data/
 data/raw/
 data/*.db
 data/*.db-*
+node_modules/
 .DS_Store
 collector/youshu/youdata_login.json
 collector/youshu/有数配置.json

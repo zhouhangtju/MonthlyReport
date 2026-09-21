@@ -1,7 +1,7 @@
 [storage]
 # file：只生成文件；database：只入库；both：同时生成文件并入库。
 mode = "both"
-database = "data/quality_assessment.db"
+# MySQL connection is configured in storage/database.py.
 raw_directory = "data/raw"
 output_directory = "outputs"
 

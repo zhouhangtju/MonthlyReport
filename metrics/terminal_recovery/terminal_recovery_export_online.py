@@ -1381,7 +1381,7 @@ def parse_args():
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
-    parser.add_argument("--database", type=Path, default=SCRIPT_DIR.parents[1] / "data/quality_assessment.db")
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     return parser.parse_args()
 
 
@@ -1425,9 +1425,9 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
     validate_dates(start_date, end_date)
     if mode not in {"file", "database", "both"}:
         raise ValueError("Unsupported mode")
-    # Temporary Excel files adapt SQLite snapshots to the unchanged legacy engine.
+    # Temporary Excel files adapt database snapshots to the unchanged legacy engine.
     with tempfile.TemporaryDirectory(prefix="terminal_recovery_") as directory:
-        print("正在从 SQLite 恢复源快照……", flush=True)
+        print("正在从数据库恢复源快照……", flush=True)
         source_dir = Path(directory) / "sources"
         snapshots = restore_sources(database, start_date, end_date, source_dir)
         print("源快照恢复完成，正在运行原汇总算法……", flush=True)
@@ -1437,8 +1437,8 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
         report = read_report(output_file, start_date, end_date, snapshots, source_runs)
         report["metric_run_id"] = None
         if mode in {"database", "both"}:
-            print("正在将两个汇总 sheet 的指标写入 SQLite……", flush=True)
-            report["metric_run_id"] = save_metric(Path(database), report, source_runs)
+            print("正在将两个汇总 sheet 的指标写入数据库……", flush=True)
+            report["metric_run_id"] = save_metric(database, report, source_runs)
         stats["metric_run_id"] = report["metric_run_id"]
         stats["result_count"] = len(report["results"])
         stats["json_file"] = None
@@ -1449,7 +1449,7 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
     return (output_file if mode in {"file", "both"} else None), stats
 
 
-def run_export(start_date, end_date, *, mode="both", database=SCRIPT_DIR.parents[1] / "data/quality_assessment.db",
+def run_export(start_date, end_date, *, mode="both", database=None,
                output_dir=DEFAULT_OUTPUT_DIR):
     return export_database(start_date, end_date, database, output_dir, mode)
 
@@ -1460,7 +1460,8 @@ def main():
     if output_file is not None:
         print(f"全部处理完成，输出文件：{output_file.resolve()}")
     else:
-        print(f"全部处理完成，两个汇总 sheet 的指标已存入数据库：{args.database.resolve()}")
+        from storage.database import _database_name
+        print(f"全部处理完成，两个汇总 sheet 的指标已存入 MySQL：{_database_name()}")
     print(stats)
 
 

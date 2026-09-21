@@ -2,7 +2,7 @@
 
 ## 1. 指标用途
 
-本模块从 SQLite 的 `orch_opening`数据集计算专线开通量、趋势、产品分布和自动率，不读取原始Excel或 `export`目录。
+本模块从 MySQL 的 `orch_opening` 数据集计算专线开通量、趋势、产品分布和自动率，不读取原始 Excel 或 `export` 目录。
 
 计算脚本：`metrics/opening/dedicated_line_metrics.py`
 
@@ -10,7 +10,6 @@
 
 ```bash
 python3 metrics/opening/dedicated_line_metrics.py \
-  --database data/quality_assessment.db \
   --start-month 2025-09 \
   --end-month 2026-08 \
   --mode both
@@ -18,11 +17,13 @@ python3 metrics/opening/dedicated_line_metrics.py \
 
 | 参数 | 默认值 | 说明 |
 |---|---|---|
-| `--database` | `data/quality_assessment.db` | SQLite数据库 |
+| `--database` | 可省略 | 兼容旧命令；MySQL 连接信息写在 `storage/database.py` |
 | `--start-month` | 必填 | 趋势起始月份，`YYYY-MM` |
 | `--end-month` | 必填 | 最新统计月份，`YYYY-MM` |
 | `--mode` | `both` | `file`、`database`或`both` |
 | `--output` | 自动生成 | 自定义JSON结果路径 |
+| `--batch-size` | `5000` | 流式读取每批记录数，必须大于 0 |
+| `--temp-dir` | 系统临时目录 | 月内去重暂存目录，指定时目录须已存在且有可用空间 |
 
 默认输出：`outputs/编排专线指标_YYYY-MM.json`。
 
@@ -48,42 +49,26 @@ python3 metrics/opening/dedicated_line_metrics.py \
 - 移机六环节、拆机五环节自动率及整体自动率；
 - 移机、拆机各地市配置激活自动率。
 
-运行时会按《专线产品情况》前18个子 Sheet 的顺序打印读取进度和指标摘要。数据库明细只查询一次，每条 `source_data` 只解析一次，并在一次遍历中完成归月、基础筛选、订单号去重和分组。指标结果使用批量 SQL 写入。
+运行时按月从 `orch_opening` 读取计算所需列，使用 MySQL 流式游标，每批默认 5000 条，不将全年明细装入 Python 列表。为保留跨批次“同月、同业务类型、同订单类型、同订单号最后一条生效”的规则，月内记录在临时 SQLite 文件中去重（缓存限制约 4 MiB），随后逐条读取去重结果累计汇总，完成该月后删除临时文件。SQLite 仅用于临时计算，不改变 MySQL 的业务存储。
+
+内存只保留当前批次、固定维度计数器及月度汇总；同比、环比、滚动 12 个月指标沿用原公式。全部结果仍在计算完成后保存，不会每完成一个月就标记整个任务成功。读取各月份使用同一个 MySQL 一致性快照，避免计算过程中不同月份读到不同版本的数据。
+
+例如统计 2025-09 至 2026-08，为计算同比仍需读取 2025-08。明细已清理的月份继续使用已有月度汇总。数据库日期范围筛选使用原始列“订单结束时间”；上面的日期别名兼容是计算函数对传入记录的处理规则。
+
+该优化针对内存，并不保证数据库查询更快：时间列仍为 LONGTEXT，TRIM 日期筛选可能导致逐月全表扫描。临时磁盘需要容纳单月去重明细；正常完成及 Python 异常退出会清理，强制终止进程可能留下 `opening_month_*` 临时目录。可以用 `--temp-dir` 指定空间充足的本地目录。
+
+原 `calculate()` 和 `load_rows()` 保留用于兼容与结果对照，命令行 `run()` 已切换至流式流程。指标结果使用批量 SQL 写入，JSON 与 PPT 数据格式不变。
 
 自动率保存实际分子和分母。分母为0时 `metric_value`为 `null`，不会把无数据表示成0%。
 
 ## 5. 结果存储
 
 - `metric_run`：统计周期、口径版本和源ETL批次；
-- `ads_metric_result`：指标编码、月份、产品、地市、环节、分子、分母和指标值；
+- `result_orchestration_opening`：指标编码、月份、产品、地市、环节、分子、分母和指标值；
 - JSON：文件模式下的审计结果。
 
 历史口径来源为 `stat_internet_line_metrics.py`，运行时不引用该文件。
-# 月度汇总与明细保留
 
 每次以数据库模式成功计算时，程序会把 `end-month` 的基础指标写入
 `orch_opening_monthly_summary`，并把数据质量写入
-`orch_opening_monthly_quality`。历史订单明细删除后，趋势、同比、环比和
-12 个月均值会自动用这些月度汇总补齐；存在明细的月份始终以明细重算为准。
-
-建议逐月取数并逐月执行指标计算。确认需要保留的月份均已生成汇总后，可先预览：
-
-```bash
-python3 storage/prune_orchestration_opening.py \
-  --database data/quality_assessment.db \
-  --before-month 2026-07
-```
-
-确认预览中的 `missing_summary_months` 为空后，再实际归档清理：
-
-```bash
-python3 storage/prune_orchestration_opening.py \
-  --database data/quality_assessment.db \
-  --before-month 2026-07 \
-  --apply
-```
-
-清理程序先将订单当前值和历史版本写入 `data/archive/orch_opening/*.jsonl.gz`，
-然后删除对应的 ODS、raw 和版本明细，记录清理周期并执行 `VACUUM`。它不会删除
-原始 Excel。`before-month` 为保留边界，例如 `2026-07` 表示删除 2026 年 7 月前
-的数据库明细。
+`orch_opening_monthly_quality`。逐月取数并计算后，历史月度汇总可供趋势、同比和环比使用。

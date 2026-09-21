@@ -20,7 +20,7 @@ class Profile:
     numerator_unit: str
 
 
-LINE = Profile("dedicated_line_repeat_complaint_rate", "1.2.0", "专线/专网重复投诉率", 1, "重复投诉Key")
+LINE = Profile("dedicated_line_repeat_complaint_rate", "1.6.0", "专线/专网重复投诉率", 1, "重复投诉Key")
 QLY = Profile("qianliyan_repeat_complaint_rate", "1.0.0", "千里眼重复投诉率", 24, "唯一客户标识")
 
 
@@ -190,11 +190,8 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
             _exclude(row, "不属于指标业务范围", excluded_rows)
             continue
         if profile == LINE:
-            if text(row.get("是否自建") or row.get("isSelfbuild")) == "1":
-                _exclude(row, "isSelfbuild=1", excluded_rows)
-                continue
-            if text(row.get("工单状态")) not in {"正常结束", "已完成", "完成"}:
-                _exclude(row, "工单状态非正常结束/已完成/完成", excluded_rows)
+            if not text(row.get("客服流水号")) or text(row.get("工单状态")) != "正常结束":
+                _exclude(row, "非自建口径不满足：客服流水号为空或工单状态非正常结束", excluded_rows)
                 continue
         elif not text(row.get("客服流水号")) or text(row.get("工单状态")) != "正常结束":
             _exclude(row, "非自建口径不满足：客服流水号为空或工单状态非正常结束", excluded_rows)
@@ -202,11 +199,8 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
         if "重置鉴权码" in text(row.get("工单主题")):
             _exclude(row, "工单主题包含重置鉴权码", excluded_rows)
             continue
-        if profile == LINE and numerator_excluded(row, profile):
-            _exclude(row, "特定重保组退单", excluded_rows)
-            continue
         customer = line_customer_id(row) if profile == LINE else customer_id(row)
-        category = first_category(row.get("业务类别"))
+        category = category_after_enterprise_market(row.get("业务类别")) if profile == LINE else first_category(row.get("业务类别"))
         if not customer or not category:
             _exclude(row, "客户标识或业务类别为空", excluded_rows)
             continue
@@ -216,7 +210,7 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
         row["_assigned_time"] = assigned
         row["_city"] = resolved_city or "（空）"
         denominator_rows.append(row)
-        if profile == QLY and numerator_excluded(row, profile):
+        if numerator_excluded(row, profile):
             excluded_copy = dict(row)
             excluded_copy["剔除原因"] = "仅从分子候选剔除"
             numerator_only_excluded.append(excluded_copy)
@@ -247,17 +241,14 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
     denominator_customers = {row["_customer"] for row in denominator_rows}
     denominator_keys = {row["_repeat_key"] for row in denominator_rows}
     numerator = len(repeat_keys) if profile == LINE else len({row["_customer"] for row in numerator_rows})
-    denominator = len(denominator_keys) if profile == LINE else len(denominator_customers)
+    denominator = len(denominator_customers)
 
     results = [result_row(profile.metric_code, "province", {"scope": "全省"}, numerator, denominator)]
     cities = sorted({row["_city"] for row in denominator_rows})
     for city_name in cities:
-        city_denominator = {
-            row["_repeat_key"] if profile == LINE else row["_customer"]
-            for row in denominator_rows if row["_city"] == city_name
-        }
+        city_denominator = {row["_customer"] for row in denominator_rows if row["_city"] == city_name}
         city_repeat_rows = [row for row in numerator_rows if row["_city"] == city_name]
-        city_numerator = len({row["_repeat_key"] if profile == LINE else row["_customer"] for row in city_repeat_rows})
+        city_numerator = len({row["_customer"] for row in city_repeat_rows})
         results.append(result_row(profile.metric_code, "city", {"city": city_name}, city_numerator, len(city_denominator)))
 
     return {
@@ -269,7 +260,7 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
             "name": profile.name,
             "dispatch_window_hours": profile.dispatch_window_hours,
             "numerator_unit": profile.numerator_unit,
-            "denominator_unit": "全部唯一Key" if profile == LINE else "唯一客户标识",
+            "denominator_unit": "唯一客户标识",
             "customer_id": "计费号码优先，空时使用手机号码",
         },
         "quality": {
@@ -296,7 +287,7 @@ def calculate(rows: list[dict[str, object]], start: str, end: str, profile: Prof
 def run_metric(profile: Profile, database: Path, start: str, end: str, mode: str, output: Path | None) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
-    database = database.expanduser().resolve()
+    database = database.expanduser().resolve() if database is not None else None
     rows, source_runs = load_dataset(database, "eoms_complaint")
     if not source_runs:
         raise RuntimeError("数据库中没有EOMS政企投诉工单的成功取数批次")

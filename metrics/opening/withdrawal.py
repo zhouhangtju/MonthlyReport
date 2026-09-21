@@ -12,13 +12,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from storage.metric_results import insert_results
 from storage.database import connect, initialize
+from storage.raw_tables import read_records
+from config.report_periods import integration_opening_period
 
 
 DATASET_CODE = "integration_opening"
 METRIC_CODE = "dedicated_line_opening_withdrawal_rate"
-METRIC_VERSION = "1.0.0-provisional"
-DEFAULT_BUSINESS_TYPES = ["互联网专线"]
+METRIC_VERSION = "1.3.0-provisional"
+COMPLETION_METRICS = {
+    "total": "dedicated_line_opening_completed_count",
+    "current": "dedicated_line_opening_completed_current_accepted_count",
+    "previous": "dedicated_line_opening_completed_previous_accepted_count",
+    "unknown": "dedicated_line_opening_completed_unknown_accepted_count",
+}
+DEFAULT_BUSINESS_TYPES: list[str] = []
+EXCLUDED_BUSINESS_TYPES = {"行业视频行业版平台基础", "行业视频-行业版", "5G双域专网"}
+EXCLUDED_BUSINESS_TYPE_KEYWORDS = ["跨省", "跨国"]
+EXCLUDED_PACKAGE_KEYWORDS = ["跨省"]
 DEFAULT_WITHDRAWAL_STATUSES = ["已撤单", "已驳回"]
 DEFAULT_TEST_KEYWORDS = ["测试", "test"]
 
@@ -43,22 +55,13 @@ def parse_time(value: object) -> datetime | None:
 def load_rows(database: Path) -> tuple[list[dict[str, object]], list[str]]:
     initialize(database)
     with connect(database) as connection:
-        records = connection.execute(
-            """SELECT source_record_id, source_data FROM raw_source_record
-               WHERE dataset_code=?""",
-            (DATASET_CODE,),
-        ).fetchall()
+        records = read_records(connection, DATASET_CODE)
         source_runs = connection.execute(
             """SELECT run_id FROM etl_run WHERE dataset_code=? AND status='success'
                ORDER BY started_at""",
             (DATASET_CODE,),
         ).fetchall()
-    rows = []
-    for record in records:
-        row = json.loads(record["source_data"])
-        row["_source_record_id"] = record["source_record_id"]
-        rows.append(row)
-    return rows, [item["run_id"] for item in source_runs]
+    return records, [item["run_id"] for item in source_runs]
 
 
 def is_test_order(row: dict[str, object], keywords: list[str]) -> bool:
@@ -66,19 +69,18 @@ def is_test_order(row: dict[str, object], keywords: list[str]) -> bool:
     return any(keyword.lower() in title for keyword in keywords if keyword)
 
 
-def deduplicate_latest(rows: list[dict[str, object]]) -> tuple[list[dict[str, object]], int]:
-    latest: dict[str, tuple[datetime, int, dict[str, object]]] = {}
-    missing = 0
-    for index, row in enumerate(rows):
-        order_id = text(row.get("工单号"))
-        if not order_id:
-            missing += 1
-            continue
-        end_time = parse_time(row.get("工单结束时间")) or datetime.min
-        current = latest.get(order_id)
-        if current is None or (end_time, index) > (current[0], current[1]):
-            latest[order_id] = (end_time, index, row)
-    return [item[2] for item in latest.values()], missing
+def business_exclusion_reason(row: dict[str, object]) -> str | None:
+    business_type = text(row.get("业务类型"))
+    package_type = text(row.get("业务套餐类型"))
+    if business_type in EXCLUDED_BUSINESS_TYPES:
+        return f"业务类型精确排除:{business_type}"
+    keyword = next((item for item in EXCLUDED_BUSINESS_TYPE_KEYWORDS if item in business_type), None)
+    if keyword:
+        return f"业务类型包含:{keyword}"
+    keyword = next((item for item in EXCLUDED_PACKAGE_KEYWORDS if item in package_type), None)
+    if keyword:
+        return f"业务套餐类型包含:{keyword}"
+    return None
 
 
 def rate_row(dimension_type: str, dimension: dict[str, str], rows: list[dict[str, object]], statuses: list[str]) -> dict[str, object]:
@@ -124,24 +126,58 @@ def calculate(
             continue
         if start <= end_time <= end:
             in_period.append(row)
-    base = [
+    source_base = [
         row for row in in_period
         if text(row.get("工单数据来源")) == "二编"
         and text(row.get("工单类型")) == "开通"
-        and (all_business_types or text(row.get("业务类型")) in business_types)
     ]
+    excluded_business: list[tuple[dict[str, object], str]] = []
+    business_base = []
+    for row in source_base:
+        reason = business_exclusion_reason(row)
+        if reason is None:
+            business_base.append(row)
+        else:
+            excluded_business.append((row, reason))
+    base = [row for row in business_base
+            if all_business_types or not business_types or text(row.get("业务类型")) in business_types]
     excluded_test = [row for row in base if is_test_order(row, keywords)]
     formal = [row for row in base if not is_test_order(row, keywords)]
-    deduplicated, missing_order_id = deduplicate_latest(formal)
-    numerator_rows = [row for row in deduplicated if text(row.get("工单状态")) in statuses]
+    numerator_rows = [row for row in formal if text(row.get("工单状态")) in statuses]
 
-    results = [rate_row("province", {"scope": "全省"}, deduplicated, statuses)]
-    cities = sorted({text(row.get("地市")) for row in deduplicated if text(row.get("地市"))})
+    # The report month is the month containing period_end. Completion uses the same
+    # 26th-to-25th period as the withdrawal denominator; acceptance groups use the
+    # report month's natural boundaries.
+    month_start = end.replace(day=1, hour=0, minute=0, second=0)
+    month_end = (month_start.replace(year=month_start.year + 1, month=1)
+                 if month_start.month == 12 else month_start.replace(month=month_start.month + 1))
+    completed = [row for row in formal if text(row.get("工单状态")) == "已完成"]
+    completion_groups = {"total": completed, "current": [], "previous": [], "unknown": []}
+    for row in completed:
+        dispatched = parse_time(row.get("派单时间"))
+        finished = parse_time(row.get("工单结束时间"))
+        if dispatched is None or dispatched > finished:
+            completion_groups["unknown"].append(row)
+        elif dispatched < month_start:
+            completion_groups["previous"].append(row)
+        elif dispatched < month_end:
+            completion_groups["current"].append(row)
+        else:
+            completion_groups["unknown"].append(row)
+
+    results = [rate_row("province", {"scope": "全省"}, formal, statuses)]
+    cities = sorted({text(row.get("地市")) for row in formal if text(row.get("地市"))})
     for city in cities:
-        results.append(rate_row("city", {"city": city}, [row for row in deduplicated if text(row.get("地市")) == city], statuses))
-    types = sorted({text(row.get("业务类型")) for row in deduplicated if text(row.get("业务类型"))})
+        results.append(rate_row("city", {"city": city}, [row for row in formal if text(row.get("地市")) == city], statuses))
+    types = sorted({text(row.get("业务类型")) for row in formal if text(row.get("业务类型"))})
     for business_type in types:
-        results.append(rate_row("business_type", {"business_type": business_type}, [row for row in deduplicated if text(row.get("业务类型")) == business_type], statuses))
+        results.append(rate_row("business_type", {"business_type": business_type}, [row for row in formal if text(row.get("业务类型")) == business_type], statuses))
+
+    for group, code in COMPLETION_METRICS.items():
+        amount = len(completion_groups[group])
+        results.append({"metric_code": code, "dimension_type": "province",
+                        "dimension": {"scope": "全省"}, "numerator": amount,
+                        "denominator": None, "metric_value": amount})
 
     return {
         "metric_code": METRIC_CODE,
@@ -149,33 +185,54 @@ def calculate(
         "period_start": start_date,
         "period_end": end_date,
         "rules": {
-            "business_types": "全部" if all_business_types else business_types,
+            "business_types": "排除固定范围后的全部" if all_business_types or not business_types else business_types,
+            "excluded_business_types": sorted(EXCLUDED_BUSINESS_TYPES),
+            "excluded_business_type_keywords": EXCLUDED_BUSINESS_TYPE_KEYWORDS,
+            "excluded_package_keywords": EXCLUDED_PACKAGE_KEYWORDS,
             "withdrawal_statuses": statuses,
             "test_title_keywords": keywords,
             "failed_status_in_numerator": "失败" in statuses,
+            "report_month": month_start.strftime("%Y-%m"),
+            "completion_period": {"start": start_date, "end": end_date},
+            "completion_time_field": "工单结束时间",
+            "completion_status": "已完成",
+            "completion_acceptance_field": "派单时间",
+            "completion_current_accepted": "派单时间在月报自然月内且不晚于工单结束时间",
+            "completion_previous_accepted": "派单时间早于竣工统计当月1日",
         },
         "quality": {
             "database_rows": len(rows),
             "rows_missing_end_time": missing_end_time,
             "rows_in_period": len(in_period),
+            "rows_before_business_exclusion": len(source_base),
+            "excluded_business_rows": len(excluded_business),
+            "business_exclusion_reasons": dict(Counter(reason for _, reason in excluded_business)),
             "rows_before_test_exclusion": len(base),
             "excluded_test_orders": len(excluded_test),
-            "rows_missing_order_id": missing_order_id,
-            "denominator_orders": len(deduplicated),
+            "denominator_orders": len(formal),
             "numerator_orders": len(numerator_rows),
-            "status_distribution": dict(Counter(text(row.get("工单状态")) for row in deduplicated)),
+            "status_distribution": dict(Counter(text(row.get("工单状态")) for row in formal)),
+            "completed_orders": len(completed),
+            "completed_current_accepted": len(completion_groups["current"]),
+            "completed_previous_accepted": len(completion_groups["previous"]),
+            "completed_unknown_accepted": len(completion_groups["unknown"]),
         },
         "results": results,
         "details": {
-            "denominator": deduplicated,
+            "denominator": formal,
             "numerator": numerator_rows,
             "excluded": excluded_test,
+            "excluded_business": [dict(row, _business_exclusion_reason=reason)
+                                  for row, reason in excluded_business],
+            "completed_current": completion_groups["current"],
+            "completed_previous": completion_groups["previous"],
+            "completed_unknown": completion_groups["unknown"],
         },
     }
 
 
 def audit_payload(row: dict[str, object]) -> dict[str, object]:
-    fields = ["工单号", "工单主题", "地市", "区县", "业务类型", "工单状态", "工单结束时间", "是否撤单重录", "计费号/产品实例编号"]
+    fields = ["工单号", "工单主题", "地市", "区县", "业务类型", "业务套餐类型", "工单状态", "工单结束时间", "派单时间", "是否撤单重录", "计费号/产品实例编号", "_business_exclusion_reason"]
     return {field: row.get(field) for field in fields}
 
 
@@ -192,13 +249,7 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
         )
     try:
         with connect(database) as connection:
-            for item in report["results"]:
-                connection.execute(
-                    """INSERT INTO ads_metric_result (metric_run_id, metric_code,
-                       dimension_type, dimension_value, numerator, denominator, metric_value)
-                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (run_id, item["metric_code"], item["dimension_type"], json.dumps(item["dimension"], ensure_ascii=False, sort_keys=True), item["numerator"], item["denominator"], item["metric_value"]),
-                )
+            insert_results(connection, report["metric_code"], run_id, report["results"])
             dimension = json.dumps({"period_start": report["period_start"], "period_end": report["period_end"]}, ensure_ascii=False, sort_keys=True)
             for role, rows in report["details"].items():
                 for row in rows:
@@ -237,7 +288,7 @@ def run(
 ) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
-    database = database.expanduser().resolve()
+    database = database.expanduser().resolve() if database is not None else None
     rows, source_runs = load_rows(database)
     if not source_runs:
         raise RuntimeError("数据库中没有一体化售中开通工单的成功取数批次")
@@ -256,17 +307,29 @@ def run(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="从数据库计算一体化专线开通撤退单率")
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
-    parser.add_argument("--start-date", required=True)
-    parser.add_argument("--end-date", required=True)
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
+    parser.add_argument("--month", help="月报月份 YYYY-MM；自动使用上月26日至本月25日")
+    parser.add_argument("--start-date")
+    parser.add_argument("--end-date")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--business-type", action="append", dest="business_types", help="可重复指定，默认仅互联网专线")
-    parser.add_argument("--all-business-types", action="store_true", help="不筛选业务类型，用于复现README全量样例")
+    parser.add_argument("--business-type", action="append", dest="business_types", help="可重复指定，在固定排除规则之后进一步限定业务类型")
+    parser.add_argument("--all-business-types", action="store_true", help="兼容参数：不额外限定业务类型，固定排除规则仍然生效")
     parser.add_argument("--withdrawal-status", action="append", dest="withdrawal_statuses", help="可重复指定，默认已撤单、已驳回")
     parser.add_argument("--test-keyword", action="append", dest="test_keywords", help="工单主题测试关键词，可重复指定")
     args = parser.parse_args()
-    report = run(args.database, args.start_date, args.end_date, mode=args.mode, output=args.output, business_types=args.business_types, all_business_types=args.all_business_types, withdrawal_statuses=args.withdrawal_statuses, test_keywords=args.test_keywords)
+    if args.month:
+        if args.start_date or args.end_date:
+            parser.error("--month 不能与 --start-date/--end-date 同时使用")
+        try:
+            start_date, end_date = integration_opening_period(args.month)
+        except ValueError as exc:
+            parser.error(str(exc))
+    else:
+        if not args.start_date or not args.end_date:
+            parser.error("请指定 --month，或同时指定 --start-date 和 --end-date")
+        start_date, end_date = args.start_date, args.end_date
+    report = run(args.database, start_date, end_date, mode=args.mode, output=args.output, business_types=args.business_types, all_business_types=args.all_business_types, withdrawal_statuses=args.withdrawal_statuses, test_keywords=args.test_keywords)
     print(json.dumps({"metric_run_id": report["metric_run_id"], "quality": report["quality"], "results": report["results"], "output_file": report["output_file"]}, ensure_ascii=False, indent=2))
 
 

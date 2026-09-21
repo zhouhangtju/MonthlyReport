@@ -1,6 +1,6 @@
 ---
 name: generate-monthly-report-ppt
-description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX，支持完整月报、单章节输出、模板或图片背景及审计检查。用户提到生成月报PPT、互联网专线产品开通情况、业务发展情况、专线自动情况、终端回收情况或业务支撑情况演示稿时使用；不用于重新计算指标或手工重画幻灯片。
+description: 从质量评估 MySQL 指标结果生成互联网专线月报 PPTX，支持完整月报、单章节输出、模板或图片背景及审计检查。用户提到生成月报PPT、互联网专线产品开通情况、业务发展情况、专线自动情况、终端回收情况或业务支撑情况演示稿时使用；不用于重新计算指标或手工重画幻灯片。
 ---
 
 # 从数据库生成月报 PPT
@@ -10,7 +10,7 @@ description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX
 ## 脚本与模板职责
 
 - 主入口：`reporting/build_internet_line_ppt.py`。校验参数和输入、读取数据库、生成审计文件、调用 Node 绘图并执行 PPTX 后处理。
-- 数据映射：`reporting/database_results.py`。只读连接 SQLite，从 `metric_run` 和 `ads_metric_result` 选择成功批次，整理业务发展、自动率、终端回收、撤退单率、重复投诉率和新装报障率数据。
+- 数据映射：`reporting/database_results.py`。只读连接 MySQL，从 `metric_run` 和 `各模块 result_* 结果表（通过 storage/metric_results.py 读取）` 选择成功批次，整理业务发展、自动率、终端回收、撤退单率、重复投诉率和新装报障率数据。
 - 绘图脚本：`reporting/create_internet_line_ppt.js`。由主入口调用，不要单独运行；使用 PptxGenJS 创建 16:9、微软雅黑主题的 16 页完整月报。
 - 辅助导出：`reporting/export_complaint_results.py`。只在需要核对已选中的投诉类指标结果时运行，不是生成 PPT 的必需步骤。
 - 默认底板：`reporting/templates/通用模板.pptx`。`--background-mode ppt` 时由主入口应用其母版、版式和主题。
@@ -21,7 +21,7 @@ description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX
 ## 月份与输入
 
 - `--month` 必须是 `YYYY-MM`。用户未显式指定月份时，从当前对话中的月报时间提取年月；对话中无法确定时先询问，不得使用系统当前月份猜测。
-- 默认数据库是项目根目录下的 `data/quality_assessment.db`，也可用 `--database` 指定其他 SQLite 文件。
+- `--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`，该参数不能切换数据库。
 - 当前主流程只读取数据库，不读取 `reporting/data_sources/专线产品情况_*.xlsx`；代码中的 `DEFAULT_INPUT` 和 `default_input` 目前未参与生成。
 - 数据库读取使用只读连接，生成月报不得改写源指标数据。
 
@@ -35,11 +35,19 @@ description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX
 - `dedicated_line_repeat_complaint_rate`、`qianliyan_repeat_complaint_rate`：重复投诉率。
 - `dedicated_line_install_fault_rate`、`qikuan_install_fault_rate`、`commercial_customer_install_fault_rate`：新装报障率。
 
-选择规则：指标批次必须为 `status=success` 且 `period_end` 等于月报月末。普通月度指标优先精确覆盖月初至月末；投诉和新装报障类支撑指标允许选择以该月月末结束的最近成功周期，并在页面显示实际统计周期；编排趋势结果允许较早的 `period_start`，但必须包含目标月需要的月份维度。
+选择规则：指标批次必须为`status=success`。`dedicated_line_opening_withdrawal_rate`使用上月26日至本月25日，例如2026年8月月报选择`2026-07-26`至`2026-08-25`；其余普通月度指标使用月初至月末。投诉和新装报障类支撑指标默认使用月报月及前两个月的三个自然月周期，例如2026年8月汇报PPT使用`2026-06-01`至`2026-08-31`；编排趋势结果允许较早的`period_start`，但必须包含目标月需要的月份维度。
+
+生成 PPT 前若需要补算业务支撑页指标，以下指标必须使用同一个三个月自然月周期，不能按月报当月单月计算：
+
+- `dedicated_line_repeat_complaint_rate`
+- `qianliyan_repeat_complaint_rate`
+- `qikuan_install_fault_rate`
+- `dedicated_line_install_fault_rate`
+- `commercial_customer_install_fault_rate`
 
 缺失、空值或非有限数会被程序填为 0，而不是让构建失败，并记录到审计文件。生成前后都要核对指标批次；不得仅凭 PPTX 文件存在就宣称数据完整。
 
-如果缺少目标月的 `orchestration_opening_metrics`，或需要首次补齐其 12 个月趋势与同比基期：用户明确选择低占用、汇总后删除明细的方式时，使用 `prepare-orchestration-opening-monthly`；否则分别使用取数和计算技能并保留明细。不要为方便而一次拉取 13 个月编排开通明细。生成 PPT 本身不授权删除数据。
+如果缺少目标月的 `orchestration_opening_metrics`，或需要首次补齐其 12 个月趋势与同比基期，先使用编排取数和指标计算技能补齐成功批次。生成 PPT 本身不授权删除数据。
 
 ## 运行前检查
 
@@ -55,8 +63,7 @@ description: 从质量评估 SQLite 指标结果生成互联网专线月报 PPTX
 
 ```bash
 python3 reporting/build_internet_line_ppt.py \
-  --month 2026-08 \
-  --database data/quality_assessment.db
+  --month 2026-08
 ```
 
 默认输出：
@@ -71,7 +78,6 @@ outputs/monthly_report/互联网专线产品开通情况_2026年8月.audit.json
 ```bash
 python3 reporting/build_internet_line_ppt.py \
   --month 2026-08 \
-  --database data/quality_assessment.db \
   --output outputs/monthly_report/互联网专线产品开通情况_2026年8月.pptx \
   --background-mode ppt \
   --template reporting/templates/通用模板.pptx \
@@ -109,7 +115,6 @@ python3 reporting/build_internet_line_ppt.py \
 ```bash
 python3 reporting/export_complaint_results.py \
   --month 2026-08 \
-  --database data/quality_assessment.db \
   --output-dir outputs/monthly_report/complaint_audit
 ```
 

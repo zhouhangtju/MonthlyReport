@@ -1,6 +1,6 @@
 ---
 name: collect-eoms-complaints
-description: 从 EOMS 获取“政企投诉工单”，补齐详情并保存为原始 Excel、写入 SQLite 或双存储。用户提到 EOMS 投诉工单、eoms_complaint、千里眼或专线重复投诉率的数据准备时使用。
+description: 从 EOMS 获取“政企投诉工单”，补齐详情并保存为原始 Excel、写入 MySQL。用户提到 EOMS 投诉工单、eoms_complaint、千里眼或专线重复投诉率的数据准备时使用。
 ---
 
 # EOMS：政企投诉工单取数
@@ -10,7 +10,7 @@ description: 从 EOMS 获取“政企投诉工单”，补齐详情并保存为�
 ## 数据口径
 
 - 数据集：`eoms_complaint`
-- 源记录主键：优先 `id`
+- 源记录主键：`工单号`；原始 `id` 作为普通业务字段保存
 - 文件目录：`data/raw/eoms/eoms_complaint/`
 - 入口：`collector/eoms/fetch_complaints.py`
 - 采集会调用列表与详情接口，沿用现有逻辑补齐字段、提取 `e55...` 计费号；计费号仍为空时用手机号补齐。
@@ -23,11 +23,10 @@ description: 从 EOMS 获取“政企投诉工单”，补齐详情并保存为�
 - 用户显式指定起止日期时，以用户输入为准。
 - 当前对话没有可确定的月报时间时，先询问用户，不得擅自使用系统当前日期代替。
 
-默认模式为 `both`，默认数据库为 `data/quality_assessment.db`。例如，对话中的月报时间为 `2026-08-31` 时：
+默认模式为 `both`。`--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`。例如，对话中的月报时间为 `2026-08-31` 时：
 
 ```bash
 python3 collector/eoms/fetch_complaints.py \
-  --database data/quality_assessment.db \
   --start-date 2026-05-31 \
   --end-date 2026-08-31 \
   --mode both

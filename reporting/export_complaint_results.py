@@ -10,7 +10,7 @@ from database_results import Results
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--month", required=True)
-    parser.add_argument("--database", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "quality_assessment.db")
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--metric", choices=["qianliyan_repeat_complaint_rate", "dedicated_line_repeat_complaint_rate", "commercial_customer_install_fault_rate"])
     args = parser.parse_args()
@@ -42,7 +42,7 @@ def main():
             "period_end": run["period_end"],
             "metric_run": run,
             "results": rows,
-            "note": "SQLite stored result export; not a reconstruction of the original calculation JSON or raw details.",
+            "note": "Database stored result export; not a reconstruction of the original calculation JSON or raw details.",
         }
         output = args.output_dir / f"{name}.json"
         output.write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")

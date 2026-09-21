@@ -181,7 +181,7 @@ def collect(
     *,
     mode: str = "both",
     output_dir: Path = Path("data/raw/orchestration"),
-    database: Path = Path("data/quality_assessment.db"),
+    database: Path | None = None,
     chunk_days: int = 3,
     interval: float = 2,
     timeout: float = 180,
@@ -280,7 +280,7 @@ def run_script(kind: str) -> None:
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw/orchestration"))
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--chunk-days", type=int, default=3)
     parser.add_argument("--interval", type=float, default=2)
     parser.add_argument("--timeout", type=float, default=180)

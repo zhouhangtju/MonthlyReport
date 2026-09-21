@@ -1,6 +1,6 @@
 ---
 name: collect-orchestration-install
-description: 从编排系统获取“互联网专线新装单”并保存为原始 Excel、写入 SQLite 或双存储。用户提到编排互联网专线新装单、按派单时间取数、ods_orch_install，或准备互联网专线新装保障率分母时使用。
+description: 从编排系统获取“互联网专线新装单”并保存为原始 Excel、写入 MySQL。用户提到编排互联网专线新装单、按派单时间取数、orch_install，或准备互联网专线新装保障率分母时使用。
 ---
 
 # 编排：互联网专线新装单取数
@@ -10,7 +10,7 @@ description: 从编排系统获取“互联网专线新装单”并保存为原�
 ## 数据口径
 
 - 数据集：`orch_install`
-- 业务表：`ods_orch_install`
+- 原始表（算数直接读取）：`orch_install`
 - 源记录主键：`订单号`
 - 日期口径：派单时间；接口参数为 `start_time`、`end_time`
 - 文件目录：`data/raw/orchestration/orch_install/`
@@ -26,11 +26,10 @@ description: 从编排系统获取“互联网专线新装单”并保存为原�
 - 用户显式指定起止日期时，以用户输入为准。
 - 当前对话没有可确定的月报时间时，先询问用户，不得擅自使用系统当前日期代替。
 
-未指定存储模式时用 `both`，未指定数据库时用 `data/quality_assessment.db`。例如，对话中的月报时间为 `2026-08-31` 时：
+未指定存储模式时用 `both`。`--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`。例如，对话中的月报时间为 `2026-08-31` 时：
 
 ```bash
 python3 collector/orchestration/fetch_install.py \
-  --database data/quality_assessment.db \
   --start-date 2026-05-31 \
   --end-date 2026-08-31 \
   --mode both

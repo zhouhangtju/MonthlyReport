@@ -1,6 +1,6 @@
 ---
 name: collect-integration-opening
-description: 从一体化平台获取“售中开通工单”并保存为原始 Excel、写入 SQLite 或双存储。用户提到一体化售中开通工单、开通撤退单数据、integration_opening 或按工单结束时间取数时使用。
+description: 从一体化平台获取“售中开通工单”并保存为原始 Excel、写入 Mysql。用户提到一体化售中开通工单、开通撤退单数据、integration_opening 或按工单结束时间取数时使用。
 ---
 
 # 一体化：售中开通工单取数
@@ -19,17 +19,15 @@ description: 从一体化平台获取“售中开通工单”并保存为原始 
 
 在项目根目录运行，将统计周期转换为明确的 `YYYY-MM-DD` 起止日期。日期取值规则如下：
 
-- 用户未显式指定日期时，以当前对话中的月报时间所在月份为统计周期：`start-date` 取该月第一天，`end-date` 取该月最后一天，即默认获取月报当月的数据。
+- 用户未显式指定日期时，以当前对话中的月报月份调用`--month`；脚本自动取上月26日至本月25日。例如2026年8月月报取`2026-07-26`至`2026-08-25`。
 - 用户显式指定起止日期时，以用户给出的日期为准。
 - 当前对话没有可确定的月报时间时，先询问用户，不得擅自使用系统当前日期代替。
 
-默认模式为 `both`，默认数据库为 `data/quality_assessment.db`。例如，对话中的月报时间为 `2026-08` 或该月内任意日期时：
+默认模式为 `both`，MySQL 连接信息写在 `storage/database.py`。例如，对话中的月报时间为 `2026-08` 或该月内任意日期时：
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --database data/quality_assessment.db \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode both
 ```
 
@@ -42,7 +40,7 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 
 ## 参数与运行行为
 
-- `--start-date` 和 `--end-date` 使用工单结束时间闭区间，结束日期包含当天；格式必须为 `YYYY-MM-DD`，开始日期不得晚于结束日期。
+- `--month`与显式的`--start-date/--end-date`二选一；`--month`使用上月26日至本月25日，显式日期仍按工单结束时间闭区间处理。
 - 默认参数为 `--mode both --timeout 180`。`both` 同时保存原始文件并入库；`file` 只保存文件；`database` 下载到临时目录，成功入库后清理临时文件。
 - 未指定 `--output-dir` 时，文件保存到 `data/raw/integration/integration_opening/`，文件名包含整个请求周期的起止日期。
 - 固定取数口径为：工单结束时间、工单类型“开通”、数据来源“二编”；保留全部工单状态和全部业务类型，避免漏掉驳回、撤单或待指标阶段筛选的记录。

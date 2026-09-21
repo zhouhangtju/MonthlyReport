@@ -1,0 +1,4 @@
+interface:
+  display_name: "手工计算企宽撤退指标"
+  short_description: "计算企宽撤退总量、比率、原因和地市数量"
+  default_prompt: "使用 $calculate-manual-qikuan-withdrawal-reasons 读取我上传的企宽 Excel，计算撤退总量、撤退率、前三地市、原因占比和分地市撤单、退单量。"

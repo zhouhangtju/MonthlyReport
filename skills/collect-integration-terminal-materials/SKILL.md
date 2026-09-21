@@ -25,12 +25,13 @@ description: 从一体化平台获取终端出入库、全省物资基准库，�
 ## 执行
 
 ```powershell
-py -3.11 collector/integration/integration_dismantle.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --database D:/MonthlyReport/data/quality_assessment.db --output-dir D:/edge_download
+py -3.11 collector/integration/integration_dismantle.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
 
 替换实际日期、路径；Windows 使用 `py -3.11`，其他环境先确认解释器和路径兼容。
 
 - 默认 `both` 保留下载文件并入库、保存快照；`database` 使用临时下载目录并入库；`file` 只保留本地资料，不能直接支持数据库算数。
+- 默认文件目录为项目 `data/raw/integration/terminal_materials/`；可用 `--output-dir` 指定其他目录。
 - 已有完整快照可跳过；`both` 还检查文件存在。只有用户明确重取才加 `--refresh`。
 - 用户明确复用已下载文件时可加 `--reuse-existing`，先确认目录中各文件所属周期；该选项不验证内容日期，也不证明线上接口可用。
 - 使用原有自动登录，Token 写入项目 `collector/credentials/zhengqi_yitihua.json`，需有写入权限。专线拆机脚本复用同一登录流程并自行获取新 Token，无需依赖本步骤先运行。不要回显登录信息。

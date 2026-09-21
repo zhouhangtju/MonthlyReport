@@ -61,7 +61,7 @@ metrics（唯一指标实现）
 | 专线开通 | 开通量同比、环比及月度趋势 | 编排：专线开通情况 | 否 | 基于各月去重开通订单量计算 |
 | 专线开通 | 产品及地市开通量分布 | 编排：专线开通情况 | 否 | 按产品名称、地市聚合去重订单量 |
 | 专线开通 | 开通/移机/拆机环节自动率 | 编排：专线开通情况 | 否 | 根据各处理环节字段是否为自动判定值计算；具体自动值沿用原脚本并在实施期固化为口径配置 |
-| 专线开通 | 专线开通撤退单率 | 一体化：售中开通工单 | 否 | 剔除测试单并按工单号去重；暂定 `(已撤单 + 已驳回) / 开通工单总数`，其中“已驳回=退单”待业务确认 |
+| 专线开通 | 专线开通撤退单率 | 一体化：售中开通工单 | 否 | 使用上月26日至本月25日；剔除3类指定业务、业务类型含跨省/跨国、套餐含跨省及测试单；原始表以工单号为主键，不二次去重；`(已撤单 + 已驳回) / 筛选后工单总数` |
 | 投诉质量 | 专线/专网重复投诉率（简称“专线投诉率”） | EOMS：政企投诉工单 | 否 | 分母为有效工单范围内的唯一客户标识数；以客户标识和完整业务路径组成 Key，剔除 1 小时内重复派单后，以重复投诉 Key 数为分子 |
 | 投诉质量 | 千里眼重复投诉率 | EOMS：政企投诉工单 | 否 | 客户标识+一级业务类别为 Key；剔除 24 小时内重复派单及指定分子排除项，重复客户数 / 唯一客户标识数 |
 | 新装质量 | 企宽新装报障率 | 有数：企宽新装清单 + 企宽投诉清单 | 同系统多数据集 | 对宽带账号匹配；投诉派单时间晚于新装派单时间的新装工单数 / 新装工单数 |
@@ -108,7 +108,7 @@ EOMS ──政企投诉工单───────┘
 - 工单状态：全部；
 - 业务类型：导出后筛选专线范围。
 
-计算前需要：剔除测试单、限定正式专线业务范围、按工单号去重并保留最终状态。测试单的识别字段和规则尚未在现有 README 中固化，必须补充确认。
+计算前需要剔除测试单并限定正式专线业务范围。售中工单原始表以工单号为主键，指标阶段不再二次去重。
 
 ### 4.4 EOMS：政企投诉工单
 
@@ -162,7 +162,7 @@ quality-assessment-pipeline/
 │   ├── opening/             # 开通类指标
 │   ├── complaint/           # 投诉/重复投诉类指标
 │   └── installation/        # 企宽及专线新装报障类指标
-├── sql/                     # SQLite DDL、后续视图及数据核查 SQL
+├── sql/                     # MySQL DDL、后续视图及数据核查 SQL
 ├── tests/                   # 取数解析、口径和回归测试
 ├── tools/                   # 数据检查工具
 └── outputs/                 # 临时报表输出，不作为主数据存储
@@ -186,10 +186,10 @@ quality-assessment-pipeline/
 | 层级 | 用途 | 示例表 |
 |---|---|---|
 | 运行审计层 | 记录取数与计算是否成功、起止时间、条数、错误信息 | `etl_run`, `metric_run` |
-| 原始层（raw） | 基本按源系统字段原样保存，并保留当前记录和历史版本 | `raw_source_record`, `raw_source_record_version` |
-| 编排业务层（ODS） | 将两类编排数据物理分表，并显式保存各自业务时间 | `ods_orch_opening`, `ods_orch_install` |
+| 原始层（raw） | 基本按源系统字段原样保存，并保留当前记录和历史版本 | 以 `dataset_code` 命名的 12 张原始表及对应 `<dataset_code>_version` 表 |
+| 编排原始表 | 按 XLSX 表头保存，算数直接读取 | `orch_opening`, `orch_install` |
 | 标准层（dwd） | 字段命名、时间、地市、账号/计费号、业务类型标准化 | `dwd_opening_order`, `dwd_install_order`, `dwd_complaint_order` |
-| 指标层（ads） | 保存分子、分母、指标值及口径版本 | `ads_metric_result`, `ads_metric_detail` |
+| 指标层（ads） | 保存分子、分母、指标值及口径版本 | 8 张 `result_*` 模块结果表、`ads_metric_detail` |
 
 建议所有原始表至少包含以下技术字段：
 
@@ -221,7 +221,7 @@ quality-assessment-pipeline/
 | 编排：专线开通情况 | `订单号` | 23,913 行，非空 23,913，唯一 23,913 | `产品实例编号`、`CRM工单号`、`宽带账号` | 同一订单状态变化后，源系统是覆盖原订单还是产生新订单号 |
 | 编排：互联网专线新装单 | `订单号` | 19,576 行，非空 19,576，唯一 19,576 | `产品实例编号`、`CRM工单号` | 一张订单是否始终只对应一个产品实例；拆分/重开场景如何表示 |
 | 一体化：售中专线开通工单 | `工单号` | 40,055 行，非空 40,055，唯一 40,055 | `上游工单号`、`计费号/产品实例编号` | 同一工单重派、撤单重录或状态变化时，工单号是否保持不变 |
-| EOMS：政企投诉工单 | 优先 `id`，业务备用键为 `工单号` | 5,738 行；`id` 和 `工单号`均全部非空且唯一 | `客服流水号`、`新客服流水号`、`计费号码`、`手机号码` | `id` 是否为全局且永久稳定的数据库 ID；不同环境或历史迁移后是否会变化 |
+| EOMS：政企投诉工单 | `工单号`（已确认），`id` 保留为普通业务列 | 5,738 行；`id` 和 `工单号`均全部非空且唯一 | `客服流水号`、`新客服流水号`、`计费号码`、`手机号码` | `id` 是否为全局且永久稳定的数据库 ID；不同环境或历史迁移后是否会变化 |
 | 有数：企宽新装清单 | `工单id` | 杭州样例 51,883 行，全部非空且唯一 | `宽带账号` | `工单id` 是否全省唯一，还是只在地市/日期/报表范围内唯一 |
 | 有数：企宽投诉清单 | `工单号` | 32,906 行，全部非空且唯一 | `客服流水号`、`宽带账号` | 工单号是否全局唯一；工单更新后是否仍使用同一工单号 |
 
@@ -235,27 +235,9 @@ quality-assessment-pipeline/
 
 ### 6.2 数据库内部主键与业务唯一约束
 
-数据库不建议直接把中文业务编号设置成表的物理主键。每张表使用内部生成的 `record_id` 作为物理主键，同时保存源系统主键：
+当前 12 张原始表按 XLSX 表头逐列保存。10 张表直接使用业务列作为物理主键，终端出库、终端入库使用自增 `id`，具体映射见文末。
 
-```text
-record_id          数据库内部主键
-source_record_id   订单号、工单号、工单id 或 EOMS id
-extract_batch_id   本次取数/导入批次
-```
-
-原始层需要保留同一业务记录在不同取数批次中的快照，因此建议唯一约束为：
-
-```text
-(extract_batch_id, source_record_id)
-```
-
-标准层表示当前可用于计算的记录，建议唯一约束为：
-
-```text
-(source_system, dataset_code, source_record_id)
-```
-
-这样，同一工单在两个批次中状态发生变化时，原始层能保留前后两个版本，标准层则更新为最新有效版本。
+原始表只保存业务列（出入库另加 id）。`raw_record_audit` 保存当前记录的批次和内容哈希；各 `<dataset_code>_version` 保存不同内容版本。出入库使用 `raw_period_batch` 和 `raw_period_row` 关联周期与当前行，替换周期数据时仍保留旧版本。
 
 ### 6.3 需要优先向源系统确认的主键问题
 
@@ -266,11 +248,11 @@ extract_batch_id   本次取数/导入批次
 5. 有数企宽投诉的 `工单号`是否会因报表刷新或工单更新而变化。
 6. 各系统同一业务记录再次导出时，是否可能修改历史字段；如果会，哪个更新时间字段最可信。
 
-当前开发版本使用 SQLite，数据库默认位于 `data/quality_assessment.db`。生产环境是否继续使用 SQLite，或迁移到 PostgreSQL，需要根据部署位置、并发用户和调度方式确定。
+当前开发版本使用 MySQL。连接信息统一在 `storage/database.py` 中配置；历史命令中的 `--database` 保留为兼容参数，不再表示实际本地数据库文件，也不能切换 MySQL 连接。
 
 ## 7. 当前开发版本使用方法
 
-第一版已经采用 SQLite 实现数据库骨架、数据集主键配置、原始文件归档、幂等导入、变更版本保留和 ETL 批次审计。
+当前版本已经采用 MySQL 实现数据库骨架、数据集主键配置、原始文件归档、幂等导入、变更版本保留和 ETL 批次审计。
 
 存储模式示例见 `config/settings.example.toml`：
 
@@ -295,8 +277,10 @@ python3 tools/list_datasets.py
 
 ### 7.3 初始化数据库
 
+`--database` 为兼容参数；实际 MySQL 连接信息由 `storage/database.py` 中的配置决定。
+
 ```bash
-python3 storage/init_database.py --database data/quality_assessment.db
+python3 storage/init_database.py
 ```
 
 ### 7.4 导入数据
@@ -305,7 +289,6 @@ python3 storage/init_database.py --database data/quality_assessment.db
 
 ```bash
 python3 storage/import_data.py \
-  --database data/quality_assessment.db \
   --dataset eoms_complaint \
   --file "../export/EOMS-投诉工单工具包-精简版/投诉工单/投诉工单_原始数据_20260501-20260731_20260901_191334.xlsx" \
   --period-start 2026-05-01 \
@@ -348,12 +331,10 @@ python3 -m unittest discover -s tests -v
 ```bash
 # 专线开通情况：保留文件并入库
 python3 collector/orchestration/fetch_opening.py \
-  --database data/quality_assessment.db \
   --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 
 # 互联网专线新装单：保留文件并入库
 python3 collector/orchestration/fetch_install.py \
-  --database data/quality_assessment.db \
   --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
 
@@ -367,9 +348,7 @@ python3 collector/orchestration/fetch_install.py \
 
 ```bash
 python3 collector/integration/fetch_withdrawal_orders.py \
-  --database data/quality_assessment.db \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode both
 ```
 
@@ -421,21 +400,18 @@ python3 collector/eoms/fetch_complaints.py \
 
 ```bash
 python3 metrics/opening/dedicated_line_metrics.py \
-  --database data/quality_assessment.db \
   --start-month 2025-09 \
   --end-month 2026-08 \
   --mode both
 ```
 
-月份按接口取数口径对应的订单结束时间归属。结果写入 `metric_run`和`ads_metric_result`，并可同时输出JSON审计文件。已覆盖互联网专线、MPLS-VPN、传输专线开通量和同比环比，以及互联网专线开通、移机、拆机自动率。详细口径见 `metrics/opening/dedicated_line_metrics.README.md`。
+月份按接口取数口径对应的订单结束时间归属。结果写入 `metric_run`和`result_orchestration_opening`，并可同时输出JSON审计文件。已覆盖互联网专线、MPLS-VPN、传输专线开通量和同比环比，以及互联网专线开通、移机、拆机自动率。详细口径见 `metrics/opening/dedicated_line_metrics.README.md`。
 
 ### 7.11 一体化专线开通撤退单率
 
 ```bash
 python3 metrics/opening/withdrawal.py \
-  --database data/quality_assessment.db \
-  --start-date 2026-08-01 \
-  --end-date 2026-08-31 \
+  --month 2026-08 \
   --mode both
 ```
 
@@ -494,13 +470,54 @@ python3 metrics/complaint/qianliyan_repeat_complaint_rate.py \
 4. 企宽新装报障率的有效观察窗口：统计期内任意后续投诉，还是新装后 N 天内投诉；当前代码采用统计期内且晚于新装时间的投诉。
 5. 专线新装报障率是否要求新装和投诉属于同一地市；当前代码要求一致。
 6. 各指标最终需要的维度和频率：月、季度；全省、地市、区县、产品等。
-7. 目标数据库类型、部署位置、任务调度方式和历史数据保留期限。
+7. MySQL 部署位置、任务调度方式和历史数据保留期限。
 
 ## 10. 建议实施顺序
 
-1. 确认第 9 节剩余业务口径及生产数据库选型。
+1. 确认第 9 节剩余业务口径及生产 MySQL 部署方式。
 2. 建立数据库 DDL、取数批次模型和统一字段字典。
 3. 依次迁移四个系统的取数连接器，先实现原始数据入库和数据质量检查。
 4. 优先实现单系统指标：撤退单率、专线/千里眼重复投诉率、企宽新装报障率、专线开通类指标。
 5. 再实现跨系统的专线新装报障率，并建设未匹配账号/计费号核查清单。
 6. 使用 `export` 中已有历史结果做回归对账，确认后再接入定时调度和报表输出。
+
+### 按 XLSX 表头保存原始数据
+
+`config/raw_columns.json` 保存建表的基础表头；文件表头首尾空格统一去除，新增字段追加到数据库，不回写该配置。`sql/schema.sql` 在运行初始化时创建全部 12 张原始表及其版本表。编号和业务值以文本保存，保留前导零、空值、源系统日期文本及特殊占位符；需要数值统计时显式转换。原始表不再保存 source_data、record_id 等管理列。
+
+| 原始表 | 物理主键 |
+|---|---|
+| terminal_material_names | 物料名称 |
+| integration_removal_order | 工单号 |
+| eoms_service_removal_order | 工单号 |
+| integration_terminal_outbound | id（自增） |
+| integration_terminal_inbound | id（自增） |
+| integration_material_baseline | 物料基准ID |
+| orch_opening | 订单号 |
+| orch_install | 订单号 |
+| integration_opening | 工单号 |
+| eoms_complaint | 工单号 |
+| youshu_install | 工单id |
+| youshu_complaint | 工单号 |
+
+有业务主键的文件重复导入会新增、更新或跳过；同一文件内完全相同的主键重复行折叠，数量记入 rows_duplicates。主键为空、同键内容冲突会拒绝整批写入，并记录失败批次及 raw_import_error。不再要求文件表头与配置完全一致：缺少普通列时，新记录补 NULL，已有记录保留未提供列的原值；提供了列但单元格为空时按空值更新。新增列自动添加为可空 LONGTEXT，后续初始化允许扩展列；按列名匹配，列顺序不影响导入。仍拒绝缺主键、空列名、重复列名、不合法字段名或与自增 id 冲突的文件。版本和审计摘要基于合并后的完整记录。MySQL 新增列属于 DDL，后续数据导入失败时新增空列可能保留，业务数据回滚。
+
+出入库必须传入开始/结束日期。按全部业务列比较（不含自增 id），同文件内和全表已有的完全相同行均不重复插入；任一列不同则新增。NULL、空字符串、大小写及空格分别比较。跨周期相同行复用同一 id，通过周期关联表供算数读取；刷新周期只替换关联，不删除其他周期或历史已入库原始行。读取出入库必须明确指定周期。
+
+默认 both 模式将文件保存在 data/raw，再自动调用统一导入器；file 仅保留文件，database 入库后清理临时文件。三个终端取数脚本直接导入原始 XLSX，不再生成“导入行主键”中间列。终端回收仍额外保存原工作簿周期快照，以保留格式和原始重复行。
+
+算数读取器（包括编排开通指标）直接读取原始表业务列，不再创建、写入或补写 ODS。投诉来源记录标识改为工单号，原 id 列仍保留。
+
+已有文件可运行 `storage/import_data.py --dataset <数据集> --file <文件>`。出入库必须另外指定 `--period-start YYYY-MM-DD --period-end YYYY-MM-DD`。需要终端回收快照时，使用对应取数脚本的 reuse-existing 模式，通用导入器不会单独创建工作簿快照。
+
+旧 JSON 原始表不会自动删除或迁移；初始化遇到旧表结构会明确报错，需使用新数据库重新导入本地文件。独立 MySQL 回归测试：`.venv\Scripts\python.cmd -m unittest discover -s tests -p test_split_raw_tables_integration.py -v`。
+
+### 编排原始表直读升级
+
+部署新代码并重启旧采集、算数进程后，原有 ODS 表不再被使用。初始化不会自动删除已有表；先备份并核对原始表完整性及算数结果，再手动删除旧表。无需重取原始数据或执行 ODS 补写。时间范围查询继续采用去除首尾空格后的订单结束时间；原始时间列为 LONGTEXT，大数据量下需实测查询耗时，不能沿用原 ODS 索引性能结论。
+
+缺列文件导入终端出入库时，缺失业务列按 NULL 参与全列判重（不包含自增 id）；若已有记录该列非空，则两行不同，会新增记录。新增字段同样参与后续判重。
+
+### 指标结果按模块存储
+
+新计算结果写入 8 张独立结果表，任务记录仍使用 metric_run，明细仍使用 ads_metric_detail，编排月度汇总表保留。完整表名、维度列、升级步骤及查询示例见 [结果存储说明](docs/metric-results.md)。PPT 与商客计算通过 storage/metric_results.py 读取模块结果，旧结果须显式迁移，不自动回退或双写旧表。

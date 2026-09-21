@@ -1,6 +1,6 @@
 ---
 name: collect-youshu-complaints
-description: 从有数平台获取“企宽投诉清单”，按日期分批导出，并保存原始 Excel、写入 SQLite 或双存储。用户提到有数企宽投诉单、youshu_complaint、工单号，或准备企宽新装保障率分子时使用。
+description: 从有数平台获取“企宽投诉清单”，按日期分批导出，并保存原始 Excel、写入 MySQL。用户提到有数企宽投诉单、youshu_complaint、工单号，或准备企宽新装保障率分子时使用。
 ---
 
 # 有数：企宽投诉清单取数
@@ -23,11 +23,10 @@ description: 从有数平台获取“企宽投诉清单”，按日期分批导�
 - 用户显式指定起止日期时，以用户输入为准。
 - 当前对话没有可确定的月报时间时，先询问用户，不得擅自使用系统当前日期代替。
 
-默认用双存储；大批量任务建议两阶段导出。例如，对话中的月报时间为 `2026-08-31` 时：
+默认用双存储；大批量任务建议两阶段导出。`--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`。例如，对话中的月报时间为 `2026-08-31` 时：
 
 ```bash
 python3 collector/youshu/fetch_complaints.py \
-  --database data/quality_assessment.db \
   --start-date 2026-05-31 \
   --end-date 2026-08-31 \
   --chunk-days 100 \

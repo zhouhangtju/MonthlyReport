@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from collector.integration.client import collect, download_one, request_body
+from config.report_periods import integration_opening_period
 from storage.database import connect, initialize
 
 
@@ -24,6 +25,10 @@ class FakeSession:
 
 
 class IntegrationCollectorTest(unittest.TestCase):
+    def test_report_month_uses_previous_month_26_to_current_month_25(self):
+        self.assertEqual(integration_opening_period("2026-08"), ("2026-07-26", "2026-08-25"))
+        self.assertEqual(integration_opening_period("2026-01"), ("2025-12-26", "2026-01-25"))
+
     def add_successful_run(self, database: Path, start: str, end: str) -> None:
         with connect(database) as connection:
             connection.execute(

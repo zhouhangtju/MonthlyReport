@@ -1,6 +1,6 @@
 ---
 name: collect-youshu-install
-description: 从有数平台获取“企宽新装清单”，按日期和地市分批导出，并保存原始 Excel、写入 SQLite 或双存储。用户提到有数企宽新装单、youshu_install、工单id，或准备企宽新装保障率分母时使用。
+description: 从有数平台获取“企宽新装清单”，按日期和地市分批导出，并保存原始 Excel、写入 MySQL 或双存储。用户提到有数企宽新装单、youshu_install、工单id，或准备企宽新装保障率分母时使用。
 ---
 
 # 有数：企宽新装清单取数
@@ -27,7 +27,6 @@ description: 从有数平台获取“企宽新装清单”，按日期和地市�
 
 ```bash
 python3 collector/youshu/fetch_install.py \
-  --database data/quality_assessment.db \
   --start-date 2026-05-31 \
   --end-date 2026-08-31 \
   --chunk-days 100 \
@@ -52,7 +51,7 @@ python3 collector/youshu/fetch_install.py \
 - 调用时显式传入 `--chunk-days 100`；其余默认参数为 `--mode both --interval 0.5 --timeout 120 --poll-timeout 600`，并启用 `--two-phase`。
 - `--start-date` 和 `--end-date` 是闭区间。请求周期不超过 100 天时只生成 1 个日期批次，超过 100 天时才按每 100 天继续拆分；每个日期批次仍按 11 个地市分别导出。
 - `--two-phase` 先为全部日期和地市创建异步导出任务，再统一轮询下载，适合本 Skill 的三个月批量采集。
-- `both` 同时保留文件并入库；`file` 只保留文件；`database` 使用临时目录，成功入库后清理文件。默认数据库为 `data/quality_assessment.db`，默认文件目录为 `data/raw/youshu/youshu_install/`。
+- `both` 同时保留文件并入库；`file` 只保留文件；`database` 使用临时目录，成功入库后清理文件。`--database` 仅兼容旧命令；MySQL 连接信息写在 `storage/database.py`。默认文件目录为 `data/raw/youshu/youshu_install/`。
 - 取数日期通过看板参数注入，并固定循环 11 个地市和企宽类型筛选。Excel 中以派单时间为筛选口径；受理时间或工单状态时间落在其他月份，不代表日期筛选失败。
 
 ## 完整覆盖与重复运行

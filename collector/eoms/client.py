@@ -96,7 +96,7 @@ def collect(
     *,
     mode: str = "both",
     output_dir: Path = Path("data/raw/eoms"),
-    database: Path = Path("data/quality_assessment.db"),
+    database: Path | None = None,
     page_size: int = 500,
     refresh: bool = False,
     login_first: bool = False,
@@ -108,7 +108,7 @@ def collect(
         raise ValueError("mode 必须是 file、database 或 both")
     if page_size < 1:
         raise ValueError("page_size 必须大于等于 1")
-    database = resolve_project_path(database)
+    database = resolve_project_path(database) if database is not None else None
     output_dir = resolve_project_path(output_dir)
     if mode in {"database", "both"} and not refresh and has_successful_coverage(
         database, DATASET_CODE, start, end
@@ -167,7 +167,7 @@ def run_script() -> None:
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw/eoms"))
-    parser.add_argument("--database", type=Path, default=Path("data/quality_assessment.db"))
+    parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     parser.add_argument("--page-size", type=int, default=500)
     parser.add_argument("--login-first", action="store_true")
     parser.add_argument("--refresh", action="store_true")

@@ -1,0 +1,4 @@
+interface:
+  display_name: "手工统计专线撤退原因"
+  short_description: "读取Excel并按地市、原因大类汇总撤退单"
+  default_prompt: "使用 $calculate-manual-withdrawal-reasons 解析我上传的撤退单 Excel，按地市和原因大类统计并输出标准化 JSON。"

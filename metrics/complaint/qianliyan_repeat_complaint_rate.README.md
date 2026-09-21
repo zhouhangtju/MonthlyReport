@@ -30,14 +30,17 @@
 
 “最后处理班组”和“结单人”按两个独立字段处理，不使用“最后处理人”替代结单人。
 
+分母在指定班组/结单人剔除之前固定；这些工单只从分子候选中剔除。分子按命中重复 Key 的客户标识去重，不按重复 Key 数直接计数。
+
+本指标口径以 `export/EOMS-投诉工单工具包-精简版/scripts/政企千里眼重复投诉率_客服流水号口径.py` 为准；不带“客服流水号口径”后缀的脚本属于历史入口。
+
 ## 运行与结果
 
 ```bash
 python3 metrics/complaint/qianliyan_repeat_complaint_rate.py \
-  --database data/quality_assessment.db \
   --start-date 2026-08-01 \
   --end-date 2026-08-31 \
   --mode both
 ```
 
-`--mode`可选 `file`、`database`或 `both`。数据库结果写入 `metric_run`、`ads_metric_result`和 `ads_metric_detail`；文件默认写入 `outputs/千里眼重复投诉率_起始日期_结束日期.json`。结果包含全省及地市维度，审计明细区分分母、分子和剔除记录。
+`--mode`可选 `file`、`database`或 `both`。数据库结果写入 `metric_run`、`result_qianliyan_repeat_complaint`和 `ads_metric_detail`；文件默认写入 `outputs/千里眼重复投诉率_起始日期_结束日期.json`。结果包含全省及地市维度，审计明细区分分母、分子和剔除记录。

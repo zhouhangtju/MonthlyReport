@@ -21,11 +21,10 @@
 
 ```bash
 python3 metrics/installation/commercial_customer_install_fault_rate.py \
-  --database data/quality_assessment.db \
   --start-date 2026-08-01 \
   --end-date 2026-08-31 \
   --mode both
 ```
 
-`--mode`可选 `file`、`database`或 `both`。文件默认写入 `outputs/商客新装报障率_起始日期_结束日期.json`；数据库结果写入 `metric_run`和 `ads_metric_result`。
+`--mode`可选 `file`、`database`或 `both`。文件默认写入 `outputs/商客新装报障率_起始日期_结束日期.json`；数据库结果写入 `metric_run`和 `result_commercial_install_fault`。
 
