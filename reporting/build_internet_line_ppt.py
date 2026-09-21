@@ -14,7 +14,7 @@ from xml.sax.saxutils import escape
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from reporting.database_results import build_data, month_bounds
-from reporting.manual_results import DEFAULT_DIRECTORY, METRIC_SETS, AUTOMATION, WITHDRAWAL, QIKUAN, RETURN, REPEAT
+from reporting.manual_results import DEFAULT_DIRECTORY, METRIC_SETS, AUTOMATION, WITHDRAWAL, QIKUAN, RETURN, REPEAT, COMBINED_REPEAT
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -930,7 +930,7 @@ def main():
 
     required_manual = {
         '业务发展情况': set(), '终端回收情况': set(),
-        '专线自动情况': {AUTOMATION}, '业务支撑情况': {WITHDRAWAL, QIKUAN, RETURN, REPEAT},
+        '专线自动情况': {AUTOMATION}, '业务支撑情况': {WITHDRAWAL, QIKUAN, RETURN, REPEAT, COMBINED_REPEAT},
     }.get(args.section, METRIC_SETS)
     data = build_data(args.database, str(args.end_month), args.manual_metrics_dir if required_manual else None, required_manual)
     output_path.parent.mkdir(parents=True, exist_ok=True)

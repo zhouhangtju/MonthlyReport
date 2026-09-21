@@ -16,8 +16,9 @@ const d = {currentMonth:'2026-08', displayMonth:'8月',
   dataAudit:{missing:[{ppt_field:'withdrawal.completionCount'}]},
   withdrawal:{completionCount:0, currentAcceptedCompletion:10, previousAcceptedCompletion:20,
     withdrawalCount:148, withdrawalRate:.0225},
-  complaintFault:{repeat:{cities,lineRates:[.1,.3,.4,.2],qikuanRates:[.2,.5,.4,.1],
-    lineAverage:.1,qikuanAverage:.2,totalAverage:.15},
+  complaintFault:{repeat:{cities,lineRates:[.1,.3,.4,.2],broadbandRates:[.05,.1,.2,.3],qikuanRates:[.2,.5,.4,.1],
+    lineAverage:.1,broadbandAverage:.05,qikuanAverage:.2,totalAverage:.15,
+    weightedTotalAverage:.13,weightedTotalRates:[.13,.34,.36,.18],weightedHighNames:['嘉兴','宁波','绍兴']},
     fault:{cities,totalRates:[.4,.2,.3,.1],totalAverage:.1,lineAverage:.1,broadbandAverage:.2}},
   internetAuto:{manualReasons:{cities,province:{'工程施工占比':.9,'空原因占比':.01},
     byCity:{'杭州':{'非自动工单数':10,'工程施工工单数':10},
@@ -25,7 +26,9 @@ const d = {currentMonth:'2026-08', displayMonth:'8月',
 assert.match(n.withdrawal(d), /全省专线开通单竣工量待填充单/);
 assert.match(n.withdrawal(d), /7月之前受理的竣工量20单/);
 assert.match(n.repeat(d), /专线重复投诉率10.00%，嘉兴、宁波、绍兴较高/);
+assert.match(n.repeat(d), /千里眼重复投诉率5.00%，绍兴、嘉兴、宁波较高/);
 assert.match(n.repeat(d), /企宽重复投诉率20.00%，宁波、嘉兴、杭州较高/);
+assert.match(n.repeat(d), /合计重复投诉率13.00%，嘉兴、宁波、绍兴较高/);
 assert.match(n.fault(d), /新装报障率较高地市为杭州、嘉兴、宁波/);
 const q={cities,rates:[.2,.1,.4,.3],overallRate:.25,withdrawalTotal:1234,
   reasons:Object.fromEntries(['customer','frontDesk','construction','other','network'].map(k=>[k,{count:1,share:.2}]))};

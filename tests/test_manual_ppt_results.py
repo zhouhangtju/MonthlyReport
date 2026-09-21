@@ -104,6 +104,28 @@ class ManualResultsTest(unittest.TestCase):
         self.assertIsNone(repeat['totalAverage'])
         self.assertEqual(repeat['totalRates'], [None]*11)
 
+    def test_weighted_repeat_result_is_loaded_without_recalculation(self):
+        rows = {
+            city: dict(line_rate=.1, qikuan_rate=.2, qianliyan_rate=.3, rate=.18)
+            for city in m.CITIES
+        }
+        document = {
+            'formula': '专线重复投诉率*0.4+企宽重复投诉率*0.4+千里眼重复投诉率*0.2',
+            'province': dict(line_rate=.1, qikuan_rate=.2, qianliyan_rate=.3, rate=.18),
+            'cities': rows,
+            'top_cities': m.CITIES[:3],
+        }
+        data = {'complaintFault': {'repeat': {}}}
+        audit = dict(missing=[], derived_results={})
+        m.apply_results(data, {m.COMBINED_REPEAT: document}, audit, None)
+        repeat = data['complaintFault']['repeat']
+        self.assertAlmostEqual(repeat['weightedTotalAverage'], .18)
+        self.assertEqual(repeat['weightedTotalRates'], [.18] * 11)
+        self.assertEqual(repeat['weightedHighNames'], m.CITIES[:3])
+        document['province']['rate'] = .19
+        with self.assertRaises(ValueError):
+            m.apply_results({'complaintFault': {'repeat': {}}}, {m.COMBINED_REPEAT: document}, audit, None)
+
     def test_real_skill_outputs_with_mock_database(self):
         # Integration smoke using local calculated fixtures when available; no database writes.
         if not m.DEFAULT_DIRECTORY.exists():

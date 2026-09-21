@@ -9,9 +9,10 @@ DEFAULT_DIRECTORY = Path(__file__).resolve().parents[1] / 'outputs' / 'manual_me
 WITHDRAWAL = 'dedicated_line_withdrawal_reasons_by_city'
 AUTOMATION = 'internet_line_manual_automation'
 REPEAT = 'qikuan_repeat_complaint_rate'
+COMBINED_REPEAT = 'combined_repeat_complaint_rate'
 QIKUAN = 'qikuan_withdrawal_summary'
 RETURN = 'qikuan_withdrawal_rate_by_city'
-METRIC_SETS = {WITHDRAWAL, AUTOMATION, REPEAT, QIKUAN, RETURN}
+METRIC_SETS = {WITHDRAWAL, AUTOMATION, REPEAT, COMBINED_REPEAT, QIKUAN, RETURN}
 
 
 def number(value, name, nullable=False):
@@ -217,4 +218,40 @@ def apply_results(data, documents, audit, db):
             'values': combined_audit, 'other_cities': {k:v for k,v in rows.items() if k not in CITIES}}
         if repeat['totalAverage'] is None or any(v is None for v in repeat['totalRates']):
             audit['missing'].append({'ppt_field': 'complaintFault.repeat.combined', 'reason': 'missing_numerator_or_denominator', 'filled_value': None})
+    if COMBINED_REPEAT in documents:
+        document = documents[COMBINED_REPEAT]
+        expected_formula = '专线重复投诉率*0.4+企宽重复投诉率*0.4+千里眼重复投诉率*0.2'
+        if document.get('formula') != expected_formula:
+            raise ValueError('合计重复投诉率公式不匹配')
+        rows = {c.removesuffix('市'): v for c, v in document.get('cities', {}).items()}
+        if set(rows) != set(CITIES):
+            raise ValueError('合计重复投诉率必须包含且仅包含11地市')
+        province = document.get('province')
+        if not isinstance(province, dict):
+            raise ValueError('合计重复投诉率缺少全省结果')
+        def validate_weighted(row, name):
+            if not isinstance(row, dict):
+                raise ValueError(f'{name}: 合计结果格式错误')
+            line = number(row.get('line_rate'), f'{name}专线重复投诉率')
+            qikuan = number(row.get('qikuan_rate'), f'{name}企宽重复投诉率')
+            qianliyan = number(row.get('qianliyan_rate'), f'{name}千里眼重复投诉率')
+            value = number(row.get('rate'), f'{name}合计重复投诉率')
+            expected = line * 0.4 + qikuan * 0.4 + qianliyan * 0.2
+            if not math.isclose(value, expected, rel_tol=1e-9, abs_tol=1e-12):
+                raise ValueError(f'{name}: 合计重复投诉率与公式不一致')
+            return value
+        repeat = data['complaintFault']['repeat']
+        repeat['weightedTotalRates'] = [validate_weighted(rows[city], city) for city in CITIES]
+        repeat['weightedTotalAverage'] = validate_weighted(province, '全省')
+        expected_top = sorted(CITIES, key=lambda city: (-rows[city]['rate'], CITIES.index(city)))[:3]
+        top_cities = [str(city).removesuffix('市') for city in document.get('top_cities', [])]
+        if top_cities != expected_top:
+            raise ValueError('合计重复投诉率top_cities与地市结果排序不一致')
+        repeat['weightedHighNames'] = top_cities
+        audit['derived_results']['complaintFault.repeat.weighted'] = {
+            'formula': expected_formula,
+            'province': repeat['weightedTotalAverage'],
+            'top_cities': repeat['weightedHighNames'],
+            'source_metric_set': COMBINED_REPEAT,
+        }
     audit['missing'] = [m for m in audit['missing'] if m.get('ppt_field') not in filled]

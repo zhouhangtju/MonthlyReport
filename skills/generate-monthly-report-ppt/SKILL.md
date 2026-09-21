@@ -41,6 +41,8 @@ description: 从质量评估 MySQL 指标结果生成互联网专线月报 PPTX�
 
 - `dedicated_line_repeat_complaint_rate`
 - `qianliyan_repeat_complaint_rate`
+- `qikuan_repeat_complaint_rate`手工结果
+- `combined_repeat_complaint_rate`合计结果 JSON；必须由上述三类重复投诉率结果按0.4、0.4、0.2权重生成
 - `qikuan_install_fault_rate`
 - `dedicated_line_install_fault_rate`
 - `commercial_customer_install_fault_rate`

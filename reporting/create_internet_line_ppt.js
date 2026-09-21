@@ -38,7 +38,8 @@ function qikuan(D, data, isReturn) {
 }
 function repeat(D) {
   const r = D.complaintFault.repeat;
-  return `${period(D.currentMonth, true)}，三个月内商客业务整体重复投诉率${percent(r.totalAverage)}，其中专线重复投诉率${percent(r.lineAverage)}，${topCities(r.cities, r.lineRates)}较高；企宽重复投诉率${percent(r.qikuanAverage)}，${topCities(r.cities, r.qikuanRates)}较高。`;
+  const weightedHighNames = (r.weightedHighNames || []).join('、') || '待填充';
+  return `${period(D.currentMonth, true)}，三个月内商客业务整体重复投诉率${percent(r.totalAverage)}，其中专线重复投诉率${percent(r.lineAverage)}，${topCities(r.cities, r.lineRates)}较高；千里眼重复投诉率${percent(r.broadbandAverage)}，${topCities(r.cities, r.broadbandRates)}较高；企宽重复投诉率${percent(r.qikuanAverage)}，${topCities(r.cities, r.qikuanRates)}较高；合计重复投诉率${percent(r.weightedTotalAverage)}，${weightedHighNames}较高。`;
 }
 function fault(D) {
   const f = D.complaintFault.fault;
@@ -117,6 +118,7 @@ const packageSeries = [D.packageTrend];
 const otherSeries = [D.otherTrend];
 
 function fmt(value) { return value == null ? '待补充' : Number(value).toLocaleString('en-US'); }
+function ceilFmt(value) { return value == null ? '待补充' : Math.ceil(Number(value)).toLocaleString('en-US'); }
 function pct(value) { return value == null ? '无数据' : `${(Number(value) * 100).toFixed(2)}%`; }
 
 // Manual metrics use their own order-level denominators; database stage rates remain unchanged.
@@ -129,7 +131,7 @@ function manualBar(slide, title, labels, values, box, percent = true) {
     ...box, catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
     catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
     valAxisMinVal: 0, valAxisMaxVal: Math.max(percent ? .01 : 1, ...values.filter(v => v != null)) * 1.3,
-    valAxisLabelColor: C.white, valAxisLineColor: C.white,
+    valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white,
     valGridLine: { color: C.white, transparency: 100 }, showLegend: false,
     showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: SINGLE_METRIC_BLUE,
     dataLabelFontSize: 8, dataLabelFormatCode: percent ? '0.00%' : '0',
@@ -354,7 +356,7 @@ slide.addChart(pptx.ChartType.bar, [{ name: '订单量', labels: provinceNames, 
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelRotate: 0,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false,
   showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -371,7 +373,7 @@ slide.addChart(pptx.ChartType.bar, citySeries.map(s => ({ name: s.name, labels: 
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: cityAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
   showTitle: false, showValue: true,
@@ -387,15 +389,15 @@ slide.addText([
   { text: `${D.trendPeriodText}，悦享专线动态IP版累计 `, options: { bold: true, color: C.ink } },
   { text: `${fmt(D.trendSummary['悦享专线动态IP版'].sum)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，月均 ', options: { bold: true, color: C.ink } },
-  { text: `${fmt(D.trendSummary['悦享专线动态IP版'].average)}单`, options: { bold: true, color: C.deepBlue } },
+  { text: `${ceilFmt(D.trendSummary['悦享专线动态IP版'].average)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '；互联网专线套餐累计开通 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.trendSummary['互联网专线套餐'].sum)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，平均月开通 ', options: { bold: true, color: C.ink } },
-  { text: `${fmt(D.trendSummary['互联网专线套餐'].average)}单`, options: { bold: true, color: C.deepBlue } },
+  { text: `${ceilFmt(D.trendSummary['互联网专线套餐'].average)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '；其他产品累计开通 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.otherTrendSummary.sum)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，平均月开通 ', options: { bold: true, color: C.ink } },
-  { text: `${fmt(D.otherTrendSummary.average)}单`, options: { bold: true, color: C.deepBlue } },
+  { text: `${ceilFmt(D.otherTrendSummary.average)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '。', options: { bold: true, color: C.ink } },
 ], {
   x: 0.38, y: 3.98, w: 12.5, h: 0.56,
@@ -409,7 +411,7 @@ slide.addChart(pptx.ChartType.bar, enjoySeries.map(s => ({ name: s.name, labels:
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: trendAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false,
   showTitle: false, showValue: true, dataLabelPosition: 'outEnd',
@@ -442,7 +444,7 @@ slide2.addChart(pptx.ChartType.bar, packageSeries.map(s => ({ name: s.name, labe
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: packageAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false,
   showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -458,7 +460,7 @@ slide2.addChart(pptx.ChartType.bar, otherSeries.map(s => ({ name: s.name, labels
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: otherAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false,
   showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -514,7 +516,7 @@ slide3.addChart(pptx.ChartType.bar, [{
   x: 0.58, y: 1.85, w: 3.8, h: 1.65,
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -528,7 +530,7 @@ slide3.addChart(pptx.ChartType.bar, D.mpls.citySeries.map(s => ({ name: s.name, 
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: mplsCityAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
   showTitle: false, showValue: true, dataLabelPosition: 'outEnd',
@@ -544,7 +546,7 @@ slide3.addChart(pptx.ChartType.bar, [{ name: 'MPLS-VPN专线合计', labels: D.m
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: mplsTrendAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -614,7 +616,7 @@ slide4.addChart(pptx.ChartType.bar, [{
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelRotate: 0,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -628,7 +630,7 @@ slide4.addChart(pptx.ChartType.bar, D.transmission.citySeries.map(s => ({ name: 
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: transmissionCityAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
   showTitle: false, showValue: true,
@@ -645,7 +647,7 @@ slide4.addChart(pptx.ChartType.bar, [{ name: '传输专线合计', labels: D.tra
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: transmissionTrendAxisMax,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: C.ink,
@@ -735,7 +737,7 @@ slide5.addChart(pptx.ChartType.bar, [{
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: 1.08,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: '4472C4', dataLabelFontFace: 'Microsoft YaHei', dataLabelFontSize: 8,
@@ -796,7 +798,7 @@ const moveChartBase = {
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
   valAxisMinVal: 0, valAxisMaxVal: 1.08,
-  valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLabelFontSize: 8, valAxisLineColor: C.lightGray,
   valGridLine: { color: C.white, transparency: 100 },
   showLegend: false, showTitle: false, showValue: true,
   dataLabelPosition: 'outEnd', dataLabelColor: SINGLE_METRIC_BLUE, dataLabelFontFace: 'Microsoft YaHei', dataLabelFontSize: 8,
@@ -958,8 +960,8 @@ terminalOverviewSlide.addChart([
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
   valAxes: [
-    { valAxisMinVal: 0, valAxisMaxVal: 5000, valAxisLabelFontSize: 7, valAxisLabelColor: C.gray, valAxisLineColor: C.lightGray, valGridLine: { color: 'E6EAF0', transparency: 20 } },
-    { valAxisMinVal: 0, valAxisMaxVal: 1, valAxisLabelFormatCode: '0%', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: 5000, valAxisLabelFontSize: 7, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLineColor: C.lightGray, valGridLine: { color: 'E6EAF0', transparency: 20 } },
+    { valAxisMinVal: 0, valAxisMaxVal: 1, valAxisLabelFormatCode: '0%', valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
   ],
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
   chartColors: ['4F81BD', 'C0504D', '9BBB59'],
@@ -1013,8 +1015,8 @@ terminalOverviewSlide.addChart([
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
   valAxes: [
-    { valAxisMinVal: 0, valAxisMaxVal: 800, valAxisLabelFontSize: 7, valAxisLabelColor: C.gray, valAxisLineColor: C.lightGray, valGridLine: { color: 'E6EAF0', transparency: 20 } },
-    { valAxisMinVal: 0, valAxisMaxVal: 1, valAxisLabelFormatCode: '0%', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: 800, valAxisLabelFontSize: 7, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray, valAxisLineColor: C.lightGray, valGridLine: { color: 'E6EAF0', transparency: 20 } },
+    { valAxisMinVal: 0, valAxisMaxVal: 1, valAxisLabelFormatCode: '0%', valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
   ],
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
   chartColors: ['4F81BD', 'C0504D', '9BBB59'],
@@ -1049,7 +1051,7 @@ const terminalStackedChartBase = {
   catAxisLineColor: C.lightGray,
   valAxisMinVal: 0,
   valAxisLabelFontSize: 7,
-  valAxisLabelColor: C.gray,
+  valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.gray,
   valAxisLineColor: C.lightGray,
   valGridLine: { color: 'E6EAF0', transparency: 20 },
   showLegend: true,
@@ -1159,9 +1161,9 @@ function withdrawalCombo(title, labels, bars, rates, y) {
     catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
     valAxes: [
       { valAxisMinVal: 0, valAxisMaxVal: Math.max(1, ...bars.flatMap(b => b.values).filter(v => v != null)) * 1.6,
-        valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+        valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
       { valAxisMinVal: 0, valAxisMaxVal: Math.max(.01, ...rates.filter(v => v != null)) * 1.6,
-        valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+        valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
     ],
     showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 8,
     showTitle: true, title, titleFontFace: 'Microsoft YaHei', titleFontSize: 10, titleBold: true,
@@ -1249,7 +1251,7 @@ complaintFaultSlide.addChart([
   },
   {
     type: pptx.ChartType.line,
-    data: [{ name: '合计（专线+企宽）', labels: repeat.cities, values: repeat.totalRates }],
+    data: [{ name: '商客合计（专线+企宽）', labels: repeat.cities, values: repeat.totalRates }],
     options: {
       secondaryValAxis: true,
       secondaryCatAxis: true,
@@ -1272,8 +1274,8 @@ complaintFaultSlide.addChart([
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
   valAxes: [
-    { valAxisMinVal: 0, valAxisMaxVal: repeatAxisMax, valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
-    { valAxisMinVal: 0, valAxisMaxVal: repeatAxisMax, valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: repeatAxisMax, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: repeatAxisMax, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
   ],
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 9,
   showTitle: true, title: '重复投诉率', titleFontFace: 'Microsoft YaHei', titleFontSize: 11, titleBold: true,
@@ -1281,7 +1283,7 @@ complaintFaultSlide.addChart([
   chartColors: ['4F81BD', 'C0504D', '8064A2', '9BBB59'],
   border: { color: C.white, transparency: 100 },
 });
-complaintFaultSlide.addText('注：合计=(专线分子+企宽分子)/(专线分母+企宽分母)，千里眼不参与；按指定口径合并各自周期。企宽含历史判重，省级含“其他”地市。', {
+complaintFaultSlide.addText('注：商客合计=(专线分子+企宽分子)/(专线分母+企宽分母)，千里眼不参与；合计=专线重复投诉率*0.4+企宽重复投诉率*0.4+千里眼重复投诉率*0.2；按指定口径合并各自周期。企宽含历史判重，省级含“其他”地市。', {
   x: 0.41, y: 3.81, w: 10.32, h: 0.25,
   fontFace: 'Microsoft YaHei', fontSize: 8.5, color: C.gray,
   margin: 0, fit: 'shrink',
@@ -1335,8 +1337,8 @@ complaintFaultSlide.addChart([
   catAxisLabelColor: C.ink, catAxisLineColor: C.lightGray,
   catAxes: [{}, { catAxisLabelPos: 'none', catAxisLineColor: C.white }],
   valAxes: [
-    { valAxisMinVal: 0, valAxisMaxVal: faultAxisMax, valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
-    { valAxisMinVal: 0, valAxisMaxVal: faultAxisMax, valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: faultAxisMax, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
+    { valAxisMinVal: 0, valAxisMaxVal: faultAxisMax, valAxisLabelPos: 'none', valAxisLineShow: false, valAxisMajorTickMark: 'none', valAxisMinorTickMark: 'none', valAxisLabelColor: C.white, valAxisLineColor: C.white, valGridLine: { color: C.white, transparency: 100 } },
   ],
   showLegend: true, legendPos: 't', legendFontFace: 'Microsoft YaHei', legendFontSize: 9,
   showTitle: true, title: '新装报障率', titleFontFace: 'Microsoft YaHei', titleFontSize: 11, titleBold: true,
