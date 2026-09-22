@@ -1380,6 +1380,7 @@ def parse_args():
     parser.add_argument("--start-date", required=True)
     parser.add_argument("--end-date", required=True)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--district-map", type=Path, help="含地市、区县、标准区县的映射表；默认在输出目录查找")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     return parser.parse_args()
@@ -1413,7 +1414,7 @@ def export(start_date, end_date, input_dir=DEFAULT_INPUT_DIR, output_dir=DEFAULT
     stats = update_return_device_sheet(output_file, output_file)
     return output_file, stats
 
-def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DIR, mode="both"):
+def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DIR, mode="both", district_map=None):
     import json
     import sys
     import tempfile
@@ -1421,8 +1422,11 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
     from storage.terminal_recovery import restore_sources, source_run_ids
     from metrics.terminal_recovery.report import read_report
     from metrics.installation.common import save_metric
+    from metrics.terminal_recovery.districts import resolve_mapping, load_mapping, build_district_report, metric_rows
 
     validate_dates(start_date, end_date)
+    mapping_file = resolve_mapping(output_dir, district_map)
+    load_mapping(mapping_file)
     if mode not in {"file", "database", "both"}:
         raise ValueError("Unsupported mode")
     # Temporary Excel files adapt database snapshots to the unchanged legacy engine.
@@ -1435,9 +1439,25 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
         output_file, stats = export(start_date, end_date, source_dir, target_dir)
         source_runs = source_run_ids(database, snapshots)
         report = read_report(output_file, start_date, end_date, snapshots, source_runs)
+        print("正在清洗区县并计算区县回收率……", flush=True)
+        district_file = Path(target_dir) / f"终端回收区县结果_{start_date[:7]}.xlsx"
+        district_args = (
+            source_dir / f"一体化专线拆机清单_{start_date[:7]}.xlsx",
+            source_dir / f"服务类产品支撑工单_{start_date[:7]}.xlsx",
+            output_file, mapping_file,
+        )
+        try:
+            report["districts"] = build_district_report(*district_args, district_file)
+        except PermissionError:
+            district_file = Path(target_dir) / f"终端回收区县结果_口径修正_{start_date[:7]}.xlsx"
+            print(f"原区县结果表正在使用，改为输出：{district_file}", flush=True)
+            report["districts"] = build_district_report(*district_args, district_file)
+        report["metric_version"] = "3.0"
+        report["results"].extend(metric_rows(report["districts"]))
+        stats["district_file"] = str(district_file.resolve()) if mode in {"file", "both"} else None
         report["metric_run_id"] = None
         if mode in {"database", "both"}:
-            print("正在将两个汇总 sheet 的指标写入数据库……", flush=True)
+            print("正在将地市、设备和区县指标写入数据库……", flush=True)
             report["metric_run_id"] = save_metric(database, report, source_runs)
         stats["metric_run_id"] = report["metric_run_id"]
         stats["result_count"] = len(report["results"])
@@ -1450,8 +1470,8 @@ def export_database(start_date, end_date, database, output_dir=DEFAULT_OUTPUT_DI
 
 
 def run_export(start_date, end_date, *, mode="both", database=None,
-               output_dir=DEFAULT_OUTPUT_DIR):
-    return export_database(start_date, end_date, database, output_dir, mode)
+               output_dir=DEFAULT_OUTPUT_DIR, district_map=None):
+    return export_database(start_date, end_date, database, output_dir, mode, district_map)
 
 
 def main():

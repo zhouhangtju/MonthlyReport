@@ -79,7 +79,7 @@ results：上述表格对应的标准指标记录
 
 复用项目已有的两张表：
 - `metric_run`：metric_code 为 `terminal_recovery`，记录起止日期、版本、来源批次和成功/失败状态。
-- `result_terminal_recovery`：仅保存两个指定 sheet 的数值和维度，metric_code 分为 `terminal_recovery_rate`、`terminal_recovery_count`。
+- `result_terminal_recovery`：保存地市、设备交叉汇总及区县指标，metric_code 分为 `terminal_recovery_rate`、`terminal_recovery_count`。区县使用 `dimension_type=district_summary`，沿用现有表结构，以 `label=地市·标准区县` 和 `column` 标识区县及指标。
 
 `dimension_value` 中的 sheet、table、label、column 标明来源工作表、交叉表、行标签和列名；row_index、column_index 保留顺序。
 回收率同时保存分子、分母、计算值；计数的 denominator 为 1。
@@ -96,6 +96,7 @@ SELECT json_extract(dimension_value, '$.label') AS 地市,
        metric_value AS 终端回收率
 FROM result_terminal_recovery
 WHERE metric_code = 'terminal_recovery_rate'
+  AND dimension_type = 'city_summary'
   AND metric_run_id = (
     SELECT metric_run_id FROM metric_run
     WHERE metric_code = 'terminal_recovery' AND status = 'success'
@@ -114,5 +115,20 @@ py -3.10 -m unittest discover -s tests -p 'test_terminal_recovery*.py' -v
 ```
 
 删除复现版脚本不会删除或更新数据库中的历史结果。部署后应运行线上版生成新的结果批次，再生成 PPT；仅生成 PPT 仍会使用数据库里已有的结果。
+
+## 区县统计（版本 3.0）
+
+映射表要求包含 `地市`、`区县`、`标准区县` 三列。默认读取脚本同目录下的相对路径 `metrics/terminal_recovery/区县信息汇总.xlsx`，因此不受运行命令当前目录影响；也可以使用 `--district-map` 临时覆盖默认路径。
+
+一体化原始拆机清单：仅原区县为空时剔除小微版及行业版平台基础业务；剔除集团客户中心、电子商务中心；区县直接映射失败或实际为地市时，从工单主题匹配。服务类原始清单：剔除上述两个中心，依次使用安装区县、同地市的所属区县、主题、客户机房地址。关键词优先地市归属、最长匹配；歧义留空。仅做计算时清洗，不覆盖数据库原始记录，不对分母工单去重。
+
+区县汇总与地市汇总采用相同口径：`应拆回设备数=拆机工单数（剔除E企组网和视频监控）+视频监控拆机工单数×2+E企组网应拆回设备数`。E企组网应拆回设备数为服务类清单的路由器数量、FTTR数量和光AP数量之和；已拆回设备数量来自三类标签已去重的匹配后设备清单总数量，南城区先改为开发区，再按同一映射表统一区县名称；终端回收率为已拆回设备数量除以应拆回设备数。按地市和标准区县分组。空区县或无法匹配的记录保留审核明细，不参与区县统计；无分母的区县回收率为空，不参与排名。回收率并列时按地市、区县名称排序，两张区县图共用最低十名。
+
+`file/both` 在输出目录新增 `终端回收区县结果_YYYY-MM.xlsx`，含区县汇总、后十位、拆机清洗明细、回收明细及清洗统计。原结果 JSON 增加 `districts`，数据库保存全部有效区县指标，PPT 从数据库结果选取同一组后十名。
+
+```powershell
+.\.venv\python.exe metrics/terminal_recovery/terminal_recovery_export_online.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both --output-dir outputs/terminal_recovery_online
+.\.venv\python.exe reporting/build_internet_line_ppt.py --month 2026-08 --section 终端回收情况 --output outputs/terminal_recovery_online/终端回收情况_2026-08.pptx --keep-json
+```
 
 物料名称表以“物料名称”为主键，物资基准库以“物料基准ID”为主键；出入库采用自增 id，并通过独立周期关联表记录同周期明细；全部业务列完全相同的行不重复插入，跨周期复用已有行。原工作簿快照仍保留原始重复行，终端回收算数继续使用周期快照。原始表列名与 config/raw_columns.json 的文件表头对应，去除首尾空格。

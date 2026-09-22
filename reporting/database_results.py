@@ -26,6 +26,14 @@ SUPPORT_METRICS = {
 }
 
 
+def terminal_district_chart_rows(rows):
+    """Select the lowest ten districts and order the chart high-to-low."""
+    selected = sorted(rows, key=lambda r: (r["metric_value"], r["dimension"]["label"]))[:10]
+    bottom_names = [r["dimension"]["label"].partition("·")[2] or r["dimension"]["label"]
+                    for r in selected[:3]]
+    return list(reversed(selected)), bottom_names
+
+
 def month_bounds(month):
     if not re.fullmatch(r"\d{4}-\d{2}", str(month)):
         raise ValueError("月份格式应为 YYYY-MM")
@@ -195,12 +203,25 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
         columns = {r['dimension']['column_index']: r['dimension']['column'] for r in rows if r['dimension']['column'] != '总计'}
         labels = [columns[i] for i in sorted(columns)] or fallback
         return {"labels": labels, "series": [{"name": d, "values": [terminal(c, d, table) for c in labels]} for d in DEVICES]}
-    district_labels = [f"区县{i}" for i in range(1, 11)]
-    db.unavailable("terminalRecovery.topInstaller/installerDevices")
+    district_rates = [r for r in db.rows.get(owner, [])
+                      if r["dimension_type"] == "district_summary"
+                      and r["dimension"]["column"] == "终端回收率" and r["denominator"] > 0]
+    district_rates, bottom_rank_names = terminal_district_chart_rows(district_rates)
+    district_labels = [r["dimension"]["label"].partition("·")[2] or r["dimension"]["label"]
+                       for r in district_rates]
+    if not district_rates:
+        db.unavailable("terminalRecovery.topInstaller/installerDevices")
+    def district_value(row, column):
+        return db.value(owner, "terminal_recovery_rate" if column == "终端回收率" else "terminal_recovery_count",
+                        "district_summary", label=row["dimension"]["label"], column=column)
     top_devices = sorted([{"name": d, "value": int(terminal("总计", d, "business"))} for d in DEVICES], key=lambda r: r['value'], reverse=True)[:3]
-    terminal_data = {"city": city, "topInstaller": {"labels": district_labels, "expected": [0]*10, "completed": [0]*10, "rates": [0]*10, "bottomRankNames": []},
+    terminal_data = {"city": city, "topInstaller": {"labels": district_labels,
+                     "expected": [district_value(r, "应拆回设备数") for r in district_rates],
+                     "completed": [district_value(r, "已拆回设备数量") for r in district_rates],
+                     "rates": [district_value(r, "终端回收率") for r in district_rates],
+                     "bottomRankNames": bottom_rank_names},
                      "deviceTypes": DEVICES, "topDevices": top_devices, "business": cross_table("business", BUSINESSES),
-                     "cityDevices": cross_table("city", CITIES), "installerDevices": {"labels": district_labels, "series": [{"name": d, "values": [0]*10} for d in DEVICES]}}
+                     "cityDevices": cross_table("city", CITIES), "installerDevices": {"labels": district_labels, "series": [{"name": d, "values": [district_value(r, d) for r in district_rates]} for d in DEVICES]}}
 
     withdrawal_code = "dedicated_line_opening_withdrawal_rate"
     def withdrawal_value(kind, field="metric_value", **dimension):
