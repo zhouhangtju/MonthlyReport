@@ -186,6 +186,18 @@ def initialize(path: Path | None = None) -> None:
         check_existing_layouts(connection)
         try:
             connection.executescript(schema)
+            result_columns = {
+                row["Field"] for row in connection.execute(
+                    "SHOW COLUMNS FROM result_orchestration_opening"
+                ).fetchall()
+            }
+            if "county" not in result_columns:
+                connection.execute(
+                    "ALTER TABLE result_orchestration_opening "
+                    "ADD COLUMN `county` VARCHAR(255) GENERATED ALWAYS AS "
+                    "(JSON_UNQUOTE(JSON_EXTRACT(dimension_value, '$.county'))) STORED "
+                    "AFTER `city`"
+                )
             # A deduplicated inventory row can belong to several periods.
             indexes = connection.execute("SHOW INDEX FROM raw_period_row").fetchall()
             if any(row['Key_name'] == 'uk_raw_period_row_id' for row in indexes):

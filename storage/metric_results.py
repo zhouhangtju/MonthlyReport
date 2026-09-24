@@ -18,7 +18,7 @@ RATE_FIELDS = {'scope': 'scope', 'city': 'city', 'business_type': 'business_type
 FIELDS = {owner: dict(RATE_FIELDS) for owner in TABLES}
 FIELDS['orchestration_opening_metrics'] = {
     'month': 'month', 'comparison_month': 'comparison_month', 'end_month': 'end_month',
-    'city': 'city', 'product': 'product', 'stage': 'stage', 'field': 'source_field',
+    'city': 'city', 'county': 'county', 'product': 'product', 'stage': 'stage', 'field': 'source_field',
     'automatic_value': 'automatic_value',
 }
 FIELDS['terminal_recovery'] = {
