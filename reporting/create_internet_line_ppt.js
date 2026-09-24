@@ -121,10 +121,10 @@ function fmt(value) { return value == null ? '待补充' : Number(value).toLocal
 function ceilFmt(value) { return value == null ? '待补充' : Math.ceil(Number(value)).toLocaleString('en-US'); }
 function pct(value) { return value == null ? '无数据' : `${(Number(value) * 100).toFixed(2)}%`; }
 
-// Manual metrics use their own order-level denominators; database stage rates remain unchanged.
+// Rate panels use the cleaned order denominator supplied by the result model.
 function manualBar(slide, title, labels, values, box, percent = true) {
-  if (!values) {
-    slide.addText('待补充手工数据', { ...box, fontSize: 12, color: C.gray, align: 'center', valign: 'mid' });
+  if (!values || values.every(v => v == null)) {
+    slide.addText(values ? '无有效工单' : '缺少结果数据', { ...box, fontSize: 12, color: C.gray, align: 'center', valign: 'mid' });
     return;
   }
   slide.addChart(pptx.ChartType.bar, [{ name: title, labels, values }], {
@@ -731,7 +731,7 @@ slide5.addText('非自动原因工单数（工程施工）', {
   bold: true, color: C.ink, align: 'center', margin: 0,
 });
 slide5.addChart(pptx.ChartType.bar, [{
-  name: '自动率', labels: D.internetAuto.labels, values: D.internetAuto.rates,
+  name: '自动率', labels: D.internetAuto.labels.map(s => s === '开通结果审核' ? '开通结果\n审核' : s), values: D.internetAuto.rates,
 }], {
   x: 0.67, y: 1.72, w: 5.42, h: 1.50,
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
@@ -756,12 +756,12 @@ slide5.addText([
   { text: networkCopy.suffix, options: { color: '000000' } },
 ], { x: .43, y: 3.52, w: 6.3, h: .65, fontFace: 'Microsoft YaHei',
      fontSize: 11.5, color: '000000', margin: 0, valign: 'top', breakLine: false });
-slide5.addText('口径：自动率=自动环节数/总环节数；组网方案按去重工单计算，目标环节全部记录自动才计为自动。', {
+slide5.addText('口径：自动率按清洗后工单统计，共9个环节；处理人含“自动”即自动，资管同一环节取结束时间最新记录。原因说明沿用资管原因结果。', {
   x: 0.45, y: 7.16, w: 11.9, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide5.addText('8', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide5.addNotes('本页数据来自动态工作表“互联网自动率YYYY年M月”。地市组网自动率与工程施工原因来自手工资管统计。');
+slide5.addNotes('本页数据来自动态工作表“互联网自动率YYYY年M月”。全部自动率来自关联资管最新环节的数据库中间表计算结果；工程施工原因沿用离线原因结果。');
 
 // Page 9: Internet-line move automation. Two of the four panels have source data.
 const slide6 = pptx.addSlide();
@@ -806,7 +806,7 @@ const moveChartBase = {
   border: { color: C.white, transparency: 100 },
 };
 slide6.addChart(pptx.ChartType.bar, [{
-  name: '自动率', labels: D.internetMoveAuto.labels, values: D.internetMoveAuto.rates,
+  name: '自动率', labels: D.internetMoveAuto.labels.map(s => s === '开通结果审核' ? '开通结果\n审核' : s), values: D.internetMoveAuto.rates,
 }], { ...moveChartBase, x: 0.94, y: 1.82, w: 5.63, h: 1.76 });
 slide6.addChart(pptx.ChartType.bar, [{
   name: '配置激活自动率', labels: D.internetMoveAuto.cities, values: D.internetMoveAuto.activationRates,
@@ -816,12 +816,12 @@ manualBar(slide6, '组网方案自动率', D.cities, D.internetMoveAuto.network?
   { x: 7.03, y: 1.82, w: 5.63, h: 1.76 });
 manualBar(slide6, '资源反馈自动率', D.cities, D.internetMoveAuto.resource?.rates,
   { x: 0.94, y: 4.31, w: 5.63, h: 1.76 });
-slide6.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/移机订单总数；手工组网和资源反馈按工单计算，变更暂按移机统计。', {
+slide6.addText('口径：整体自动率=9个环节自动数之和/(清洗后变更工单数×9)；处理人含“自动”即自动，资管环节取最新记录；变更按移机统计。', {
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide6.addText('9', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide6.addNotes('本页来自互联网专线移机自动率和互联网专线移机地市自动率工作表。组网方案与资源反馈地市图来自手工资管统计，变更暂按移机统计。');
+slide6.addNotes('本页来自互联网专线移机自动率和互联网专线移机地市自动率工作表。全部自动率来自关联资管最新环节的数据库中间表计算结果，变更按移机统计。');
 
 // Page 10: Internet-line removal automation. The third panel is intentionally blank.
 const slide7 = pptx.addSlide();
@@ -851,21 +851,26 @@ addPanel(slide7, 0.52, 3.82, 5.82, 2.58);
   bold: true, color: C.ink, align: 'center', margin: 0,
 }));
 
-slide7.addChart(pptx.ChartType.bar, [{
+if (D.internetRemovalAuto.totalCount) slide7.addChart(pptx.ChartType.bar, [{
   name: '自动率', labels: D.internetRemovalAuto.labels, values: D.internetRemovalAuto.rates,
 }], { ...moveChartBase, x: 0.72, y: 1.82, w: 5.42, h: 1.62 });
-slide7.addChart(pptx.ChartType.bar, [{
+if (D.internetRemovalAuto.totalCount) slide7.addChart(pptx.ChartType.bar, [{
   name: '配置激活自动率', labels: D.internetRemovalAuto.cities, values: D.internetRemovalAuto.activationRates,
 }], { ...moveChartBase, x: 6.64, y: 1.82, w: 5.94, h: 1.62, catAxisLabelFontSize: 8 });
+if (!D.internetRemovalAuto.totalCount) {
+  for (const x of [.72, 6.64]) slide7.addText('清洗后无有效拆除工单', {
+    x, y: 2.35, w: 5.42, h: .5, fontFace: 'Microsoft YaHei', fontSize: 14, color: C.gray, align: 'center'
+  });
+}
 
 manualBar(slide7, '组织资源释放自动率', D.cities, D.internetRemovalAuto.release?.rates,
   { x: 0.72, y: 4.26, w: 5.42, h: 1.82 });
-slide7.addText('口径：整体自动率=各环节自动数之和/各环节总数之和；地市配置激活自动率=配置激活自动数/拆机订单总数；组织资源释放按包含该环节的去重工单计算。', {
+slide7.addText('口径：整体自动率=6个环节自动数之和/(清洗后拆除工单数×6)；处理人含“自动”即自动，组织资源释放取最新记录，未匹配计非自动。', {
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
 slide7.addText('10', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
-slide7.addNotes('本页来自互联网专线拆机自动率和互联网专线拆机地市自动率工作表。地市组织资源释放自动率来自手工资管统计。');
+slide7.addNotes('本页来自互联网专线拆机自动率和互联网专线拆机地市自动率工作表。全部自动率来自关联资管最新环节的数据库中间表计算结果。');
 
 // Page 11: Terminal recovery section divider.
 const terminal = D.terminalRecovery;

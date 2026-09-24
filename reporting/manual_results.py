@@ -157,6 +157,8 @@ def apply_results(data, documents, audit, db):
                     ('移机', '资源反馈', 'internetMoveAuto', 'resource'),
                     ('拆机', '组织资源释放', 'internetRemovalAuto', 'release')]
         for action, stage, target, name in mappings:
+            if data[target].get('automationSource') == 'intermediate_orchestration_orders':
+                continue
             metric = document['metrics'][f'互联网专线-{action}-{stage}自动率']
             rows = {c.removesuffix('市'): v for c, v in metric['地市'].items()}
             if set(rows) - set(CITIES):

@@ -155,12 +155,32 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
         rows = [r for r in db.rows.get(opening, []) if r['metric_code'] == code and r['dimension_type'] == 'month_stage' and r['dimension'].get('month') == month]
         if rows:
             stages = [r['dimension']['stage'] for r in rows]
+        enhanced = any(r['dimension'].get('automatic_value') == '包含自动' for r in rows)
+        if enhanced:
+            from metrics.opening.automation_intermediate import OPENING, REMOVAL
+            stages = [s for s, _ in (REMOVAL if action == 'removal' else OPENING)]
         result = {"automaticCount": get(code, "month_all_stages", "numerator", month=month),
                   "totalCount": get(code, "month_all_stages", "denominator", month=month),
                   "overallRate": count(code, "month_all_stages"), "labels": stages,
                   "rates": [count(code, "month_stage", stage=s) for s in stages]}
         if action != "opening":
             result.update(cities=CITIES, activationRates=[count(f"internet_{action}_activation_rate", "month_city", city=c) for c in CITIES])
+        if enhanced:
+            result['automationSource'] = 'intermediate_orchestration_orders'
+            if not result['totalCount']:
+                result['overallRate'] = None
+                result['rates'] = [None for _ in stages]
+                if action != 'opening':
+                    result['activationRates'] = [None for _ in CITIES]
+            mapping = {'opening': [('network', '组网方案')],
+                       'move': [('network', '组网方案'), ('resource', '资源反馈')],
+                       'removal': [('release', '组织资源释放')]}[action]
+            for name, stage in mapping:
+                result[name] = {'cities': CITIES,
+                    'rates': [count(code, 'month_city_stage', city=c, stage=stage) for c in CITIES],
+                    'numerators': [get(code, 'month_city_stage', 'numerator', month=month, city=c, stage=stage) for c in CITIES],
+                    'denominators': [get(code, 'month_city_stage', 'denominator', month=month, city=c, stage=stage) for c in CITIES]}
+                result[name]['rates'] = [r if d else None for r, d in zip(result[name]['rates'], result[name]['denominators'])]
         return result
 
     product_trends = {

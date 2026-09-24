@@ -72,3 +72,8 @@ python3 metrics/opening/dedicated_line_metrics.py \
 每次以数据库模式成功计算时，程序会把 `end-month` 的基础指标写入
 `orch_opening_monthly_summary`，并把数据质量写入
 `orch_opening_monthly_quality`。逐月取数并计算后，历史月度汇总可供趋势、同比和环比使用。
+
+
+## 自动率新版入口
+
+自动率使用清洗、关联资管最新环节后的中间表，开通/变更9环节、拆除6环节。运行命令需增加 `--asset-csv "当期资管专线.csv"`，原有不带此参数的命令不再适用。详见 [automation_intermediate.README.md](automation_intermediate.README.md)。产品开通量口径不变。
