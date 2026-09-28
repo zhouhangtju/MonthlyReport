@@ -20,13 +20,13 @@ description: 从 MySQL 已落库的地市及区县级编排专线指标生成月
 
 ## 数据准备
 
-运行前应先完成：
+运行前应先完成地市区县指标计算。地市和月份必须来自本次请求，下面的变量不能写死。该6页月报展示连续12个月趋势，因此 `START_MONTH` 取 `END_MONTH` 向前11个月：
 
 ```bash
 python3 metrics/opening/bycity/dedicated_line_metrics_by_city.py \
-  --city 杭州 \
-  --start-month 2025-09 \
-  --end-month 2026-08 \
+  --city "$CITY" \
+  --start-month "$START_MONTH" \
+  --end-month "$END_MONTH" \
   --mode both
 ```
 
@@ -43,16 +43,18 @@ python3 metrics/opening/bycity/dedicated_line_metrics_by_city.py \
 
 ```bash
 python3 reporting/by-city/build_internet_line_ppt_by_city.py \
-  --month 2026-08 \
-  --city 杭州
+  --month "$REPORT_MONTH" \
+  --city "$CITY"
 ```
 
 默认输出：
 
 ```text
-outputs/monthly_report/by_city/杭州市业务发展情况_2026年8月.pptx
-outputs/monthly_report/by_city/杭州市业务发展情况_2026年8月.audit.json
+outputs/monthly_report/by_city/{地市}业务发展情况_{年份}年{月份}月.pptx
+outputs/monthly_report/by_city/{地市}业务发展情况_{年份}年{月份}月.audit.json
 ```
+
+例如2026年8月仅代表一次具体运行；生成其他月份时，指标批次、`--month`、输出文件名和页面文字必须同步使用实际月报月份。
 
 可通过 `--output` 指定输出，通过 `--template` 指定 PPT 模板；`--keep-json` 保留绘图中间数据。`--database` 仅兼容旧命令，实际 MySQL 连接配置仍由 `storage/database.py` 决定。
 

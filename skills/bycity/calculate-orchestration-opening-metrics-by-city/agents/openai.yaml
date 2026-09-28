@@ -1,0 +1,3 @@
+interface:
+  display_name: "地市区县专线指标计算"
+  short_description: "复用已入库数据计算地市及区县专线指标"
