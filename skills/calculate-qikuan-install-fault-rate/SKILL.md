@@ -34,3 +34,7 @@ python3 metrics/installation/qikuan_install_fault_rate.py \
 - 不把“严格晚于”改成“大于等于”，不按工单ID额外去重。
 
 详细口径见 `metrics/installation/qikuan_install_fault_rate.README.md`。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

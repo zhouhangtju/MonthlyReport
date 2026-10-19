@@ -1,4 +1,4 @@
 interface:
-  display_name: "生成地市版业务发展 PPT"
-  short_description: "从地市区县指标生成月报前6页业务发展情况"
-  default_prompt: "使用 $generate-monthly-report-ppt-by-city 根据月份和地市生成6页业务发展情况PPT，并核对审计与版式。"
+  display_name: "生成地市月报 PPT"
+  short_description: "从数据库地市区县结果生成包含业务发展、自动率、终端回收和集团撤退单的15页月报"
+  default_prompt: "使用 $generate-monthly-report-ppt-by-city 根据指定月份和地市，读取四部分已计算入库的成功指标批次，生成15页地市月报PPT。"

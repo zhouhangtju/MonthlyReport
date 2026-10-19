@@ -43,3 +43,7 @@ python3 metrics/opening/withdrawal.py \
 - 口径版本含 `provisional`，报告结果时说明业务范围和状态口径仍属暂行。
 
 详细口径见 `metrics/opening/withdrawal.README.md`。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

@@ -83,3 +83,7 @@ python3 collector/youshu/fetch_install.py \
 - 不修改看板 ID、组件 ID、城市、企宽类型或日期筛选参数，不在 Skill 中复制底层异步接口逻辑。
 - 不把合并文件和批次文件重复入库，不默认刷新、删除文件或计算指标。
 - 发布或提交时不包含实际的 `youdata_login.json`、`有数配置.json` 或任何登录敏感值。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

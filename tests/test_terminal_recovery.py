@@ -10,7 +10,14 @@ from openpyxl import Workbook
 from collector.eoms import eoms_export_qiwan_auto_login as eoms
 from collector.integration import integration_dismantle as materials
 from collector.integration import zhuanxian_chaiji_export as lines
-from metrics.terminal_recovery.terminal_recovery_export_online import export, validate_dates, unique_rows_by_order
+from metrics.terminal_recovery.terminal_recovery_export_online import (
+    MATCHED_RETURN_SHEET,
+    RETURN_DEVICE_SHEET,
+    build_matched_return_sheets,
+    export,
+    unique_rows_by_order,
+    validate_dates,
+)
 
 
 class TerminalRecoveryTest(unittest.TestCase):
@@ -69,12 +76,46 @@ class TerminalRecoveryTest(unittest.TestCase):
     def test_online_dedup_keeps_first_filtered_occurrence(self):
         wb = Workbook()
         ws = wb.active
-        ws.append(["关联单据号", "物料编码"])
-        ws.append(["ZJ-SOC-17-01-260817-1293524", "first"])
-        ws.append(["other-order", "other"])
-        ws.append(["ZJ-SOC-17-01-260817-1293524", "13652"])
-        self.assertEqual(unique_rows_by_order(ws, [2, 3, 4], 1), [2, 3])
-        self.assertEqual(unique_rows_by_order(ws, [3, 4], 1), [3, 4])
+        ws.append(["关联单据号", "地市", "物料编码"])
+        ws.append(["ZJ-SOC-17-01-260817-1293524", "杭州市", "first"])
+        ws.append(["other-order", "杭州", "other"])
+        ws.append(["ZJ-SOC-17-01-260817-1293524", "杭州", "same-city"])
+        ws.append(["ZJ-SOC-17-01-260817-1293524", "衢州市", "other-city"])
+        self.assertEqual(
+            unique_rows_by_order(ws, [2, 3, 4, 5], 1, 2),
+            [2, 3, 5],
+        )
+        self.assertEqual(unique_rows_by_order(ws, [3, 4, 5], 1, 2), [3, 4, 5])
+        wb.close()
+
+    def test_service_ap_enters_final_recovery_result(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = RETURN_DEVICE_SHEET
+        ws.append([
+            "关联单据号",
+            "地市",
+            "关联单据号匹配",
+            "业务类别1",
+            "物料名称匹配",
+            "型号匹配",
+            "分类",
+        ])
+        ws.append([
+            "order-1",
+            "杭州",
+            "order-1",
+            "E企组网",
+            "AP设备",
+            "AP",
+            "终端",
+        ])
+
+        stats = build_matched_return_sheets(wb)
+
+        self.assertEqual(stats["service"], 1)
+        self.assertEqual(stats["final"], 1)
+        self.assertEqual(wb[MATCHED_RETURN_SHEET].cell(2, 6).value, "AP")
         wb.close()
 
     def test_line_token_uses_material_auto_login(self):
@@ -104,11 +145,12 @@ class TerminalRecoveryTest(unittest.TestCase):
             download.assert_not_called()
             finish.assert_not_called()
 
-    def test_material_downloads_extend_to_next_month_third(self):
-        for start, end, query_end in [
-            ("2026-08-01", "2026-08-31", "2026-09-03"),
-            ("2026-12-01", "2026-12-31", "2027-01-03"),
-            ("2028-02-01", "2028-02-29", "2028-03-03"),
+    def test_material_downloads_use_requested_date_range(self):
+        for start, end in [
+            ("2026-08-01", "2026-08-31"),
+            ("2026-12-01", "2026-12-31"),
+            ("2028-02-01", "2028-02-29"),
+            ("2026-09-10", "2026-09-20"),
         ]:
             with self.subTest(start=start), ExitStack() as stack:
                 stack.enter_context(patch.object(materials, "login"))
@@ -120,11 +162,38 @@ class TerminalRecoveryTest(unittest.TestCase):
                 finish = stack.enter_context(patch.object(materials, "finish_exports"))
                 materials.collect(start, end, database=self.database, output_dir=self.root, refresh=True)
                 for download in (outbound, inbound):
-                    self.assertEqual(download.call_args.args[2:5], (start[:7], start, query_end))
+                    self.assertEqual(download.call_args.args[2:5], (start[:7], start, end))
                 self.assertEqual(finish.call_args.args[1:], (start, end, "both", self.database))
                 files = finish.call_args.args[0]
                 self.assertEqual(files["integration_terminal_inbound"].name, f"终端入库_{start[:7]}.xlsx")
                 self.assertEqual(files["integration_terminal_outbound"].name, f"终端出库_{start[:7]}.xlsx")
+
+    def test_material_inbound_can_use_custom_cross_month_range(self):
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(materials, "login"))
+            stack.enter_context(patch.object(materials, "extract_token", return_value="test"))
+            stack.enter_context(patch.object(materials, "update_cred_json"))
+            outbound = stack.enter_context(patch.object(materials, "export_outbound", return_value=True))
+            inbound = stack.enter_context(patch.object(materials, "export_inbound", return_value=True))
+            stack.enter_context(patch.object(materials, "export_material_baseline", return_value=True))
+            finish = stack.enter_context(patch.object(materials, "finish_exports", return_value={}))
+            result = materials.collect(
+                "2026-09-01", "2026-09-30",
+                inbound_end_date="2026-10-11",
+                database=self.database, output_dir=self.root,
+            )
+            self.assertEqual(outbound.call_args.args[2:5], ("2026-09", "2026-09-01", "2026-09-30"))
+            self.assertEqual(inbound.call_args.args[2:5], ("2026-09", "2026-09-01", "2026-10-11"))
+            self.assertEqual(finish.call_args.args[1:], ("2026-09-01", "2026-09-30", "both", self.database))
+            self.assertEqual(result["query_ranges"]["terminal_inbound"]["end"], "2026-10-11")
+
+    def test_material_custom_inbound_end_rejects_invalid_range(self):
+        with self.assertRaisesRegex(ValueError, "must be ordered"):
+            materials.collect(
+                "2026-09-01", "2026-09-30",
+                inbound_end_date="2026-08-31",
+                output_dir=self.root,
+            )
 
     def test_failed_download_does_not_import_stale_file(self):
         with patch.object(materials, "login"), \

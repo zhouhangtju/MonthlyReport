@@ -5,6 +5,7 @@ import argparse
 import re
 from collections import Counter, defaultdict
 from copy import copy
+from functools import lru_cache
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
@@ -192,7 +193,7 @@ BASE_EXCLUDED_BUSINESS_TYPES = {
 
 SERVICE_BUSINESS_TYPES = {"E企组网", "安全终端部署服务"}
 
-SERVICE_MODEL_TYPES = {"WIFI路由器", "FTTO", "专线卫士"}
+SERVICE_MODEL_TYPES = {"WIFI路由器", "FTTO", "专线卫士", "AP"}
 
 SUMMARY_MODEL_TYPES = ("ONU", "FTTO", "摄像头", "WIFI路由器", "专线卫士")
 
@@ -252,14 +253,49 @@ def get_column_indexes(ws, column_names):
     return {name: indexes[name] for name in column_names}
 
 def normalize_city(value):
-    """将地市统一为11个标准名称，温岭归入台州。"""
+    """将地市统一为11个标准名称，区县误填到地市时按映射表反查。"""
     city = normalize_text(value)
     if "温岭" in city:
         return "台州"
     for standard_city in STANDARD_CITIES:
         if standard_city in city:
             return standard_city
+    mapped_city = district_city_aliases().get(city)
+    if mapped_city:
+        return mapped_city
     return city
+
+
+@lru_cache(maxsize=1)
+def district_city_aliases():
+    """返回可以唯一确定地市的区县名称映射。"""
+    mapping_file = SCRIPT_DIR / "区县信息汇总.xlsx"
+    if not mapping_file.is_file():
+        return {}
+    workbook = load_workbook(mapping_file, read_only=True, data_only=True)
+    try:
+        rows = workbook.active.iter_rows(values_only=True)
+        headers = [normalize_text(value) for value in next(rows)]
+        required = {"地市", "区县", "标准区县"}
+        if not required.issubset(headers):
+            return {}
+        positions = {name: headers.index(name) for name in required}
+        candidates = defaultdict(set)
+        for row in rows:
+            municipality = normalize_text(row[positions["地市"]]).removesuffix("市")
+            if municipality not in STANDARD_CITIES:
+                continue
+            for column in ("区县", "标准区县"):
+                alias = normalize_text(row[positions[column]])
+                if alias:
+                    candidates[alias].add(municipality)
+        return {
+            alias: next(iter(cities))
+            for alias, cities in candidates.items()
+            if len(cities) == 1
+        }
+    finally:
+        workbook.close()
 
 def to_number(value):
     """将总数量转换为数值，空值或非数字按0处理。"""
@@ -934,13 +970,19 @@ def build_category_lookup(ws):
 
     return lookup
 
-def unique_rows_by_order(ws, rows, order_column):
-    """按关联单据号去重，保留筛选后源表中第一次出现的记录。"""
+def unique_rows_by_order(ws, rows, order_column, city_column=None):
+    """按关联单据号和地市去重，同一地市保留首次出现的记录。"""
     seen = set()
     selected_rows = []
 
     for row in rows:
-        key = normalize_order_number(ws.cell(row, order_column).value)
+        order = normalize_order_number(ws.cell(row, order_column).value)
+        city = (
+            normalize_city(ws.cell(row, city_column).value)
+            if city_column is not None
+            else None
+        )
+        key = (order, city)
         if key in seen:
             continue
         seen.add(key)
@@ -1008,6 +1050,7 @@ def build_matched_return_sheets(wb):
         source_ws,
         (
             RELATED_ORDER_COLUMN,
+            CITY_COLUMN,
             ORDER_MATCH_COLUMN,
             BUSINESS_CATEGORY_1_COLUMN,
             MATERIAL_NAME_MATCH_COLUMN,
@@ -1074,21 +1117,33 @@ def build_matched_return_sheets(wb):
         wb, source_ws, MATCHED_RETURN_SHEET, sheet1_rows
     )
 
-    # sheet2：型号匹配为0，按关联单据号去重，再剔除已存在于sheet1的关联单据号。
+    # sheet2：型号匹配为0，同一关联单据号在同一地市内去重；跨地市分别保留。
+    # 再剔除已存在于sheet1同一“关联单据号+地市”组合的记录。
     deduplicated_sheet2_rows = unique_rows_by_order(
-        source_ws, sheet2_zero_rows, columns[RELATED_ORDER_COLUMN]
+        source_ws,
+        sheet2_zero_rows,
+        columns[RELATED_ORDER_COLUMN],
+        columns[CITY_COLUMN],
     )
-    sheet1_orders = {
-        normalize_order_number(source_ws.cell(row, columns[RELATED_ORDER_COLUMN]).value)
+    sheet1_order_cities = {
+        (
+            normalize_order_number(
+                source_ws.cell(row, columns[RELATED_ORDER_COLUMN]).value
+            ),
+            normalize_city(source_ws.cell(row, columns[CITY_COLUMN]).value),
+        )
         for row in sheet1_rows
     }
     sheet2_rows = [
         row
         for row in deduplicated_sheet2_rows
-        if normalize_order_number(
-            source_ws.cell(row, columns[RELATED_ORDER_COLUMN]).value
+        if (
+            normalize_order_number(
+                source_ws.cell(row, columns[RELATED_ORDER_COLUMN]).value
+            ),
+            normalize_city(source_ws.cell(row, columns[CITY_COLUMN]).value),
         )
-        not in sheet1_orders
+        not in sheet1_order_cities
     ]
     create_result_sheet(
         wb,
@@ -1108,9 +1163,12 @@ def build_matched_return_sheets(wb):
     append_rows(source_ws, sheet1_ws, video_rows)
     print(f"视频监控数据追加完成：{len(video_rows)} 条", flush=True)
 
-    # sheet3：保留视频监控筛选，改筛型号匹配为0并按关联单据号去重。
+    # sheet3：保留视频监控筛选，型号匹配为0时按关联单据号和地市去重。
     sheet3_rows = unique_rows_by_order(
-        source_ws, sheet3_zero_rows, columns[RELATED_ORDER_COLUMN]
+        source_ws,
+        sheet3_zero_rows,
+        columns[RELATED_ORDER_COLUMN],
+        columns[CITY_COLUMN],
     )
     create_result_sheet(wb, source_ws, SHEET3_NAME, sheet3_rows)
     append_rows(source_ws, sheet1_ws, sheet3_rows)

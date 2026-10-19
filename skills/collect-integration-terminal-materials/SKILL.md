@@ -10,7 +10,8 @@ description: 从一体化平台获取终端出入库、全省物资基准库，�
 ## 日期与数据口径
 
 - 参数代表统计周期，月报用月初至月末；日期必须在同一个月。
-- 当前代码对出入库的实际查询范围为统计月月初至次月 **3 日（含当天）**。8 月示例实际查询到 9 月 3 日 23:59:59，文件名和入库周期仍为 8 月，不要自行改成次月 6 日。
+- `--start-date`、`--end-date`定义终端回收统计批次及终端出库查询范围，必须位于同一个月。
+- 终端入库开始日期固定使用`--start-date`，结束日期默认使用`--end-date`；需要观察月末后入库时，可传入`--inbound-end-date`单独设置结束日期。结束日期允许跨月，不改变数据库快照所属统计周期。
 - 若目标截止日尚未到来，说明数据可能不完整，不能宣称完整月报已准备好。
 
 | 数据集 | 文件 |
@@ -27,6 +28,14 @@ description: 从一体化平台获取终端出入库、全省物资基准库，�
 ```powershell
 py -3.11 collector/integration/integration_dismantle.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
+
+例如重建2026年9月批次，但终端入库查询延伸至10月11日：
+
+```powershell
+py -3.11 collector/integration/integration_dismantle.py --start-date 2026-09-01 --end-date 2026-09-30 --inbound-end-date 2026-10-11 --mode both --refresh
+```
+
+传入自定义入库结束日期时会重新取数，避免复用同一统计周期下查询范围不同的旧快照。
 
 替换实际日期、路径；Windows 使用 `py -3.11`，其他环境先确认解释器和路径兼容。
 

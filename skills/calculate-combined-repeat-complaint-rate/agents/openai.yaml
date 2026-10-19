@@ -1,0 +1,4 @@
+interface:
+  display_name: "合计重复投诉率计算"
+  short_description: "合并专线、企宽和千里眼结果计算加权重复投诉率"
+  default_prompt: "使用 $calculate-combined-repeat-complaint-rate 合并三类重复投诉率结果，计算目标月份的全省和各地市合计重复投诉率。"

@@ -4,6 +4,7 @@ import json
 TABLES = {
     'terminal_recovery': 'result_terminal_recovery',
     'dedicated_line_opening_withdrawal_rate': 'result_opening_withdrawal',
+    'business_support_withdrawal_by_city': 'result_opening_withdrawal',
     'dedicated_line_install_fault_rate': 'result_dedicated_line_install_fault',
     'qikuan_install_fault_rate': 'result_qikuan_install_fault',
     'commercial_customer_install_fault_rate': 'result_commercial_install_fault',
@@ -16,6 +17,9 @@ TABLES = {
 # Explicit columns expose the same dimensions for direct SQL inspection.
 RATE_FIELDS = {'scope': 'scope', 'city': 'city', 'business_type': 'business_type'}
 FIELDS = {owner: dict(RATE_FIELDS) for owner in TABLES}
+FIELDS['business_support_withdrawal_by_city'] = {
+    'month': 'month', 'city': 'city', 'county': 'county',
+}
 FIELDS['orchestration_opening_metrics'] = {
     'month': 'month', 'comparison_month': 'comparison_month', 'end_month': 'end_month',
     'city': 'city', 'county': 'county', 'product': 'product', 'stage': 'stage', 'field': 'source_field',

@@ -17,11 +17,12 @@
   python zhengqi_login.py --print       # 只打印 token 不写文件
   python zhengqi_login.py --account .. --password ..
   python zhengqi_login.py --check       # 登录后用真实业务接口校验
-  python integration_dismantle.py --date 2026-07
+  python integration_dismantle.py --start-date 2026-07-01 --end-date 2026-07-31
 
-正常运行时，登录成功后会依次导出指定月份的终端出库、终端入库数据，
-并下载全省物资基准库。
-不传 --date 时默认导出当前月份；--print 保持原逻辑，只打印 token，不导出文件。
+正常运行时，登录成功后会按 --start-date 和 --end-date 指定的统计周期
+导出终端出库数据；终端入库开始日期沿用 --start-date，结束日期默认
+沿用 --end-date，也可以通过 --inbound-end-date 单独指定。
+最后下载全省物资基准库。
 """
 import requests, re, json, os, sys, time, argparse, base64
 from pathlib import Path
@@ -179,30 +180,6 @@ def check_token(token):
     except Exception as ex:
         print(f"[check] ERR {ex}")
         return False
-
-
-def normalize_month(month_str=None):
-    """解析 YYYY-MM，并返回月份、月初日期和次月 6 日。"""
-    if not month_str:
-        month_str = datetime.now().strftime("%Y-%m")
-    try:
-        month_date = datetime.strptime(month_str, "%Y-%m")
-    except (TypeError, ValueError):
-        raise ValueError(f"月份格式错误: {month_str}，正确格式为 YYYY-MM")
-
-    export_month = month_date.strftime("%Y-%m")
-    start_date = f"{export_month}-01"
-
-    # 数据源存在约 6 天延迟：例如导出 2026-07 时，实际查询区间为
-    # 2026-07-01 00:00:00 至 2026-08-03 23:59:59。
-    if month_date.month == 12:
-        next_month_year = month_date.year + 1
-        next_month = 1
-    else:
-        next_month_year = month_date.year
-        next_month = month_date.month + 1
-    end_date = f"{next_month_year:04d}-{next_month:02d}-03"
-    return export_month, start_date, end_date
 
 
 def export_headers(token):
@@ -523,10 +500,23 @@ def validate_dates(start_date, end_date):
     return start.strftime("%Y-%m")
 
 
+def validate_inbound_dates(start_date, end_date):
+    """校验终端入库查询范围；允许跨月。"""
+    start, end = date.fromisoformat(start_date), date.fromisoformat(end_date)
+    if start.isoformat() != start_date or end.isoformat() != end_date:
+        raise ValueError("Inbound dates must use YYYY-MM-DD")
+    if start > end:
+        raise ValueError("Inbound date range must be ordered")
+
+
 def parser(description):
     result = argparse.ArgumentParser(description=description)
     result.add_argument("--start-date", required=True)
     result.add_argument("--end-date", required=True)
+    result.add_argument(
+        "--inbound-end-date",
+        help="终端入库查询结束日期；允许跨月，默认使用 --end-date",
+    )
     result.add_argument("--mode", choices=("file", "database", "both"), default="both")
     result.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     result.add_argument("--output-dir", type=Path, default=EXPORT_DIR)
@@ -586,10 +576,14 @@ def _finish_exports(files, start_date, end_date, mode, database, staging_dir):
 
 
 
-def collect(start_date, end_date, *, mode="both", database=None,
-            output_dir=Path(EXPORT_DIR), reuse_existing=False, refresh=False,
+def collect(start_date, end_date, *, inbound_end_date=None, mode="both",
+            database=None, output_dir=Path(EXPORT_DIR),
+            reuse_existing=False, refresh=False,
             account=DEFAULT_ACCOUNT, password=DEFAULT_PASSWORD):
     month = validate_dates(start_date, end_date)
+    inbound_start = start_date
+    inbound_end = inbound_end_date or end_date
+    validate_inbound_dates(inbound_start, inbound_end)
     if mode not in {"file", "database", "both"}:
         raise ValueError("Unsupported mode")
     material_names = Path(output_dir) / "物料名称表.xlsx"
@@ -600,7 +594,9 @@ def collect(start_date, end_date, *, mode="both", database=None,
         "integration_terminal_inbound": Path(output_dir) / f"终端入库_{month}.xlsx",
         "integration_material_baseline": Path(output_dir) / "全省物资基准库.xlsx",
         "terminal_material_names": material_names,
-    }, start_date, end_date, mode, database, refresh, reuse_existing)
+    }, start_date, end_date, mode, database,
+       refresh or inbound_start != start_date or inbound_end != end_date,
+       reuse_existing)
     if cached is not None:
         return cached
     with download_directory(mode, output_dir, reuse_existing) as target_dir:
@@ -610,23 +606,35 @@ def collect(start_date, end_date, *, mode="both", database=None,
             "integration_material_baseline": target_dir / "全省物资基准库.xlsx",
         }
         if not reuse_existing:
-            # Query the delayed monthly exports without changing the report period.
-            _, query_start, query_end = normalize_month(month)
-            print(f"[INFO] 统计周期：{start_date} 至 {end_date}；出入库查询范围：{query_start} 00:00:00 至 {query_end} 23:59:59", flush=True)
+            print(
+                f"[INFO] 统计周期及终端出库查询范围：{start_date} 00:00:00 至 "
+                f"{end_date} 23:59:59",
+                flush=True,
+            )
+            print(
+                f"[INFO] 终端入库查询范围：{inbound_start} 00:00:00 至 "
+                f"{inbound_end} 23:59:59",
+                flush=True,
+            )
             with requests.Session() as session:
                 session.verify = False
                 session.headers.update({"User-Agent": "Mozilla/5.0", "Origin": CAS})
                 session = login(session, account, password)
                 token = extract_token(session)
                 update_cred_json(account, token)
-                if not export_outbound(session, token, month, query_start, query_end, target_dir):
+                if not export_outbound(session, token, month, start_date, end_date, target_dir):
                     raise RuntimeError("Terminal outbound export failed")
-                if not export_inbound(session, token, month, query_start, query_end, target_dir):
+                if not export_inbound(session, token, month, inbound_start, inbound_end, target_dir):
                     raise RuntimeError("Terminal inbound export failed")
                 if not export_material_baseline(session, token, target_dir):
                     raise RuntimeError("Material baseline export failed")
         files["terminal_material_names"] = material_names
-        return finish_exports(files, start_date, end_date, mode, database)
+        result = finish_exports(files, start_date, end_date, mode, database)
+        result["query_ranges"] = {
+            "terminal_outbound": {"start": start_date, "end": end_date},
+            "terminal_inbound": {"start": inbound_start, "end": inbound_end},
+        }
+        return result
 
 
 

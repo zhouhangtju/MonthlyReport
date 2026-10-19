@@ -58,3 +58,7 @@ python3 collector/youshu/fetch_complaints.py \
 - 不修改看板参数或接口实现。
 - 不把合并文件和分批文件重复导入，不默认刷新、删除原始文件或计算指标。
 - 详细说明见 `collector/youshu/README.md`。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

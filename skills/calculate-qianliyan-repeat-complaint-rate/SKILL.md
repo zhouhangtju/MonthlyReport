@@ -36,3 +36,7 @@ python3 metrics/complaint/qianliyan_repeat_complaint_rate.py \
 - 默认文件为 `outputs/千里眼重复投诉率_起始日期_结束日期.json`。
 
 详细口径见 `metrics/complaint/qianliyan_repeat_complaint_rate.README.md`。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

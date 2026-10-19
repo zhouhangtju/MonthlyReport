@@ -143,7 +143,7 @@ class ManualResultsTest(unittest.TestCase):
         self.assertEqual(data['qikuanWithdrawal']['withdrawalTotal'],10506)
         self.assertEqual(data['qikuanReturn']['withdrawalTotal'],2961)
         self.assertAlmostEqual(data['complaintFault']['repeat']['qikuanAverage'],497/13476)
-        self.assertEqual(len(data['dataAudit']['selected_manual_inputs']),5)
+        self.assertEqual(len(data['dataAudit']['selected_manual_inputs']), len(m.METRIC_SETS))
         self.assertNotIn('withdrawal.customerCount', [x.get('ppt_field') for x in data['dataAudit']['missing']])
         json.dumps(data, allow_nan=False)
 

@@ -74,3 +74,7 @@ python3 collector/integration/fetch_withdrawal_orders.py \
 - 不在取数阶段剔除测试单、筛选专线范围、判断撤退状态或计算撤退单率。
 - 不修改固定接口筛选条件、接口地址、日期字段，不复制登录、导出或入库逻辑到 Skill 中。
 - 不默认刷新或删除原始文件，不迁移或新增任何硬编码凭据。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

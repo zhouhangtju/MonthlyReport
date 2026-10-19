@@ -59,3 +59,7 @@ python3 metrics/opening/bycity/dedicated_line_metrics_by_city.py \
 ```
 
 缺少区县的有效订单由计算脚本归入“未归属区县”，不能静默丢弃，也不能改用市场网格或 A 端区县猜测归属。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

@@ -14,9 +14,9 @@ python3 metrics/complaint/qianliyan_repeat_complaint_rate.py \
 
 ```bash
 python3 metrics/complaint/combined_repeat_complaint_rate.py \
-  --line-result outputs/manual_metrics/专线重复投诉率_2026-06-01_2026-08-31.json \
-  --qianliyan-result outputs/manual_metrics/千里眼重复投诉率_2026-06-01_2026-08-31.json \
-  --qikuan-result outputs/manual_metrics/企宽重复投诉率_2026-08.json \
+  --line-result "outputs/专线/专网重复投诉率_2026-06-01_2026-08-31.json" \
+  --qianliyan-result "outputs/千里眼重复投诉率_2026-06-01_2026-08-31.json" \
+  --qikuan-result "outputs/manual_metrics/企宽重复投诉率2026-08-01_2026-08-31.json" \
   --month 2026-08
 ```
 

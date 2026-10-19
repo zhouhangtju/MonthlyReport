@@ -79,3 +79,7 @@ python3 collector/orchestration/fetch_opening.py \
 - 不删除原始文件，不在用户未授权时使用 `--refresh`。
 
 本技能只负责取数，不在取数命令后直接计算或删除数据。月报需要历史趋势时，按用户指定月份取数后运行开通类指标计算。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

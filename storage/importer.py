@@ -17,7 +17,8 @@ from openpyxl import load_workbook
 
 from config.datasets import Dataset, get_dataset
 from storage.database import connect, initialize
-from storage.raw_tables import quote_identifier, database_columns, ensure_columns, validate_headers, version_table
+from storage.raw_tables import quote_identifier, source_columns, validate_headers, version_table
+from storage.youshu_install_layout import map_headers, merge_cells
 
 
 def utc_now() -> str:
@@ -47,8 +48,16 @@ def row_payload(row: dict[str, object]) -> tuple[str, str]:
     return payload, hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def iter_csv(path: Path) -> Iterator[dict[str, object]]:
+def iter_csv(path: Path, dataset_code: str | None = None) -> Iterator[dict[str, object]]:
     with path.open("r", encoding="utf-8-sig", newline="") as source:
+        if dataset_code == "youshu_install":
+            reader = csv.reader(source)
+            columns = map_headers([str(key).strip() for key in next(reader, [])])
+            for values in reader:
+                row = merge_cells(columns, values)
+                if any(value not in (None, "") for value in row.values()):
+                    yield row
+            return
         reader = csv.DictReader(source)
         if not reader.fieldnames:
             raise ValueError("CSV 缺少表头")
@@ -56,11 +65,11 @@ def iter_csv(path: Path) -> Iterator[dict[str, object]]:
             yield {str(key).strip(): normalize_cell(value) for key, value in row.items()}
 
 
-def iter_excel(path: Path) -> Iterator[dict[str, object]]:
+def iter_excel(path: Path, dataset_code: str | None = None) -> Iterator[dict[str, object]]:
     with path.open("rb") as probe:
         signature = probe.read(8)
     if signature.startswith(b"\xd0\xcf\x11\xe0"):
-        yield from iter_legacy_xls(path)
+        yield from iter_legacy_xls(path, dataset_code)
         return
     # 使用文件对象可兼容扩展名为 .xls、实际内容为 XLSX 的平台导出文件。
     with path.open("rb") as source:
@@ -73,11 +82,14 @@ def iter_excel(path: Path) -> Iterator[dict[str, object]]:
             if not header:
                 raise ValueError("Excel 缺少表头")
             columns = [str(value).strip() if value is not None else "" for value in header]
-            if not all(columns) or len(columns) != len(set(columns)):
+            if dataset_code == "youshu_install":
+                columns = map_headers(columns)
+            elif not all(columns) or len(columns) != len(set(columns)):
                 raise ValueError("Excel 表头包含空列名或重复列名")
             for values in rows:
-                row = {
-                    column: normalize_cell(values[index] if index < len(values) else None)
+                normalized = [normalize_cell(value) for value in values]
+                row = merge_cells(columns, normalized) if dataset_code == "youshu_install" else {
+                    column: normalized[index] if index < len(normalized) else None
                     for index, column in enumerate(columns)
                 }
                 if any(value not in (None, "") for value in row.values()):
@@ -86,7 +98,7 @@ def iter_excel(path: Path) -> Iterator[dict[str, object]]:
             workbook.close()
 
 
-def iter_legacy_xls(path: Path) -> Iterator[dict[str, object]]:
+def iter_legacy_xls(path: Path, dataset_code: str | None = None) -> Iterator[dict[str, object]]:
     try:
         import xlrd
     except ImportError as exc:
@@ -96,28 +108,32 @@ def iter_legacy_xls(path: Path) -> Iterator[dict[str, object]]:
     if sheet.nrows == 0:
         raise ValueError("Excel 缺少表头")
     columns = [str(sheet.cell_value(0, index)).strip() for index in range(sheet.ncols)]
-    if not all(columns) or len(columns) != len(set(columns)):
+    if dataset_code == "youshu_install":
+        columns = map_headers(columns)
+    elif not all(columns) or len(columns) != len(set(columns)):
         raise ValueError("Excel 表头包含空列名或重复列名")
     for row_index in range(1, sheet.nrows):
         row: dict[str, object] = {}
+        values = []
         for column_index, column in enumerate(columns):
             cell = sheet.cell(row_index, column_index)
             value: object = cell.value
             if cell.ctype == xlrd.XL_CELL_DATE:
                 value = xlrd.xldate_as_datetime(value, workbook.datemode)
-            row[column] = normalize_cell(value)
+            values.append(normalize_cell(value))
+        row = merge_cells(columns, values) if dataset_code == "youshu_install" else dict(zip(columns, values))
         if any(value not in (None, "") for value in row.values()):
             yield row
 
 
-def iter_rows(path: Path) -> Iterator[dict[str, object]]:
+def iter_rows(path: Path, dataset_code: str | None = None) -> Iterator[dict[str, object]]:
     suffix = path.suffix.lower()
     if suffix in {".xlsx", ".xlsm", ".xls"}:
-        yield from iter_excel(path)
+        yield from iter_excel(path, dataset_code)
     elif suffix in {".csv", ".tsv"}:
         if suffix == ".tsv":
             raise ValueError("TSV 暂未支持，请先转换为 CSV")
-        yield from iter_csv(path)
+        yield from iter_csv(path, dataset_code)
     else:
         raise ValueError(f"不支持的文件格式：{suffix}")
 
@@ -132,7 +148,7 @@ def archive_file(path: Path, archive_root: Path, dataset: Dataset, digest: str) 
     return target.resolve()
 
 
-def read_headers(path: Path) -> list[str]:
+def read_headers(path: Path, dataset_code: str | None = None) -> list[str]:
     """Read even an empty worksheet's header; reject ambiguous layouts."""
     if path.suffix.lower() == '.csv':
         with path.open('r', encoding='utf-8-sig', newline='') as stream:
@@ -158,6 +174,8 @@ def read_headers(path: Path) -> list[str]:
                 finally:
                     workbook.close()
     headers = [str(v).strip() if v is not None else '' for v in values]
+    if dataset_code == "youshu_install":
+        headers = list(dict.fromkeys(map_headers(headers)))
     if not headers or not all(headers) or len({h.casefold() for h in headers}) != len(headers):
         raise ValueError('文件表头为空，或包含空列名、重复列名')
     return headers
@@ -174,11 +192,17 @@ def _db_value(value: object) -> str | None:
     return str(value)
 
 
-def _stage(source_path, dataset, staged, counts, errors, columns):
-    validate_headers(dataset.code, columns)
+def _stage(source_path, dataset, staged, counts, errors):
+    headers = read_headers(source_path, dataset.code)
+    validate_headers(dataset.code, headers)
+    columns = source_columns(dataset.code)
+    if dataset.code == "youshu_install":
+        unexpected = [header for header in headers if header not in columns]
+        if unexpected:
+            raise ValueError(f"企宽新装包含未配置的字段，请确认使用派单时间口径：{unexpected}")
     seen = {}
     content = hashlib.sha256()
-    for number, raw in enumerate(iter_rows(source_path), 2):
+    for number, raw in enumerate(iter_rows(source_path, dataset.code), 2):
         counts['read'] += 1
         row = {column: _db_value(raw.get(column)) for column in columns}
         key = None
@@ -229,7 +253,7 @@ def _audit_and_version(connection, dataset, key, row, row_hash, run_id, observed
 
 
 def _import_keyed(connection, dataset, staged, run_id, counts):
-    columns = database_columns(connection, dataset.code)
+    columns = source_columns(dataset.code)
     table = quote_identifier(dataset.code)
     names = ', '.join(map(quote_identifier, columns))
     insert = f"INSERT INTO {table} ({names}) VALUES ({', '.join('?' for _ in columns)})"
@@ -243,8 +267,6 @@ def _import_keyed(connection, dataset, staged, run_id, counts):
             'SELECT * FROM raw_record_audit WHERE dataset_code=? AND source_record_id=?',
             (dataset.code, key),
         ).fetchone()
-        row = {c: row[c] if c in row else (_db_value(existing_row[c]) if existing_row else None) for c in columns}
-        _, row_hash = row_payload(row)
         if existing_row is None:
             connection.execute(insert, tuple(row[c] for c in columns))
             counts['inserted'] += 1
@@ -264,7 +286,7 @@ def _import_period(connection, dataset, staged, content_hash, start, end, run_id
         'SELECT * FROM raw_period_batch WHERE dataset_code=? AND period_start=? AND period_end=? FOR UPDATE', period
     ).fetchone()
     table = quote_identifier(dataset.code)
-    columns = database_columns(connection, dataset.code)
+    columns = source_columns(dataset.code)
     # Compare actual business cells, including NULL versus empty string, rather
     # than trusting historical hashes or MySQL's case-insensitive collation.
     existing_rows = {}
@@ -286,8 +308,6 @@ def _import_period(connection, dataset, staged, content_hash, start, end, run_id
     linked = set()
     for line in staged:
         _number, row, row_hash = json.loads(line)
-        row = {c: row.get(c) for c in columns}
-        _, row_hash = row_payload(row)
         values = tuple(row[c] for c in columns)
         row_id = existing_rows.get(values)
         if row_id is None:
@@ -351,11 +371,9 @@ def import_file(database_path: Path | None, dataset: Dataset, source_path: Path,
             if not locked:
                 raise RuntimeError(f'{dataset.code}: 等待其他导入结束超时')
             with tempfile.TemporaryFile(mode='w+', encoding='utf-8') as staged:
-                headers = read_headers(source_path)
-                content_hash = _stage(source_path, dataset, staged, counts, errors, headers)
+                content_hash = _stage(source_path, dataset, staged, counts, errors)
                 if file_sha256(source_path) != digest:
                     raise RuntimeError('校验期间源文件发生变化，请重新导入')
-                ensure_columns(connection, dataset.code, headers)
                 if dataset.auto_increment:
                     _import_period(connection, dataset, staged, content_hash, period_start, period_end, run_id, counts)
                 else:

@@ -1,0 +1,3 @@
+interface:
+  display_name: "地市区县集团撤退单指标计算"
+  short_description: "计算指定地市及标准区县的专线和企宽撤退指标并保存数据库结果"

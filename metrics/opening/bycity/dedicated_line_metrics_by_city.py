@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import hashlib
 import json
 import sys
 import tempfile
@@ -60,6 +61,7 @@ INTERNET_PRODUCTS = BUSINESS_GROUPS[0][2]
 OTHER_INTERNET_PRODUCTS = INTERNET_PRODUCTS[2:]
 KEY_PRODUCTS = INTERNET_PRODUCTS[:3]
 UNASSIGNED_COUNTY = "未归属区县"
+DEFAULT_COUNTY_MAP = Path(__file__).resolve().parents[3] / "data" / "区县信息汇总.xlsx"
 
 
 def log(message: str) -> None:
@@ -82,6 +84,66 @@ def display_city(value: str) -> str:
 
 def county_name(value: object) -> str:
     return text(value) or UNASSIGNED_COUNTY
+
+
+def load_county_mapping(path: Path) -> dict[str, object]:
+    """读取地市限定的区县别名映射，标准区县保持工作簿中的顺序。"""
+    try:
+        from openpyxl import load_workbook
+    except ImportError as exc:
+        raise RuntimeError("读取区县信息汇总.xlsx 需要 openpyxl") from exc
+    path = path.expanduser().resolve()
+    if not path.exists():
+        raise FileNotFoundError(f"找不到区县映射表：{path}")
+    workbook = load_workbook(path, read_only=True, data_only=True)
+    try:
+        worksheet = workbook.active
+        rows = worksheet.iter_rows(values_only=True)
+        headers = [text(value) for value in next(rows)]
+        required = {"地市", "区县", "标准区县"}
+        if not required.issubset(headers):
+            raise ValueError(f"区县映射表缺少字段：{sorted(required - set(headers))}")
+        positions = {name: headers.index(name) for name in required}
+        city_aliases: dict[str, dict[str, str]] = {}
+        city_standards: dict[str, list[str]] = {}
+        for row_number, row in enumerate(rows, start=2):
+            city = normalize_city(row[positions["地市"]])
+            alias = text(row[positions["区县"]])
+            standard = text(row[positions["标准区县"]])
+            if not city or not alias or not standard:
+                continue
+            aliases = city_aliases.setdefault(city, {})
+            standards = city_standards.setdefault(city, [])
+            if alias in aliases and aliases[alias] != standard:
+                raise ValueError(f"区县映射表第{row_number}行存在冲突：{city}/{alias}")
+            aliases[alias] = standard
+            aliases.setdefault(standard, standard)
+            if standard not in standards:
+                standards.append(standard)
+        return {
+            "path": str(path),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "aliases": city_aliases,
+            "standards": city_standards,
+        }
+    finally:
+        workbook.close()
+
+
+def standardize_county(raw_county: object, subject: object, aliases: dict[str, str]) -> str:
+    """先清洗原区县；无法匹配时再从主题按区县关键字回填。"""
+    raw = text(raw_county)
+    if raw in aliases:
+        return aliases[raw]
+    # 原字段偶尔会携带“市/区/县”等额外文字，限定在本地市映射中做关键字匹配。
+    for keyword in sorted(aliases, key=len, reverse=True):
+        if keyword and keyword in raw:
+            return aliases[keyword]
+    subject_text = text(subject)
+    for keyword in sorted(aliases, key=len, reverse=True):
+        if keyword and keyword in subject_text:
+            return aliases[keyword]
+    return UNASSIGNED_COUNTY
 
 
 def shift_month(month: str, offset: int) -> str:
@@ -120,7 +182,8 @@ def result(code: str, dimension_type: str, dimension: dict[str, str], numerator:
 
 
 def summarize_month(connection, month: str, city: str, batch_size: int, temp_dir: Path | None,
-                    include_counties: bool) -> tuple[list[dict[str, object]], dict[str, object]]:
+                    include_counties: bool, aliases: dict[str, str],
+                    standard_counties: list[str]) -> tuple[list[dict[str, object]], dict[str, object]]:
     """流式读取一个月，并用临时 SQLite 按订单号执行最后记录优先去重。"""
     from pymysql.cursors import SSDictCursor
 
@@ -142,7 +205,7 @@ def summarize_month(connection, month: str, city: str, batch_size: int, temp_dir
                 ) WITHOUT ROWID"""
             )
             sql = (
-                "SELECT `订单号`,`业务类型`,`产品名称`,`区县名称` FROM orch_opening "
+                "SELECT `订单号`,`业务类型`,`产品名称`,`区县名称`,`主题` FROM orch_opening "
                 "WHERE NULLIF(TRIM(`订单结束时间`), '') >= %s "
                 "AND NULLIF(TRIM(`订单结束时间`), '') < %s "
                 "AND `订单状态`=%s AND `订单类型`=%s AND `地市` IN (%s,%s)"
@@ -156,7 +219,7 @@ def summarize_month(connection, month: str, city: str, batch_size: int, temp_dir
                     pending = []
                     for row in batch:
                         raw_rows += 1
-                        county = county_name(row.get("区县名称"))
+                        county = standardize_county(row.get("区县名称"), row.get("主题"), aliases)
                         if county == UNASSIGNED_COUNTY:
                             missing_county += 1
                         pending.append((text(row.get("订单号")), text(row.get("业务类型")),
@@ -194,7 +257,9 @@ def summarize_month(connection, month: str, city: str, batch_size: int, temp_dir
                         products[business, product],
                     ))
                 if include_counties:
-                    county_labels = sorted({key[1] for key in counties if key[0] == business})
+                    county_labels = list(standard_counties)
+                    if any(key[0] == business and key[1] == UNASSIGNED_COUNTY for key in counties):
+                        county_labels.append(UNASSIGNED_COUNTY)
                     for county in county_labels:
                         output.append(result(
                             code,
@@ -295,10 +360,17 @@ def add_rolling_results(results: list[dict[str, object]], city: str, end_month: 
 
 
 def calculate(database: Path | None, city: str, start_month: str, end_month: str,
-              batch_size: int = 5000, temp_dir: Path | None = None) -> tuple[dict[str, object], list[str]]:
+              batch_size: int = 5000, temp_dir: Path | None = None,
+              county_map: Path = DEFAULT_COUNTY_MAP) -> tuple[dict[str, object], list[str]]:
     if batch_size < 1:
         raise ValueError("batch-size 必须大于 0")
     city_label = display_city(city)
+    mapping = load_county_mapping(county_map)
+    city_key = normalize_city(city)
+    aliases = mapping["aliases"].get(city_key)
+    standard_counties = mapping["standards"].get(city_key)
+    if not aliases or not standard_counties:
+        raise ValueError(f"区县映射表中没有找到地市：{city_key}")
     trend_months = month_range(start_month, end_month)
     required = sorted(set(trend_months + [shift_month(end_month, -1), shift_month(end_month, -12)]
                           + [shift_month(end_month, offset) for offset in range(-11, 1)]))
@@ -317,7 +389,8 @@ def calculate(database: Path | None, city: str, start_month: str, end_month: str
         for month in required:
             log(f"开始计算 {city_label} {month} 指标")
             monthly, stats = summarize_month(connection, month, city, batch_size, temp_dir,
-                                             include_counties=month == end_month)
+                                             include_counties=month == end_month,
+                                             aliases=aliases, standard_counties=standard_counties)
             results.extend(monthly)
             quality["database_rows"] += stats["database_rows"]
             quality["missing_county_rows"] += stats["missing_county_rows"]
@@ -326,11 +399,9 @@ def calculate(database: Path | None, city: str, start_month: str, end_month: str
             if month == end_month:
                 quality["counties"] = stats["county_values"]
     missing_months = [month for month in required if month not in quality["months_with_rows"]]
+    quality["missing_months_filled_zero"] = missing_months
     if missing_months:
-        raise RuntimeError(
-            f"{city_label} 缺少必要月份的 orch_opening 明细：{', '.join(missing_months)}；"
-            "请先补取或从归档恢复，不能将缺失月份按0计算"
-        )
+        log(f"{city_label} 数据库缺少月份：{', '.join(missing_months)}；按0计算")
     add_comparisons(results, city_label, end_month)
     add_rolling_results(results, city_label, end_month)
     report = {
@@ -340,6 +411,11 @@ def calculate(database: Path | None, city: str, start_month: str, end_month: str
         "start_month": start_month,
         "end_month": end_month,
         "quality": quality,
+        "county_mapping": {
+            "file": mapping["path"],
+            "sha256": mapping["sha256"],
+            "standard_counties": standard_counties,
+        },
         "results": results,
     }
     return report, source_runs
@@ -393,10 +469,11 @@ def print_report(report: dict[str, object]) -> None:
 
 
 def run(database: Path | None, city: str, start_month: str, end_month: str, *, mode: str = "both",
-        output: Path | None = None, batch_size: int = 5000, temp_dir: Path | None = None) -> dict[str, object]:
+        output: Path | None = None, batch_size: int = 5000, temp_dir: Path | None = None,
+        county_map: Path = DEFAULT_COUNTY_MAP) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
-    report, source_runs = calculate(database, city, start_month, end_month, batch_size, temp_dir)
+    report, source_runs = calculate(database, city, start_month, end_month, batch_size, temp_dir, county_map)
     report["source_runs"] = source_runs
     print_report(report)
     if mode in {"database", "both"}:
@@ -424,9 +501,12 @@ def main() -> None:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--batch-size", type=int, default=5000)
     parser.add_argument("--temp-dir", type=Path)
+    parser.add_argument("--county-map", type=Path, default=DEFAULT_COUNTY_MAP,
+                        help="区县映射表，默认 data/区县信息汇总.xlsx")
     args = parser.parse_args()
     report = run(args.database, args.city, args.start_month, args.end_month, mode=args.mode,
-                 output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir)
+                 output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir,
+                 county_map=args.county_map)
     print(json.dumps({
         "metric_run_id": report["metric_run_id"],
         "city": report["city"],

@@ -32,15 +32,19 @@ description: 从用户上传或指定的连续月份大音平台投诉 Excel 中
 
 ## 运行
 
+从项目根目录执行。默认 JSON 输出为 `outputs/manual_metrics/企宽重复投诉率起始日期_结束日期.json`，日期取目标统计月，例如 8 月为 `企宽重复投诉率2026-08-01_2026-08-31.json`；历史月份文件仍参与重复判定。
+
 ```bash
-python3 scripts/calculate.py \
+python3 skills/calculate-manual-qikuan-repeat-complaint-rate/scripts/calculate.py \
   --input "/absolute/path/to/6月.xlsx" \
   --input "/absolute/path/to/7月.xlsx" \
   --input "/absolute/path/to/8月.xlsx" \
   --month 2026-08 \
-  --json-output "/absolute/path/to/企宽重复投诉率_2026-08.json" \
   --csv-output "/absolute/path/to/企宽重复投诉率_2026-08.csv"
 ```
 
 运行后报告全省及各业务地市的分子、分母、重复投诉率，并核对 `quality` 和 `audit` 中的一小时剔除记录、重复投诉明细、空Key及空地市情况。
 
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

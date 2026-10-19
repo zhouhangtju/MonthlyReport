@@ -29,7 +29,7 @@ TASKS = {
         "task_name": "企宽新装清单",
         "dataset_code": "youshu_install",
         "prefix": "企宽新装清单_",
-        "regions": 11,
+        "regions": 1,
     },
     "complaint": {
         "task_name": "企宽投诉清单",

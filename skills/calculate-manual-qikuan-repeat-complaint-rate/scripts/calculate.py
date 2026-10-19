@@ -222,7 +222,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="合并月度大音投诉Excel并计算企宽重复投诉率")
     parser.add_argument("--input", action="append", required=True, type=Path, help="可重复传入多个连续月份Excel")
     parser.add_argument("--month", required=True, help="目标月份，格式YYYY-MM")
-    parser.add_argument("--json-output", required=True, type=Path)
+    parser.add_argument("--json-output", type=Path, help="默认 outputs/manual_metrics/企宽重复投诉率起始日期_结束日期.json")
     parser.add_argument("--csv-output", type=Path)
     args = parser.parse_args()
 
@@ -230,8 +230,11 @@ def main() -> None:
     result = calculate(rows, args.month)
     result["sources"] = sources
     result.update(schema_version='1.0', metric_set='qikuan_repeat_complaint_rate', report_month=args.month)
-    args.json_output.parent.mkdir(parents=True, exist_ok=True)
-    args.json_output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    start, next_month = month_bounds(args.month)
+    default_name = f"企宽重复投诉率{start:%Y-%m-%d}_{next_month - timedelta(days=1):%Y-%m-%d}.json"
+    json_output = args.json_output or Path("outputs") / "manual_metrics" / default_name
+    json_output.parent.mkdir(parents=True, exist_ok=True)
+    json_output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if args.csv_output:
         args.csv_output.parent.mkdir(parents=True, exist_ok=True)
         write_csv_summary(result, args.csv_output)

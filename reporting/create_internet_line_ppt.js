@@ -111,7 +111,7 @@ const provinceValues = D.province.map(row => row.value);
 const cities = D.cities;
 const citySeries = D.citySeries;
 
-const months = D.months;
+const months = chartMonthLabels(D.months);
 const trendSeries = D.trendSeries;
 const enjoySeries = [trendSeries.find(item => item.name === '悦享专线动态IP版')];
 const packageSeries = [D.packageTrend];
@@ -120,6 +120,12 @@ const otherSeries = [D.otherTrend];
 function fmt(value) { return value == null ? '待补充' : Number(value).toLocaleString('en-US'); }
 function ceilFmt(value) { return value == null ? '待补充' : Math.ceil(Number(value)).toLocaleString('en-US'); }
 function pct(value) { return value == null ? '无数据' : `${(Number(value) * 100).toFixed(2)}%`; }
+function changePct(value) { return value == null ? '无数据' : pct(Math.abs(Number(value))); }
+function chartMonthLabels(values) {
+  // PowerPoint may parse labels such as "25.10" as the number 25.1.
+  // The invisible suffix keeps the category value as text while preserving its display.
+  return values.map(value => `${value}\u200B`);
+}
 
 // Rate panels use the cleaned order denominator supplied by the result model.
 function manualBar(slide, title, labels, values, box, percent = true) {
@@ -320,23 +326,23 @@ slide.addText([
   { text: `${D.displayMonth}互联网专线已完成 `, options: { bold: true, color: C.ink } },
   { text: `${fmt(D.currentTotal)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(D.yoy)}${pct(D.yoy)}`, options: { bold: true, color: changeColor(D.yoy) } },
+  { text: `${direction(D.yoy)}${changePct(D.yoy)}`, options: { bold: true, color: changeColor(D.yoy) } },
   { text: '，环比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(D.mom)}${pct(D.mom)}`, options: { bold: true, color: changeColor(D.mom) } },
+  { text: `${direction(D.mom)}${changePct(D.mom)}`, options: { bold: true, color: changeColor(D.mom) } },
   { text: '。其中悦享动态IP版 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.keyProducts['悦享专线动态IP版'])}单`, options: { bold: true, color: C.deepBlue } },
   { text: `（同比${direction(D.keyProductYoy['悦享专线动态IP版'])}`, options: { bold: true, color: C.ink } },
-  { text: `${pct(D.keyProductYoy['悦享专线动态IP版'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['悦享专线动态IP版']) } },
+  { text: `${changePct(D.keyProductYoy['悦享专线动态IP版'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['悦享专线动态IP版']) } },
   { text: '）', options: { bold: true, color: C.ink } },
   { text: '，互联网专线套餐 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.keyProducts['互联网专线套餐'])}单`, options: { bold: true, color: C.deepBlue } },
   { text: `（同比${direction(D.keyProductYoy['互联网专线套餐'])}`, options: { bold: true, color: C.ink } },
-  { text: `${pct(D.keyProductYoy['互联网专线套餐'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['互联网专线套餐']) } },
+  { text: `${changePct(D.keyProductYoy['互联网专线套餐'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['互联网专线套餐']) } },
   { text: '）', options: { bold: true, color: C.ink } },
   { text: '，商务专线套餐（2020版） ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.keyProducts['商务专线套餐（2020版）'])}单`, options: { bold: true, color: C.deepBlue } },
   { text: `（同比${direction(D.keyProductYoy['商务专线套餐（2020版）'])}`, options: { bold: true, color: C.ink } },
-  { text: `${pct(D.keyProductYoy['商务专线套餐（2020版）'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['商务专线套餐（2020版）']) } },
+  { text: `${changePct(D.keyProductYoy['商务专线套餐（2020版）'])}`, options: { bold: true, color: changeColor(D.keyProductYoy['商务专线套餐（2020版）']) } },
   { text: '）', options: { bold: true, color: C.ink } },
   { text: '。', options: { bold: true, color: C.ink } },
 ], {
@@ -388,7 +394,7 @@ slide.addChart(pptx.ChartType.bar, citySeries.map(s => ({ name: s.name, labels: 
 slide.addText([
   { text: `${D.trendPeriodText}，悦享专线动态IP版累计 `, options: { bold: true, color: C.ink } },
   { text: `${fmt(D.trendSummary['悦享专线动态IP版'].sum)}单`, options: { bold: true, color: C.deepBlue } },
-  { text: '，月均 ', options: { bold: true, color: C.ink } },
+  { text: '，平均月开通', options: { bold: true, color: C.ink } },
   { text: `${ceilFmt(D.trendSummary['悦享专线动态IP版'].average)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '；互联网专线套餐累计开通 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(D.trendSummary['互联网专线套餐'].sum)}单`, options: { bold: true, color: C.deepBlue } },
@@ -490,11 +496,11 @@ slide3.addText([
   { text: `${D.displayMonth}MPLS-VPN专线开通 `, options: { bold: true, color: C.ink } },
   { text: `${fmt(D.mpls.currentTotal)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(D.mpls.totalYoy)}${pct(D.mpls.totalYoy)}`, options: { bold: true, color: changeColor(D.mpls.totalYoy) } },
+  { text: `${direction(D.mpls.totalYoy)}${changePct(D.mpls.totalYoy)}`, options: { bold: true, color: changeColor(D.mpls.totalYoy) } },
   { text: '。其中地区内MPLS-VPN套餐 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(mplsDistrict.value)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '（同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(mplsDistrict.yoy)}${pct(mplsDistrict.yoy)}`, options: { bold: true, color: changeColor(mplsDistrict.yoy) } },
+  { text: `${direction(mplsDistrict.yoy)}${changePct(mplsDistrict.yoy)}`, options: { bold: true, color: changeColor(mplsDistrict.yoy) } },
   { text: '），省内MPLS-VPN套餐 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(mplsProvince.value)}单`, options: { bold: true, color: C.deepBlue } },
   { text: `（同比新增${fmt(mplsProvince.increase)}单）。`, options: { bold: true, color: C.green } },
@@ -541,7 +547,7 @@ slide3.addChart(pptx.ChartType.bar, D.mpls.citySeries.map(s => ({ name: s.name, 
 
 addPanel(slide3, 0.35, 4.16, 12.63, 2.83);
 addSectionPill(slide3, `${D.mpls.periodShort} MPLS-VPN专线开通情况`, 4.75, 4.03, 3.9);
-slide3.addChart(pptx.ChartType.bar, [{ name: 'MPLS-VPN专线合计', labels: D.mpls.months, values: D.mpls.trend }], {
+slide3.addChart(pptx.ChartType.bar, [{ name: 'MPLS-VPN专线合计', labels: chartMonthLabels(D.mpls.months), values: D.mpls.trend }], {
   x: 0.55, y: 4.4, w: 12.2, h: 2.3,
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,
@@ -577,19 +583,19 @@ slide4.addText([
   { text: `${D.displayMonth}传输专线开通 `, options: { bold: true, color: C.ink } },
   { text: `${fmt(D.transmission.currentTotal)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '，同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(D.transmission.totalYoy)}${pct(D.transmission.totalYoy)}`, options: { bold: true, color: changeColor(D.transmission.totalYoy) } },
+  { text: `${direction(D.transmission.totalYoy)}${changePct(D.transmission.totalYoy)}`, options: { bold: true, color: changeColor(D.transmission.totalYoy) } },
   { text: '。其中光纤出租套餐 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(transmissionFiber.value)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '（同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(transmissionFiber.yoy)}${pct(transmissionFiber.yoy)}`, options: { bold: true, color: changeColor(transmissionFiber.yoy) } },
+  { text: `${direction(transmissionFiber.yoy)}${changePct(transmissionFiber.yoy)}`, options: { bold: true, color: changeColor(transmissionFiber.yoy) } },
   { text: '），地区内数字电路出租套餐 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(transmissionDigital.value)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '（同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(transmissionDigital.yoy)}${pct(transmissionDigital.yoy)}`, options: { bold: true, color: changeColor(transmissionDigital.yoy) } },
+  { text: `${direction(transmissionDigital.yoy)}${changePct(transmissionDigital.yoy)}`, options: { bold: true, color: changeColor(transmissionDigital.yoy) } },
   { text: '），地区内SPN电路出租 ', options: { bold: true, color: C.ink } },
   { text: `${fmt(transmissionSpn.value)}单`, options: { bold: true, color: C.deepBlue } },
   { text: '（同比 ', options: { bold: true, color: C.ink } },
-  { text: `${direction(transmissionSpn.yoy)}${pct(transmissionSpn.yoy)}`, options: { bold: true, color: changeColor(transmissionSpn.yoy) } },
+  { text: `${direction(transmissionSpn.yoy)}${changePct(transmissionSpn.yoy)}`, options: { bold: true, color: changeColor(transmissionSpn.yoy) } },
   { text: '）。', options: { bold: true, color: C.ink } },
 ], {
   x: 0.35, y: 0.79, w: 12.6, h: 0.65,
@@ -642,7 +648,7 @@ slide4.addChart(pptx.ChartType.bar, D.transmission.citySeries.map(s => ({ name: 
 
 addPanel(slide4, 0.35, 4.81, 12.63, 2.20);
 addSectionPill(slide4, `${D.transmission.periodShort} 传输专线开通情况`, 4.75, 4.68, 3.9);
-slide4.addChart(pptx.ChartType.bar, [{ name: '传输专线合计', labels: D.transmission.months, values: D.transmission.trend }], {
+slide4.addChart(pptx.ChartType.bar, [{ name: '传输专线合计', labels: chartMonthLabels(D.transmission.months), values: D.transmission.trend }], {
   x: 0.55, y: 4.91, w: 12.2, h: 1.92,
   catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 8,
   catAxisLabelColor: C.gray, catAxisLineColor: C.lightGray,

@@ -88,3 +88,7 @@ python3 collector/orchestration/fetch_install.py \
 - 不修改接口固定筛选参数、接口地址或日期字段，不擅自改成结束时间口径，不复制底层请求、日期切片或入库逻辑到 Skill 中。
 - 不把产品实例编号当主键，不绕过 Excel 响应校验。
 - 不覆盖人工核验文件、不删除原始文件，除非用户明确要求刷新。
+
+## Python 解释器
+
+若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

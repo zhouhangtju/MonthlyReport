@@ -1,3 +1,3 @@
 interface:
   display_name: "编排专线开通指标计算"
-  short_description: "计算专线产品情况18个子表指标"
+  short_description: "一起计算专线正式指标和资管环节辅助结果"
