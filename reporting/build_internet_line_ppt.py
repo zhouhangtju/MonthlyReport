@@ -15,6 +15,7 @@ from xml.sax.saxutils import escape
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from reporting.database_results import build_data, month_bounds
 from reporting.manual_results import DEFAULT_DIRECTORY, METRIC_SETS, AUTOMATION, WITHDRAWAL, QIKUAN, RETURN, REPEAT, COMBINED_REPEAT
+from reporting.qikuan_business import build_qikuan
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -43,6 +44,10 @@ NODE_MODULES = (
     if (BASE_DIR / "node_modules").exists()
     else Path(r"C:\Users\tanzhiyao\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules")
 )
+if not NODE_MODULES.exists():
+    bundled_modules = Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules"
+    if bundled_modules.exists():
+        NODE_MODULES = bundled_modules
 
 PRODUCTS = [
     "悦享专线动态IP版",
@@ -78,10 +83,11 @@ COMPLAINT_FAULT_RESULT_COLUMNS = [
 ]
 
 SECTION_SLIDE_MAP = {
-    "业务发展情况": [1, 2, 3, 4, 5, 6],
-    "专线自动情况": [1, 2, 8, 9, 10],
-    "终端回收情况": [1, 2, 12, 13],
-    "业务支撑情况": [1, 2, 15, 16],
+    "业务发展情况": [1, 2, 3, 4, 5, 6, 7],
+    "企宽业务": [7],
+    "专线自动情况": [1, 2, 9, 10, 11],
+    "终端回收情况": [1, 2, 13, 14],
+    "业务支撑情况": [1, 2, 16, 17],
 }
 
 
@@ -758,8 +764,8 @@ def _update_terminal_slide_text(entries, terminal_data, display_month):
     }
 
     for slide_name, replacements in {
-        "ppt/slides/slide12.xml": slide12_replacements,
-        "ppt/slides/slide13.xml": slide13_replacements,
+        "ppt/slides/slide13.xml": slide12_replacements,
+        "ppt/slides/slide14.xml": slide13_replacements,
     }.items():
         if slide_name in entries:
             entries[slide_name] = _replace_text_runs(
@@ -769,13 +775,13 @@ def _update_terminal_slide_text(entries, terminal_data, display_month):
 
 
 def replace_terminal_recovery_slides_from_template(pptx_path, terminal_data, display_month, template_path=TERMINAL_RECOVERY_TEMPLATE):
-    """用终端回收页模板内容页替换第12-13页，实现版式一比一复刻。"""
+    """用终端回收页模板内容页替换第13-14页，实现版式一比一复刻。"""
     if not template_path.exists():
         return
     temp_path = None
     seed_mapping = {
-        "ppt/slides/slide2.xml": "ppt/slides/slide12.xml",
-        "ppt/slides/slide3.xml": "ppt/slides/slide13.xml",
+        "ppt/slides/slide2.xml": "ppt/slides/slide13.xml",
+        "ppt/slides/slide3.xml": "ppt/slides/slide14.xml",
     }
     with zipfile.ZipFile(pptx_path, "r") as source_zip, zipfile.ZipFile(template_path, "r") as template_zip:
         entries = {info.filename: source_zip.read(info.filename) for info in source_zip.infolist()}
@@ -905,6 +911,10 @@ def main():
     )
     parser.add_argument("--keep-json", action="store_true", help="保留中间JSON数据")
     parser.add_argument('--manual-metrics-dir', type=Path, default=DEFAULT_DIRECTORY, help='标准化手工指标JSON目录，默认 outputs/manual_metrics')
+    parser.add_argument('--qikuan-stock-json', type=Path, help='已计算的企宽存量JSON，默认从手工结果目录匹配月份')
+    parser.add_argument('--qikuan-opening-json', type=Path, help='已计算的企宽开通量JSON；不传则读取数据库成功批次')
+    parser.add_argument('--offline-qikuan-preview', action='store_true',
+                        help='仅预览企宽一页：读取本地已计算JSON，不连接数据库，缺失指标显示待补充')
     args = parser.parse_args()
     if args.background_mode == "image" and args.template:
         parser.error("--template 不能与 --background-mode image 同时使用")
@@ -921,6 +931,8 @@ def main():
     TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)
     DATA_SOURCE_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    if args.offline_qikuan_preview:
+        default_output = OUTPUT_DIR / f"企宽业务_{args.end_month}_预览.pptx"
     output_path = (args.output or default_output).resolve()
     template_path = (args.template or DEFAULT_TEMPLATE).resolve() if args.background_mode == "ppt" else None
     if not NODE_BIN.exists():
@@ -929,10 +941,19 @@ def main():
         raise FileNotFoundError(f"找不到PPT模板：{template_path}")
 
     required_manual = {
-        '业务发展情况': set(), '终端回收情况': set(),
+        '业务发展情况': set(), '企宽业务': set(), '终端回收情况': set(),
         '专线自动情况': {AUTOMATION}, '业务支撑情况': {WITHDRAWAL, QIKUAN, RETURN, REPEAT, COMBINED_REPEAT},
     }.get(args.section, METRIC_SETS)
-    data = build_data(args.database, str(args.end_month), args.manual_metrics_dir if required_manual else None, required_manual)
+    if args.offline_qikuan_preview:
+        qikuan = build_qikuan(str(args.end_month), args.manual_metrics_dir,
+                             stock_path=args.qikuan_stock_json, opening_path=args.qikuan_opening_json)
+        data = {"currentMonth": str(args.end_month), "qikuanBusiness": qikuan,
+                "dataAudit": {"preview_only": True, "selected_batches": [],
+                              "missing": qikuan["missing"], "qikuan_sources": {
+                                  key: qikuan[key]["source"] for key in ("stock", "opening")}}}
+    else:
+        data = build_data(args.database, str(args.end_month), args.manual_metrics_dir if required_manual else None,
+                          required_manual, args.qikuan_stock_json, args.qikuan_opening_json, args.manual_metrics_dir)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     data_json = output_path.with_suffix(".json")
     data_json.write_text(json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
@@ -945,18 +966,20 @@ def main():
     else:
         env.pop("PPT_TEMPLATE_MASTER", None)
     subprocess.run(
-        [str(NODE_BIN), str(DRAW_SCRIPT), str(data_json), str(output_path)],
+        [str(NODE_BIN), str(BASE_DIR / "qikuan_business_slide.js" if args.offline_qikuan_preview else DRAW_SCRIPT),
+         str(data_json), str(output_path)],
         cwd=BASE_DIR,
         env=env,
         check=True,
     )
     if template_path is not None:
         apply_template_master(output_path, template_path)
-    color_city_product_data_labels(output_path)
-    format_withdrawal_line_chart(output_path)
-    format_complaint_fault_charts(output_path)
-    replace_terminal_recovery_slides_from_template(output_path, data["terminalRecovery"], data["currentMonth"])
-    if args.section:
+    if not args.offline_qikuan_preview:
+        color_city_product_data_labels(output_path)
+        format_withdrawal_line_chart(output_path)
+        format_complaint_fault_charts(output_path)
+        replace_terminal_recovery_slides_from_template(output_path, data["terminalRecovery"], data["currentMonth"])
+    if args.section and not args.offline_qikuan_preview:
         keep_selected_slides(output_path, SECTION_SLIDE_MAP[args.section])
 
     if not args.keep_json:

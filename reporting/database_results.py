@@ -10,8 +10,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from storage.metric_results import read_results, TABLES
 from storage.database import _database_name, connect
-from reporting.manual_results import load_results, apply_results, METRIC_SETS
+from reporting.manual_results import load_results, apply_results, METRIC_SETS, DEFAULT_DIRECTORY
 from config.report_periods import integration_opening_period
+from reporting.qikuan_business import build_qikuan
 
 PRODUCTS = ["悦享专线动态IP版", "互联网专线套餐", "商务专线套餐（2020版）", "直播专线", "网吧专线套餐（2019版）", "高品质互联网专线"]
 PRODUCT_LABELS = ["悦享专线\n动态IP版", "互联网\n专线套餐", "商务专线套餐\n（2020版）", "直播专线", "网吧专线套餐\n（2019版）", "高品质\n互联网专线"]
@@ -121,7 +122,8 @@ class Results:
         return 0
 
 
-def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_SETS):
+def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_SETS,
+               qikuan_stock_path=None, qikuan_opening_path=None, qikuan_metrics_dir=None):
     manual, manual_audit = load_results(manual_metrics_dir, month, required_manual) if manual_metrics_dir is not None else ({}, [])
     db = Results(database, month)
     opening = "orchestration_opening_metrics"
@@ -312,4 +314,10 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
                          "policy": "Opening withdrawal uses the previous-month 26th through current-month 25th; other monthly results use their configured natural or support periods. Orchestration history uses explicit month dimensions. Missing/null results are zero; no raw-data calculations."}
     data['dataAudit']['selected_manual_inputs'] = manual_audit
     apply_results(data, manual, data['dataAudit'], db)
+    data["qikuanBusiness"] = build_qikuan(month, qikuan_metrics_dir or manual_metrics_dir or DEFAULT_DIRECTORY,
+                                        db, qikuan_stock_path, qikuan_opening_path)
+    data["dataAudit"]["missing"].extend(data["qikuanBusiness"]["missing"])
+    data["dataAudit"]["qikuan_sources"] = {
+        key: data["qikuanBusiness"][key]["source"] for key in ("stock", "opening")
+    }
     return data
