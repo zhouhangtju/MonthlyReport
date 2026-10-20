@@ -1058,3 +1058,49 @@ CREATE TABLE IF NOT EXISTS raw_period_row (
     FOREIGN KEY (dataset_code, period_start, period_end)
         REFERENCES raw_period_batch(dataset_code, period_start, period_end)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Independent city/county snapshots. Requires existing collection_run and etl_run.
+
+CREATE TABLE IF NOT EXISTS youshu_install_completed_city (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    collection_run_id VARCHAR(80) NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    city VARCHAR(64) NOT NULL,
+    completed_order_count BIGINT UNSIGNED NOT NULL,
+    source_file VARCHAR(512) NOT NULL,
+    collected_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY uk_completed_city (collection_run_id,period_start,period_end,city),
+    KEY idx_completed_city_period (period_start,period_end),
+    FOREIGN KEY (collection_run_id) REFERENCES collection_run(collection_run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS youshu_install_completed_county (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    collection_run_id VARCHAR(80) NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    city VARCHAR(64) NOT NULL,
+    county VARCHAR(64) NOT NULL,
+    completed_order_count BIGINT UNSIGNED NOT NULL,
+    source_file VARCHAR(512) NOT NULL,
+    collected_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY uk_completed_county (collection_run_id,period_start,period_end,city,county),
+    KEY idx_completed_county_period (period_start,period_end),
+    FOREIGN KEY (collection_run_id) REFERENCES collection_run(collection_run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `result_qikuan_opening` (
+    result_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    metric_run_id VARCHAR(80) NOT NULL,
+    metric_code VARCHAR(120) NOT NULL,
+    dimension_type VARCHAR(120) NOT NULL,
+    dimension_value LONGTEXT NOT NULL,
+    dimension_value_hash CHAR(64) GENERATED ALWAYS AS (SHA2(dimension_value, 256)) STORED,
+    `month` VARCHAR(255) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(dimension_value, '$.month'))) STORED, `scope` VARCHAR(255) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(dimension_value, '$.scope'))) STORED, `city` VARCHAR(255) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(dimension_value, '$.city'))) STORED,
+    numerator DOUBLE,
+    denominator DOUBLE,
+    metric_value DOUBLE,
+    UNIQUE KEY uk_result_dimension (metric_run_id, metric_code, dimension_type, dimension_value_hash),
+    FOREIGN KEY (metric_run_id) REFERENCES metric_run(metric_run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

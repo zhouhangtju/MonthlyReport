@@ -1,0 +1,4 @@
+interface:
+  display_name: "企宽开通量同比计算"
+  short_description: "读取已入库快照，计算全省和地市开通量同比、累计同比并输出结果"
+  default_prompt: "使用 $calculate-qikuan-opening 计算指定报告月份的企宽开通量、同比和累计同比，并保存计算结果。"

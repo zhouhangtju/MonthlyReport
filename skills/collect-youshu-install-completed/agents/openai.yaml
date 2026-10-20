@@ -1,0 +1,4 @@
+interface:
+  display_name: "有数企宽装机报结量"
+  short_description: "按完整周期采集地市和区县报结量，支持双文件校验及 MySQL 入库"
+  default_prompt: "使用 $collect-youshu-install-completed 获取指定统计周期的全省企宽装机报结量，校验地市与区县数据并按要求保存或入库。"

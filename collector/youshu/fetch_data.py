@@ -339,6 +339,8 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
                     flush_error = True
             except Exception:
                 jf = {}
+                if task.get("strictErrors"):
+                    flush_error = True
             if flush_error:
                 return rf, {"stage": "flushReport", "detail": rf.text[:300]}
         body = setcache
@@ -372,7 +374,14 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
             j0 = r0.json()
         except Exception:
             j0 = {}
-        temp_id = j0.get("result")
+        if task.get("strictErrors") and (
+            r0.status_code != 200 or not isinstance(j0, dict)
+            or j0.get("code") not in (None, 0, 200)
+        ):
+            return r0, {"stage": "setCache"}
+        temp_id = j0.get("result") if isinstance(j0, dict) else None
+        if task.get("strictErrors") and (not isinstance(temp_id, str) or not temp_id):
+            return r0, {"stage": "setCache"}
         if not temp_id:
             return r0, {"stage": "setCache", "detail": r0.text[:300]}
         print(f"    [动态] tempQueryId = {temp_id}")
@@ -389,11 +398,19 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
         data=json.dumps(export_body, ensure_ascii=False).encode("utf-8"),
         timeout=timeout,
     )
+    if task.get("strictErrors") and r1.status_code == 200 and is_valid_xlsx(r1.content):
+        return r1, {"stage": "file"}
     try:
         j1 = r1.json()
     except Exception:
         j1 = {}
     export_id = j1.get("result") if isinstance(j1, dict) else None
+    if task.get("strictErrors") and (
+        r1.status_code != 200 or not isinstance(j1, dict)
+        or j1.get("code") not in (None, 0, 200)
+        or not isinstance(export_id, (str, int)) or isinstance(export_id, bool)
+    ):
+        return r1, {"stage": "exportExcel"}
     print(f"    [导出响应] code={j1.get('code') if isinstance(j1, dict) else None} keys={list(j1.keys()) if isinstance(j1, dict) else None}")
     print(f"    [导出响应] {json.dumps(j1, ensure_ascii=False)[:400] if isinstance(j1, dict) else str(j1)[:400]}")
     if not export_id:
@@ -416,6 +433,7 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
     elapsed = 0
     consecutive_500 = 0
     last_small = None
+    last_response = r1
     while elapsed < poll_timeout:
         # 导出接口返回 exportId 只代表任务已创建，并不代表文件已经生成。
         # 第一轮也必须真实等待，避免刚创建任务就请求下载而触发 code=500。
@@ -426,6 +444,7 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
         except Exception as e:
             print(f"    [下载] {elapsed}s 请求失败: {e}")
             continue
+        last_response = rp
         ct = rp.headers.get("content-type", "")
         body = rp.content
         # 用ZIP内部结构识别完整xlsx。短批次/零数据文件可能只有几KB，
@@ -440,6 +459,8 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
         except Exception:
             code = None
             info = None
+        if task.get("strictErrors") and (rp.status_code in (401, 403) or code in (401, 403, 610)):
+            return rp, {"stage": "download"}
         if code == 500:
             consecutive_500 += 1
         else:
@@ -462,7 +483,15 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
                 lj = lr.json()
                 items = lj.get("result") or lj.get("data") or []
                 if isinstance(items, list) and items:
-                    it = items[0]
+                    if task.get("strictErrors"):
+                        it = next((item for item in items if isinstance(item, dict) and any(
+                            str(item.get(key)) == str(export_id)
+                            for key in ("id", "exportId", "taskId")
+                        )), None)
+                        if it is None:
+                            continue
+                    else:
+                        it = items[0]
                     status = it.get("status")
                     link = it.get("link")
                     print(f"    [任务] status={status} link={'有' if link else '无'} "
@@ -472,6 +501,8 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
                                     "tempQueryId": temp_id, "url": link}
                     if status in ("fail", "failed", 3, 4):
                         print("    ! 任务失败")
+                        if task.get("strictErrors"):
+                            return lr, {"stage": "task_failed"}
                         break
             except Exception as e:
                 print(f"    [任务列表] 失败: {e}")
@@ -479,7 +510,7 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
         # 全程只有小文件(占位/空表), 把最后一次结果交给上层决定
         print("    [下载] 轮询超时仍为小文件, 返回最后一次结果")
         return last_small, {"stage": "file", "exportId": export_id, "tempQueryId": temp_id}
-    return r1, {"stage": "timeout", "exportId": export_id, "tempQueryId": temp_id}
+    return last_response if task.get("strictErrors") else r1, {"stage": "timeout", "exportId": export_id, "tempQueryId": temp_id}
 
 
 def month_ranges(start, end):
@@ -535,6 +566,36 @@ def merge_xlsx(paths, outpath):
     return True
 
 
+def export_failure(resp, info, headers):
+    """Small diagnostic without captured request headers or full response bodies."""
+    stage = (info or {}).get("stage", "download")
+    code, message = None, ""
+    try:
+        body = resp.json()
+        if isinstance(body, dict):
+            code = body.get("code")
+            message = str(body.get("message") or body.get("msg") or "")
+    except Exception:
+        pass
+    secrets = []
+    for key, value in headers.items():
+        if key.lower() in ("cookie", "authorization", "x-csrf-token", "x-roomid", "x-sid"):
+            secrets.append(str(value))
+            if key.lower() == "cookie":
+                secrets.extend(part.split("=", 1)[1].strip() for part in str(value).split(";") if "=" in part)
+    for secret in sorted(secrets, key=len, reverse=True):
+        if secret:
+            message = message.replace(secret, "[已隐藏]")
+    hint = ""
+    if code in (401, 403, 610) or resp.status_code in (401, 403):
+        hint = "；登录或权限校验失败，请刷新登录并确认报表访问权限"
+    elif stage == "timeout":
+        hint = "；导出任务未在等待时间内生成文件，可检查平台任务状态或增加 --poll-timeout"
+    return (f"有数导出失败：stage={stage}, HTTP={resp.status_code}, code={code}, "
+            f"content-type={resp.headers.get('content-type', '')}, bytes={len(resp.content)}, "
+            f"message={message[:300] or '平台未提供错误消息'}{hint}")
+
+
 def run_export(task, headers, base_headers, outdir, start, end, timeout, index=None,
                poll_timeout=600, region=None, nettype=None, tag=None,
                clear_region=False):
@@ -544,9 +605,13 @@ def run_export(task, headers, base_headers, outdir, start, end, timeout, index=N
                                      poll_timeout=poll_timeout, region=region, nettype=nettype,
                                      clear_region=clear_region)
     except Exception as e:
+        if task.get("strictErrors"):
+            raise RuntimeError(f"有数导出请求异常：{type(e).__name__}；请检查内网连接和 --timeout") from e
         print(f"  ! 请求失败: {e}")
         return None, None
     print(f"  HTTP {resp.status_code}, content-type: {resp.headers.get('content-type')}")
+    if task.get("strictErrors") and (resp.status_code != 200 or (info or {}).get("stage") not in ("file", "url_in_list")):
+        raise RuntimeError(export_failure(resp, info, headers))
     if resp.status_code != 200:
         try:
             j = resp.json()
@@ -570,9 +635,13 @@ def run_export(task, headers, base_headers, outdir, start, end, timeout, index=N
         try:
             rd = requests.get(dl, headers=dict(base_headers), timeout=timeout)
         except Exception as e:
+            if task.get("strictErrors"):
+                raise RuntimeError(f"有数下载链接请求异常：{type(e).__name__}") from e
             print(f"  ! 下载链接请求失败: {e}")
             return None, None
         resp = rd
+    if task.get("strictErrors") and (resp.status_code != 200 or not is_valid_xlsx(resp.content)):
+        raise RuntimeError(export_failure(resp, {"stage": "download_invalid_xlsx"}, headers))
     path, kind = save_response(task["name"], resp, outdir, start, end, index, tag)
     print(f"  OK 已保存: {path}  ({kind})")
     return path, kind

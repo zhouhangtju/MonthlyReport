@@ -140,6 +140,7 @@ function loginExpression(account, password) {
 }
 
 function getReportUrl() {
+  if (process.env.YOUDATA_REPORT_URL) return process.env.YOUDATA_REPORT_URL;
   const cfg = readJson(DATA_CONFIG);
   for (const name of ['企宽投诉清单', '新装退单']) {
     const task = (cfg.tasks || []).find(item => item.name === name);
@@ -195,6 +196,9 @@ async function main() {
   await waitFor(api, `!location.href.includes('/login1')`, 60000, '登录成功跳转');
 
   const reportUrl = getReportUrl();
+  captured.csrf = '';
+  captured.roomid = '';
+  captured.sid = '';
   console.log('[4/5] 进入报告页并抓取凭证:', reportUrl);
   await api.send('Page.navigate', { url: reportUrl });
   await waitFor(api, `document.readyState !== 'loading'`, 30000, '报告页加载');
