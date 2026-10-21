@@ -1,8 +1,12 @@
 import unittest
+import json
 from pathlib import Path
+import tempfile
 from unittest.mock import patch
 
-from calculate import CITIES, VALUE, calculate, growth, periods, read_snapshot
+from calculate import (CITIES, VALUE, calculate, growth, periods, read_snapshot,
+                       read_history_workbook, load_history, history_snapshot)
+from calculate import update_history
 
 HEADERS = ["日期", "地市", "县市", "产品带宽", "产品带宽", "接入技术", "产品分类", "校园属性", VALUE]
 
@@ -74,6 +78,40 @@ class CalculationTests(unittest.TestCase):
         self.assertAlmostEqual(result["province"]["mom"], (1100 - 600) / 600)
         self.assertEqual(result["missing_periods"], ["2025-09"])
         self.assertIsNone(result["province"]["yoy"])
+
+    def test_saved_history_supplies_yoy_and_mom(self):
+        path = Path(__file__).resolve().parents[1] / "assets/qikuan_stock_history.json"
+        history = load_history(path)
+        self.assertEqual(history["audit"]["first_month"], "2022-01")
+        self.assertEqual(history["audit"]["last_month"], "2026-09")
+        self.assertEqual(history["audit"]["month_count"], 57)
+        self.assertEqual(history_snapshot(history, "2026-08")["counts"]["杭州"], 469872)
+        self.assertEqual(history_snapshot(history, "2025-09")["counts"]["杭州"], 424937)
+
+    def test_history_sheet_blocks_are_validated(self):
+        source = Path("/Users/hzhou/Desktop/企宽装机投诉存量.xlsx")
+        if not source.exists():
+            self.skipTest("历史台账样本不存在")
+        history = read_history_workbook(source)
+        self.assertEqual(history["months"]["2026-09"]["province"], 2871396)
+        self.assertEqual(history["months"]["2025-09"]["province"], 2657715)
+        self.assertEqual(history["months"]["2026-08"]["province"], 2853960)
+
+    def test_calculated_month_updates_history(self):
+        counts = {city: index + 1 for index, city in enumerate(CITIES)}
+        snapshot = {"counts": counts, "audit": {"source_file": "/tmp/month.xlsx",
+                    "sha256": "abc", "sheet": "202610", "snapshot_date": "20261031",
+                    "selected_rows": 11}}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "history.json"
+            history = {"months": {}, "audit": None}
+            self.assertEqual(update_history(path, history, "2026-10", snapshot), "新增记录")
+            saved = json.loads(path.read_text())
+            self.assertEqual(saved["months"]["2026-10"]["province"], sum(counts.values()))
+            self.assertEqual(saved["month_sources"]["2026-10"]["sheet"], "202610")
+            loaded = load_history(path)
+            self.assertEqual(loaded["months"]["2026-10"]["counts"], counts)
+            self.assertEqual(update_history(path, loaded, "2026-10", snapshot), "确认无变化")
 
 
 if __name__ == "__main__":

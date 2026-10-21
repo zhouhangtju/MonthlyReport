@@ -1,5 +1,5 @@
 ---
-name: calculate-qikuan-stock
+name: calculate-manual-qikuan-stock
 description: 从手工上传的企宽存量 Excel 原始月份工作表计算全省及浙江11地市月末存量、同比和环比，输出可追溯 JSON。用于企宽存量月报计算，不用于企宽开通量、退单或线上采集。
 ---
 
@@ -17,7 +17,10 @@ description: 从手工上传的企宽存量 Excel 原始月份工作表计算全
 - 同比 =（本期月末存量 − 去年同月月末存量）/ 去年同月月末存量。
 - 环比 =（本期月末存量 − 上月月末存量）/ 上月月末存量，1月的上月为去年12月。
 - 全省增长率用全省数量计算，不能平均地市增长率。JSON 中增长率为小数，展示为两位百分比。
-- 未提供历史文件时，对应数量、增长率为 `null` 并注明缺失月份；基数为0时增长率为 `null`，不得填0%。提供历史文件却缺少正确日期、表头或地市时直接报错。
+- 技能内 `assets/qikuan_stock_history.json` 保留了 `企宽装机投诉存量.xlsx` 的 Sheet2 历史台账。脚本默认从中找上月和去年同月，因此日常运行只需要本月原始 Excel。
+- `calculate.py` 成功生成当月统计结果后，默认把本月全省及11地市存量写回同一历史台账。重复计算同月会更新该月记录，不会产生重复月份；写回时记录本月原始文件 SHA256 和工作表。
+- 历史台账按月保存11地市和全省校验数。读取时重新校验地市合计等于全省；不得只保留全省数，否则无法生成地市同比、环比。
+- 历史台账缺少比较月份时，对应数量、增长率为 `null` 并注明缺失月份；基数为0时增长率为 `null`，不得填0%。
 - 地市必须覆盖浙江11地市。原始维度重复、未知地市、空值、负数、非整数或未缓存公式均报错，不能静默跳过。
 
 ## 运行
@@ -25,13 +28,25 @@ description: 从手工上传的企宽存量 Excel 原始月份工作表计算全
 在项目根目录执行（`python3` 可替换为已装依赖的 `python` 或 `py -3`）：
 
 ```bash
-python3 skills/calculate-qikuan-stock/scripts/calculate.py \
+python3 skills/calculate-manual-qikuan-stock/scripts/calculate.py \
   --input "/absolute/path/26.9月企宽存量.xlsx" \
-  --month 2026-09 \
-  --output outputs/manual_metrics/企宽存量_2026-09.json
+  --month 2026-09
 ```
 
-有历史文件时，增加 `--previous-input "/path/8月.xlsx"` 和 `--year-ago-input "/path/去年9月.xlsx"`。默认分别读取 `202608`、`202509`；表名不同可传 `--sheet`、`--previous-sheet`、`--year-ago-sheet`。同一文件含三个原始月份表时，三个 input 参数可以指向同一文件。历史文件必须采用相同字段及产品口径，不能用截图的7月数据替代9月比较基数。
+上述命令会把统计结果写到 `outputs/manual_metrics/企宽存量_2026-09.json`，并自动从技能历史台账读取 `2026-08` 和 `2025-09`。也可以用 `--output` 指定其他结果路径。如需用新版台账临时计算，可增加 `--history-input "/path/企宽装机投诉存量.xlsx"`，默认读取 Sheet2；用 `--history-sheet` 指定其他表名。
+
+临时试算且不希望写回历史台账时增加 `--no-update-history`。正常月报计算不要使用该参数。
+
+收到更新版历史台账后，先验证并更新技能资产：
+
+```bash
+python3 skills/calculate-manual-qikuan-stock/scripts/import_history.py \
+  --input "/absolute/path/企宽装机投诉存量.xlsx"
+```
+
+`import_history.py` 会解析 Sheet2 中各“出帐YYYY”分块，校验每月11地市齐全且地市合计等于表内全省数，再覆盖技能内的历史 JSON。保留源文件 SHA256、月份范围和月份数量用于追溯。
+
+`--previous-input`、`--year-ago-input` 仍可用于以原始月度 Excel 覆盖历史台账中的对应月份；默认分别读取 `YYYYMM` 工作表。表名不同可传 `--previous-sheet`、`--year-ago-sheet`。
 
 输出包括 `province`、`cities`、`charts`、`missing_periods` 和带文件 SHA256、工作表、快照日期、筛选行数的 `audit`。`charts` 是后续制图数据，不代表已生成 PPT 或已入库。
 
