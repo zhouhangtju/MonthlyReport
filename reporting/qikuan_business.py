@@ -9,6 +9,35 @@ OPENING_KEYS = ("current_month", "previous_month", "current_ytd", "previous_ytd"
 STOCK_KEYS = ("current", "previous", "year_ago", "yoy", "mom")
 
 
+def shifted_month(month, offset):
+    year, number = map(int, month.split("-"))
+    absolute = year * 12 + number - 1 + offset
+    year, zero_based = divmod(absolute, 12)
+    return f"{year:04d}-{zero_based + 1:02d}"
+
+
+def trend_months(month):
+    return [shifted_month(month, offset) for offset in range(-11, 1)]
+
+
+def validate_trend(trend, month):
+    expected = trend_months(month)
+    months = trend.get("months", [])
+    values = trend.get("values", [])
+    if months != expected or len(values) != 12:
+        raise ValueError("企宽开通量近12个月趋势必须连续且截至报告月")
+    for value in values:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0 or int(value) != value:
+            raise ValueError("企宽开通量趋势必须为12个非负整数")
+    total = sum(values)
+    average = total / 12
+    if trend.get("total") is not None and trend["total"] != total:
+        raise ValueError("企宽开通量趋势合计与月度值不一致")
+    if trend.get("average") is not None and not math.isclose(trend["average"], average, rel_tol=1e-9):
+        raise ValueError("企宽开通量趋势月均与月度值不一致")
+    return {"months": months, "values": values, "total": total, "average": average}
+
+
 def validate_rows(document, keys):
     rows = document["cities"]
     names = [r["city"] for r in rows]
@@ -55,6 +84,9 @@ def read_document(path, month, opening=False):
             raise ValueError(f"企宽存量结果指标或月份不符：{path}")
         keys = STOCK_KEYS
     result = validate_rows(document, keys)
+    if opening:
+        result["trend"] = validate_trend(document["trend"], month) if document.get("trend") else {
+            "months": trend_months(month), "values": [None] * 12, "total": None, "average": None}
     result["source"] = {"path": str(path.resolve()), "sha256": hashlib.sha256(raw).hexdigest(),
                         "metric_run_id": document.get("metric_run_id"),
                         "sources": document.get("sources", document.get("audit"))}
@@ -78,6 +110,8 @@ def build_qikuan(month, directory, db=None, stock_path=None, opening_path=None):
         stock_path = candidates[0] if candidates else None
     stock = read_document(Path(stock_path), month) if stock_path else empty(STOCK_KEYS)
     opening = empty(OPENING_KEYS)
+    opening["trend"] = {"months": trend_months(month), "values": [None] * 12,
+                        "total": None, "average": None}
     if opening_path:
         opening = read_document(Path(opening_path), month, opening=True)
     elif db is not None:
@@ -91,6 +125,14 @@ def build_qikuan(month, directory, db=None, stock_path=None, opening_path=None):
                 if row:
                     record[key] = row["metric_value"]
         validate_rows(opening, OPENING_KEYS)
+        values = []
+        for trend_month in opening["trend"]["months"]:
+            row = db.find(owner, "qikuan_opening_monthly_trend", "trend_month", month=trend_month)
+            values.append(row["metric_value"] if row else None)
+        opening["trend"]["values"] = values
+        if all(value is not None for value in values):
+            opening["trend"]["total"] = sum(values)
+            opening["trend"]["average"] = sum(values) / 12
         opening["source"] = db.runs.get(owner)
     for name, data, keys in (("stock", stock, STOCK_KEYS), ("opening", opening, OPENING_KEYS)):
         for row in [data["province"], *data["cities"]]:
@@ -98,4 +140,8 @@ def build_qikuan(month, directory, db=None, stock_path=None, opening_path=None):
                 if row[key] is None:
                     missing.append({"ppt_field": f"qikuanBusiness.{name}.{row['city']}.{key}",
                                     "reason": "unavailable_stored_result", "filled_value": None})
+    for trend_month, value in zip(opening["trend"]["months"], opening["trend"]["values"]):
+        if value is None:
+            missing.append({"ppt_field": f"qikuanBusiness.opening.trend.{trend_month}",
+                            "reason": "unavailable_stored_result", "filled_value": None})
     return {"month": month, "stock": stock, "opening": opening, "missing": missing}

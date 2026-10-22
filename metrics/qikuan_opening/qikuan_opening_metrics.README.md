@@ -25,14 +25,14 @@ python3 metrics/qikuan_opening/qikuan_opening_metrics.py --month 2026-07 --mode 
 1月复用相同周期。缺失时列出全部缺失周期并退出（退出码2），不产生部分指标，不将缺失视为零。
 数据库连接异常会原样报错，不伪装为缺少数据。先运行取数入口补齐周期，再重新计算。
 
-全省与11个地市各输出六项指标，共72条结果：current_month、previous_month、current_ytd、previous_ytd、yoy、ytd_yoy。
+全省与11个地市各输出六项指标，并输出截至报告月的12个月全省月度趋势，共84条结果：current_month、previous_month、current_ytd、previous_ytd、yoy、ytd_yoy及qikuan_opening_monthly_trend。
 同比为 `(本期-同期)/同期`，累计同比为 `(本年累计-去年累计)/去年累计`。
 全省按地区数量合计后计算，不平均地区增长率。累计直接读取完整周期去重汇总，不累加各月去重数。
 零基数的增长率为 null，展示“—（同期基数为0）”；零增长显示持平。内部比率不乘100，展示为两位小数百分比。
 
 `--mode file` 仍从 MySQL 读取，只输出 JSON、不建结果表和写结果；`database` 只写计算结果；默认 `both` 两者都做。
 默认文件位置：`data/results/qikuan_opening/<月份>/<计算批次>.json`，可用 `--output` 指定路径。
-JSON 包含 province、cities、results、charts、narratives 和四周期 sources；图表字段可供后续 PPT 渲染接入。
+JSON 包含 province、cities、results、charts、narratives、trend 和来源周期；图表字段可供后续 PPT 渲染接入。trend固定为截至报告月的12个连续完整自然月，并给出合计和月均。
 本模块不生成 PPT，也不改变现有 PPT 模板。
 
 数据库结果存入 `result_qikuan_opening`，使用项目标准长表结构；数量指标的 denominator 为 null，

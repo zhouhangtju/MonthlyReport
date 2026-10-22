@@ -17,7 +17,7 @@ class QikuanPptTest(unittest.TestCase):
             self.skipTest("Local September source result not installed")
         result = build_qikuan("2026-09", None, stock_path=source)
         self.assertEqual(result["stock"]["province"]["current"], 2871396)
-        self.assertIsNone(result["stock"]["province"]["yoy"])
+        self.assertAlmostEqual(result["stock"]["province"]["yoy"], 0.08040026865183061)
         self.assertIsNone(result["opening"]["province"]["current_month"])
         self.assertEqual([r["city"] for r in result["stock"]["cities"]], CITIES)
         self.assertTrue(all(r["filled_value"] is None for r in result["missing"]))
@@ -26,6 +26,8 @@ class QikuanPptTest(unittest.TestCase):
         db = Mock()
         db.runs = {"qikuan_opening_metrics": {"metric_run_id": "test"}}
         def find(owner, code, kind, **dims):
+            if code == "qikuan_opening_monthly_trend":
+                return {"metric_value": 100}
             key = code.removeprefix("qikuan_opening_")
             value = {"current_month": 9, "previous_month": 10, "current_ytd": 90,
                      "previous_ytd": 100, "yoy": -.1, "ytd_yoy": -.1}[key]
@@ -37,7 +39,8 @@ class QikuanPptTest(unittest.TestCase):
         self.assertEqual(result["opening"]["province"]["current_month"], 99)
         self.assertEqual(result["opening"]["province"]["yoy"], -.1)
         self.assertIsNone(result["stock"]["province"]["current"])
-        self.assertEqual(db.find.call_count, 72)
+        self.assertEqual(result["opening"]["trend"]["total"], 1200)
+        self.assertEqual(db.find.call_count, 84)
 
     def test_json_rejects_wrong_month_and_bad_totals(self):
         rows = [{"city": c, **dict.fromkeys(OPENING_KEYS, None)} for c in CITIES]
@@ -59,10 +62,10 @@ class QikuanPptTest(unittest.TestCase):
                 read_document(path, "2026-09", True)
 
     def test_section_pages_shift_after_insert(self):
-        self.assertEqual(SECTION_SLIDE_MAP["业务发展情况"], list(range(1, 8)))
-        self.assertEqual(SECTION_SLIDE_MAP["企宽业务"], [7])
-        self.assertEqual(SECTION_SLIDE_MAP["终端回收情况"], [1, 2, 13, 14])
-        self.assertEqual(SECTION_SLIDE_MAP["业务支撑情况"], [1, 2, 16, 17])
+        self.assertEqual(SECTION_SLIDE_MAP["业务发展情况"], list(range(1, 9)))
+        self.assertEqual(SECTION_SLIDE_MAP["企宽业务"], [7, 8])
+        self.assertEqual(SECTION_SLIDE_MAP["终端回收情况"], [1, 2, 14, 15])
+        self.assertEqual(SECTION_SLIDE_MAP["业务支撑情况"], [1, 2, 17, 18])
 
 
 if __name__ == "__main__":

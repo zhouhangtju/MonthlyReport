@@ -53,12 +53,27 @@ class MetricsTest(unittest.TestCase):
     def test_january_reads_two_periods_only(self):
         with patch.object(m.source,'load_latest_city',return_value={}) as load:
             m.load_sources('2026-01')
-        self.assertEqual(load.call_count,2)
+        self.assertEqual(load.call_count,13)
+
+    def test_twelve_month_trend_is_stored(self):
+        data = snapshots()
+        data['monthly_trend'] = {}
+        for index, month in enumerate(m.rolling_months('2026-07'), 1):
+            start, end = m.monthly_bounds(month)
+            data['monthly_trend'][month] = {'collection_run_id': month, 'city': [
+                {'city': city, 'completed_order_count': index if i == 0 else 0,
+                 'period_start': start, 'period_end': end, 'collection_run_id': month}
+                for i, city in enumerate(m.CITY_ORDER)]}
+        result = m.calculate('2026-07', data)
+        self.assertEqual(result['trend']['months'], m.rolling_months('2026-07'))
+        self.assertEqual(result['trend']['values'], list(range(1, 13)))
+        self.assertEqual(result['trend']['total'], 78)
+        self.assertEqual(len(result['results']), 84)
 
     def test_all_missing_periods_collected(self):
         with patch.object(m.source,'load_latest_city',side_effect=ValueError('该统计周期没有完整成功的报结量数据')):
             with self.assertRaises(m.MissingPeriods) as error:m.load_sources('2026-07')
-        self.assertEqual(len(error.exception.missing),4)
+        self.assertEqual(len(error.exception.missing),15)
 
     def test_connection_error_not_reported_as_missing(self):
         with patch.object(m.source,'load_latest_city',side_effect=RuntimeError('database offline')):

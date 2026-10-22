@@ -34,8 +34,8 @@ python3 metrics/qikuan_opening/qikuan_opening_metrics.py --month 2026-07 --mode 
 全省使用数量合计计算增长率，不平均地市比率。比率内部是小数，展示百分比保留两位。
 同期为0时结果为空并说明“同期基数为0”，不显示为0%或无穷；增长率为0时说明持平。
 
-成功后核对退出码、报告月份、72条结果（12个地域×6指标）、四个来源周期和批次ID。
+成功后核对退出码、报告月份、84条结果（12个地域×6指标，加近12个月全省趋势）、来源周期和批次ID。
 报告全省当月量、同比、累计量、累计同比，给出结果文件路径及计算批次ID。
-JSON的charts、narratives供后续PPT渲染使用，不宣称已生成PPT。需要地市比较时读取cities，不跨历史计算批次求和。
+JSON的charts、narratives和trend供后续PPT渲染使用，不宣称已生成PPT。trend按报告月向前取12个连续完整自然月，保存月度全省量、合计和月均；需要地市比较时读取cities，不跨历史计算批次求和。
 file模式仅写文件，不能宣称结果已入库；数据库故障与数据缺失分开报告。
 技术细节按需查阅项目 `metrics/qikuan_opening/qikuan_opening_metrics.README.md`。

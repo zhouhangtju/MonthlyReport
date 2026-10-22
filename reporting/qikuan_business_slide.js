@@ -105,7 +105,55 @@ function addQikuanBusinessSlide(pptx, Q, helpers, page = 7) {
     JSON.stringify({stock: Q.stock.source, opening: Q.opening.source}));
   return slide;
 }
-module.exports = {addQikuanBusinessSlide, rate, citySummary};
+
+function addQikuanOpeningTrendSlide(pptx, Q, helpers, page = 8) {
+  const slide = pptx.addSlide();
+  helpers.addTemplateBackground(slide);
+  const text = (value, x, y, w, h, extra = {}) => slide.addText(value, {
+    x, y, w, h, fontFace: 'Microsoft YaHei', fontSize: 13, color: INK, margin: 0, ...extra,
+  });
+  text('业务存量及发展量-企宽业务', .22, .14, 10.5, .45,
+    {fontSize: 28, bold: true, color: 'FFFFFF'});
+  const trend = Q.opening.trend || {months: [], values: [], total: null, average: null};
+  const months = trend.months || [];
+  const values = trend.values || [];
+  const complete = months.length === 12 && values.length === 12 && values.every(valid);
+  const fullMonth = value => { const [year, month] = value.split('-'); return `${year}年${Number(month)}月`; };
+  const period = months.length ? `${fullMonth(months[0])}-${fullMonth(months[months.length - 1])}` : '近12个月';
+  text([
+    {text: period + '，企宽'},
+    {text: complete ? `累计开通${num(trend.total)}条` : '累计开通量待补充', options: {color: '0070C0'}},
+    {text: '，'},
+    {text: complete ? `平均月开通${Math.round(trend.average)}条` : '平均月开通量待补充', options: {color: complete ? '0070C0' : '777777'}},
+    {text: '。'},
+  ], .42, .82, 12.2, .42, {fontSize: 14, bold: true});
+  helpers.addPanel(slide, .55, 1.52, 12.22, 5.45);
+  helpers.addSectionPill(slide, '企宽开通量', 4.55, 1.28, 4.2);
+  if (complete) {
+    const labels = months.map(value => value.slice(2).replace('-', '.'));
+    const max = Math.max(...values);
+    slide.addChart(pptx.ChartType.bar, [{name: '企宽开通量', labels, values}], {
+      x: .78, y: 1.78, w: 11.75, h: 4.82,
+      catAxisLabelFontFace: 'Microsoft YaHei', catAxisLabelFontSize: 10,
+      catAxisLabelColor: '666666', catAxisLineColor: 'D9DEE5', catAxisLabelPos: 'low',
+      valAxisMinVal: 0, valAxisMaxVal: max * 1.22, valAxisLabelPos: 'none',
+      valAxisLineShow: false, valAxisMajorTickMark: 'none',
+      valGridLine: {color: 'FFFFFF', transparency: 100}, showLegend: false,
+      showValue: true, showTitle: false, dataLabelPosition: 'outEnd',
+      dataLabelColor: '555555', dataLabelFontFace: 'Microsoft YaHei', dataLabelFontSize: 9,
+      dataLabelFormatCode: '0', chartColors: [BLUE], gapWidthPct: 72, showBorder: false,
+    });
+  } else {
+    text('近12个月企宽开通量待补充', 1.0, 3.7, 11.3, .5,
+      {fontSize: 18, color: '888888', align: 'center'});
+  }
+  if (process.env.PPT_TEMPLATE_MASTER !== '1')
+    text(String(page), 12.6, 7.2, .3, .18, {fontSize: 8, align: 'right', color: '75C900'});
+  slide.addNotes('企宽开通量近12个月趋势：数据库中有数装机报结量月度成功快照，按11地市合计。缺失月份不替换为0。\n' +
+    JSON.stringify({opening: Q.opening.source, trendMonths: months}));
+  return slide;
+}
+module.exports = {addQikuanBusinessSlide, addQikuanOpeningTrendSlide, rate, citySummary};
 
 if (require.main === module) {
   const pptxgen = require('pptxgenjs');
@@ -131,5 +179,6 @@ if (require.main === module) {
     },
   };
   addQikuanBusinessSlide(deck, data.qikuanBusiness, helpers);
+  addQikuanOpeningTrendSlide(deck, data.qikuanBusiness, helpers);
   deck.writeFile({fileName: process.argv[3]}).catch(error => {console.error(error); process.exitCode = 1;});
 }

@@ -20,6 +20,22 @@ CITY_ORDER = '杭州 湖州 嘉兴 金华 丽水 宁波 衢州 绍兴 台州 温
 COUNT_KEYS = ('current_month', 'previous_month', 'current_ytd', 'previous_ytd')
 
 
+def shifted_month(month, offset):
+    year, number = map(int, month.split('-'))
+    absolute = year * 12 + number - 1 + offset
+    year, zero_based = divmod(absolute, 12)
+    return f'{year:04d}-{zero_based + 1:02d}'
+
+
+def monthly_bounds(month):
+    year, number = map(int, month.split('-'))
+    return date(year, number, 1).isoformat(), date(year, number, calendar.monthrange(year, number)[1]).isoformat()
+
+
+def rolling_months(month, count=12):
+    return [shifted_month(month, offset) for offset in range(1-count, 1)]
+
+
 def periods(month):
     if not re.fullmatch(r'\d{4}-\d{2}', month):
         raise ValueError('月份必须为 YYYY-MM')
@@ -44,10 +60,14 @@ def load_sources(month, cumulative_mode='exact'):
     if cumulative_mode not in ('exact', 'monthly_sum'):
         raise ValueError('cumulative_mode 必须为 exact 或 monthly_sum')
     roles = periods(month)
-    required = list(dict.fromkeys(roles.values()))
+    trend_bounds = {value: monthly_bounds(value) for value in rolling_months(month)}
+    required = list(dict.fromkeys([*roles.values(), *trend_bounds.values()]))
     if cumulative_mode == 'monthly_sum':
-        required = [(date(y,n,1).isoformat(),date(y,n,calendar.monthrange(y,n)[1]).isoformat())
-                    for y in (int(month[:4]),int(month[:4])-1) for n in range(1,int(month[-2:])+1)]
+        required = list(dict.fromkeys([
+            *[(date(y,n,1).isoformat(),date(y,n,calendar.monthrange(y,n)[1]).isoformat())
+              for y in (int(month[:4]),int(month[:4])-1) for n in range(1,int(month[-2:])+1)],
+            *trend_bounds.values(),
+        ]))
     cached, missing = {}, []
     for bounds in required:
         try:
@@ -59,14 +79,16 @@ def load_sources(month, cumulative_mode='exact'):
     if missing:
         raise MissingPeriods(missing)
     if cumulative_mode == 'exact':
-        return {role: cached[bounds] for role, bounds in roles.items()}
+        result = {role: cached[bounds] for role, bounds in roles.items()}
+        result['monthly_trend'] = {value: cached[bounds] for value, bounds in trend_bounds.items()}
+        return result
     result = {role: cached[roles[role]] for role in ('current_month','previous_month')}
     for role in ('current_ytd','previous_ytd'):
         start,end = roles[role]
         totals = {city:0 for city in CITY_ORDER}
         batches = []
         for bounds in required:
-            if bounds[0][:4] != start[:4]:
+            if bounds[0] < start or bounds[1] > end:
                 continue
             snapshot = cached[bounds]
             values = city_values(snapshot,*bounds)
@@ -79,6 +101,7 @@ def load_sources(month, cumulative_mode='exact'):
         result[role] = {'collection_run_id':None,'method':'monthly_sum','source_batches':batches,
             'city':[{'city':c,'completed_order_count':v,'period_start':start,'period_end':end,
                      'collection_run_id':None} for c,v in totals.items()]}
+    result['monthly_trend'] = {value: cached[bounds] for value, bounds in trend_bounds.items()}
     return result
 
 
@@ -121,6 +144,19 @@ def calculate(month, snapshots):
             'method':snapshot.get('method','exact'), 'dataset_code':snapshot.get('dataset_code')}
         if 'source_batches' in snapshot:
             provenance[role]['source_batches'] = snapshot['source_batches']
+    trend = []
+    trend_sources = []
+    for trend_month, snapshot in snapshots.get('monthly_trend', {}).items():
+        start, end = monthly_bounds(trend_month)
+        values = city_values(snapshot, start, end)
+        total = sum(values.values())
+        trend.append({'month': trend_month, 'value': total})
+        trend_sources.append({'month': trend_month, 'period_start': start, 'period_end': end,
+                              'collection_run_id': snapshot['collection_run_id'],
+                              'dataset_code': snapshot.get('dataset_code')})
+    if trend and [item['month'] for item in trend] != rolling_months(month):
+        raise ValueError('近12个月趋势月份不连续或顺序不正确')
+    provenance['monthly_trend'] = trend_sources
     summaries, results = [], []
     for city in ['全省', *CITY_ORDER]:
         item = {'city': city, **{key: data[key][city] for key in COUNT_KEYS}}
@@ -139,6 +175,10 @@ def calculate(month, snapshots):
             results.append({'metric_code': f'qikuan_opening_{key}',
                 'dimension_type': 'province' if city == '全省' else 'city', 'dimension': dimension,
                 'numerator': numerator, 'denominator': denominator, 'metric_value': item[key]})
+    for item in trend:
+        results.append({'metric_code': 'qikuan_opening_monthly_trend', 'dimension_type': 'trend_month',
+                        'dimension': {'month': item['month']}, 'numerator': item['value'],
+                        'denominator': None, 'metric_value': item['value']})
     province, cities = summaries[0], summaries[1:]
     def city_text(key):
         groups = [('下降', [f"{r['city']}{abs(r[key]):.2%}" for r in cities if r[key] is not None and r[key] < 0]),
@@ -152,6 +192,10 @@ def calculate(month, snapshots):
     return {'metric_code': METRIC_CODE, 'metric_version': VERSION, 'month': month,
         'period_start': bounds['current_month'][0], 'period_end': bounds['current_month'][1],
         'sources': provenance, 'rate_unit': 'ratio', 'province': province, 'cities': cities,
+        'trend': {'months': [item['month'] for item in trend],
+                  'values': [item['value'] for item in trend],
+                  'total': sum(item['value'] for item in trend) if trend else None,
+                  'average': sum(item['value'] for item in trend) / len(trend) if trend else None},
         'results': results, 'narratives': {
             'monthly': f"{number}月企宽开通{province['current_month']}条，同比{rate_text(province['yoy'])}；{city_text('yoy')}。",
             'ytd': f"1—{number}月累计开通{province['current_ytd']}条，累计同比{rate_text(province['ytd_yoy'])}；{city_text('ytd_yoy')}。"},
