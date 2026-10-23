@@ -83,11 +83,11 @@ COMPLAINT_FAULT_RESULT_COLUMNS = [
 ]
 
 SECTION_SLIDE_MAP = {
-    "业务发展情况": [1, 2, 3, 4, 5, 6, 7, 8],
+    "业务发展情况": [1, 2, 3, 4, 5, 6, 7, 8, 9],
     "企宽业务": [7, 8],
-    "专线自动情况": [1, 2, 10, 11, 12],
-    "终端回收情况": [1, 2, 14, 15],
-    "业务支撑情况": [1, 2, 17, 18],
+    "专线自动情况": [1, 2, 11, 12, 13],
+    "终端回收情况": [1, 2, 15, 16],
+    "业务支撑情况": [1, 2, 18, 19],
 }
 
 
@@ -764,8 +764,8 @@ def _update_terminal_slide_text(entries, terminal_data, display_month):
     }
 
     for slide_name, replacements in {
-        "ppt/slides/slide14.xml": slide12_replacements,
-        "ppt/slides/slide15.xml": slide13_replacements,
+        "ppt/slides/slide15.xml": slide12_replacements,
+        "ppt/slides/slide16.xml": slide13_replacements,
     }.items():
         if slide_name in entries:
             entries[slide_name] = _replace_text_runs(
@@ -775,13 +775,13 @@ def _update_terminal_slide_text(entries, terminal_data, display_month):
 
 
 def replace_terminal_recovery_slides_from_template(pptx_path, terminal_data, display_month, template_path=TERMINAL_RECOVERY_TEMPLATE):
-    """用终端回收页模板内容页替换第14-15页，实现版式一比一复刻。"""
+    """用终端回收页模板内容页替换第15-16页，实现版式一比一复刻。"""
     if not template_path.exists():
         return
     temp_path = None
     seed_mapping = {
-        "ppt/slides/slide2.xml": "ppt/slides/slide14.xml",
-        "ppt/slides/slide3.xml": "ppt/slides/slide15.xml",
+        "ppt/slides/slide2.xml": "ppt/slides/slide15.xml",
+        "ppt/slides/slide3.xml": "ppt/slides/slide16.xml",
     }
     with zipfile.ZipFile(pptx_path, "r") as source_zip, zipfile.ZipFile(template_path, "r") as template_zip:
         entries = {info.filename: source_zip.read(info.filename) for info in source_zip.infolist()}

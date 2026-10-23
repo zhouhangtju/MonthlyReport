@@ -1,0 +1,146 @@
+{
+  "base": "http://10.76.134.138:30000",
+  "headers": {
+    "accept": "application/json",
+    "content-type": "application/json",
+    "x-csrf-token": "996479427",
+    "x-resource-status": "view",
+    "x-roomid": "pCqr4TYsZf6q5d7faXEqee",
+    "x-sid": "O9AIhCiMqSQynTN0AFnj",
+    "x-time-zone": "8",
+    "cookie": "SESSION_YOUDATA.sig=zaH1gwU2qMMol_lpw8dtp7IlUWY; SESSION_YOUDATA=ydsession-ff0a0fa7-8923-4b75-a7bf-6dc7a0f7aa58; YDNESIO=7caa568cbc1b677d53f1c375f7213fccc46a1826",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+  },
+  "tasks": [
+    {
+      "name": "企宽开通交付及时率",
+      "url": "http://10.76.134.138:30000/bi/api/dash/report/exportExcel?trigger=User",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=38579",
+      "body": {
+        "type": "dashboard",
+        "pid": 31,
+        "reportId": 38579,
+        "tempQueryId": "export_21270e468fb5002dad33f5fa01e16415",
+        "dashboardId": 136622,
+        "exportType": "xlsx",
+        "enhance": false,
+        "useOriginData": false,
+        "conditionFormat": false,
+        "includeTitle": true,
+        "isAsync": true
+      },
+      "method": "POST"
+    },
+    {
+      "name": "企宽投诉处理及时率",
+      "url": "http://10.76.134.138:30000/bi/api/dash/report/exportExcel?trigger=User",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=38660",
+      "body": {
+        "type": "dashboard",
+        "pid": 31,
+        "reportId": 38660,
+        "tempQueryId": "@@NEW_TEMP_QUERY_ID@@",
+        "dashboardId": 137142,
+        "exportType": "xlsx",
+        "enhance": false,
+        "useOriginData": false,
+        "conditionFormat": false,
+        "includeTitle": true,
+        "isAsync": true
+      },
+      "method": "POST",
+      "setCacheBody": "@@FILE:task2_setcache.json@@",
+      "setCacheUrl": "http://10.76.134.138:30000/bi/api/dash/util/setCache?trigger=User",
+      "dateFilterComponent": "c-tg3AtH7huE1ZqpzbeWH1Nz"
+    },
+    {
+      "name": "企宽新装清单",
+      "url": "http://10.76.134.138:30000/bi/api/dash/report/asyncExportExcel?trigger=User",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=38580&did=136626",
+      "body": {
+        "type": "component",
+        "pid": 31,
+        "reportId": 38580,
+        "tempQueryId": "@@NEW_TEMP_QUERY_ID@@",
+        "dashboardId": 136626,
+        "componentId": "c-r8bWDPfyBu4dzuzrzzVTH5",
+        "exportType": "xlsx",
+        "enhance": false,
+        "useOriginData": true,
+        "conditionFormat": false,
+        "includeTitle": false,
+        "excelSplitLimit": 1000000,
+        "isAsync": true
+      },
+      "method": "POST",
+      "setCacheBody": "@@FILE:task3_setcache_38580.json@@",
+      "setCacheUrl": "http://10.76.134.138:30000/bi/api/dash/util/setCache?trigger=User",
+      "flushReportUrl": "http://10.76.134.138:30000/bi/api/dash/component/flushComponent?trigger=User&id=c-r8bWDPfyBu4dzuzrzzVTH5",
+      "defaultDateRange": "近三个月",
+      "dateFilterComponent": "c-mpLkHDrqTuW1ZUcXBntTCG"
+    },
+    {
+      "name": "新装退单汇总",
+      "url": "http://10.76.134.138:30000/bi/api/dash/report/exportExcel?trigger=User",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=44677&did=159450",
+      "body": {
+        "type": "component",
+        "pid": 31,
+        "reportId": 44677,
+        "tempQueryId": "@@NEW_TEMP_QUERY_ID@@",
+        "dashboardId": 159450,
+        "componentId": "c-qj9Mxf4qqvRTwa7hLUQdHT",
+        "exportType": "xlsx",
+        "enhance": false,
+        "useOriginData": true,
+        "conditionFormat": false,
+        "includeTitle": false,
+        "excelSplitLimit": 1000000,
+        "isAsync": true
+      },
+      "method": "POST",
+      "setCacheBody": "@@FILE:task3_summary_setcache_44677.json@@",
+      "setCacheUrl": "http://10.76.134.138:30000/bi/api/dash/util/setCache?trigger=User",
+      "flushReportUrl": "http://10.76.134.138:30000/bi/api/dash/report/flushReport?trigger=User&reportId=44677",
+      "dateParameters": {
+        "startField": "373559",
+        "endField": "373560"
+      },
+      "nettypeFilterComponent": "c-2Dm5RkeMrfuW1g3LRnAJ3c",
+      "nettypeValue": "1"
+    },
+    {
+      "name": "企宽投诉清单",
+      "url": "http://10.76.134.138:30000/bi/api/dash/report/exportExcel?trigger=User",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=38660&did=137143",
+      "body": {
+        "type": "component",
+        "pid": 31,
+        "reportId": 38660,
+        "tempQueryId": "@@NEW_TEMP_QUERY_ID@@",
+        "dashboardId": 137143,
+        "componentId": "c-eKLK26aStHXn18JiDQFzPD",
+        "exportType": "xlsx",
+        "enhance": false,
+        "useOriginData": true,
+        "conditionFormat": false,
+        "includeTitle": false,
+        "excelSplitLimit": 1000000,
+        "isAsync": true
+      },
+      "method": "POST",
+      "setCacheBody": "@@FILE:task4_setcache.json@@",
+      "setCacheUrl": "http://10.76.134.138:30000/bi/api/dash/util/setCache?trigger=User",
+      "flushReportUrl": "http://10.76.134.138:30000/bi/api/dash/report/flushReport?trigger=User&reportId=38660",
+      "dateFilterComponent": "c-ncARTSYLR97sZG2aaksHNR",
+      "defaultDateRange": "近三个月"
+    },
+    {
+      "name": "登录测试/组件数据(企宽投诉清单)",
+      "url": "http://10.76.134.138:30000/bi/api/dash/component/flushComponent?trigger=User&id=c-eKLK26aStHXn18JiDQFzPD",
+      "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=38660&did=137143",
+      "method": "GET",
+      "body": null
+    }
+  ]
+}

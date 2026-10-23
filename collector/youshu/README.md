@@ -4,6 +4,12 @@
 独立下载目录和两张业务表，详见 [装机报结量使用说明](INSTALL_COMPLETED.md)。
 下文的新装清单仍是原有派单时间口径。
 
+报表 47422 的“企宽装机清单”明细使用独立入口 `fetch_install_list.py` 和数据集
+`youshu_install_list`。默认按北京时间 T-3 完整自然月的 `opertime` 取数，固定
+`nettype=1`、工单状态“已报结”，其他筛选为“全部”；它与原派单口径的新装清单、
+报表 38598 的装机报结量相互独立。运行命令见
+[采集技能](../../skills/collect-youshu-install-list/SKILL.md)。
+
 ## 1. 模块用途
 
 本模块获取两类数据：
@@ -11,6 +17,7 @@
 | 数据 | 数据集编码 | 主键 | 指标用途 |
 |---|---|---|---|
 | 企宽新装单 | `youshu_install` | `工单id` | 企宽新装报障率分母及新装时间 |
+| 企宽装机清单 | `youshu_install_list` | `工单id` | 报表 47422 的全省已报结订单明细 |
 | 企宽投诉单 | `youshu_complaint` | `工单号` | 企宽新装报障率投诉匹配来源 |
 
 本模块已将原 `export/有数平台` 中开发完成的登录、看板参数和异步导出逻辑迁入项目。运行时只使用 `collector/youshu/` 内的文件，不依赖原 `export` 目录，因此项目单独打包后仍可运行。
@@ -23,6 +30,7 @@ collector/youshu/
 ├── client.py             调用本地取数脚本、检查文件完整性并衔接入库
 ├── refresh_login.py      调用youdata_autologin.js刷新登录配置
 ├── fetch_install.py      企宽新装单入口
+├── fetch_install_list.py 企宽装机清单入口
 ├── fetch_complaints.py   企宽投诉单入口
 ├── fetch_data.py         有数异步导出实现
 ├── youdata_autologin.js

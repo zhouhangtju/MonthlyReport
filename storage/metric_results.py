@@ -3,6 +3,7 @@ import json
 
 TABLES = {
     'qikuan_opening_metrics': 'result_qikuan_opening',
+    'qikuan_activation_silence': 'result_qikuan_activation_silence',
     'terminal_recovery': 'result_terminal_recovery',
     'dedicated_line_opening_withdrawal_rate': 'result_opening_withdrawal',
     'business_support_withdrawal_by_city': 'result_opening_withdrawal',
@@ -19,6 +20,9 @@ TABLES = {
 RATE_FIELDS = {'scope': 'scope', 'city': 'city', 'business_type': 'business_type'}
 FIELDS = {owner: dict(RATE_FIELDS) for owner in TABLES}
 FIELDS['qikuan_opening_metrics'] = {'month': 'month', 'scope': 'scope', 'city': 'city'}
+FIELDS['qikuan_activation_silence'] = {
+    'month': 'month', 'city': 'city', 'district': 'district', 'grid': 'grid',
+}
 FIELDS['business_support_withdrawal_by_city'] = {
     'month': 'month', 'city': 'city', 'county': 'county',
 }

@@ -674,6 +674,19 @@ require('./qikuan_business_slide').addQikuanBusinessSlide(
   pptx, D.qikuanBusiness, {addTemplateBackground, addPanel, addSectionPill}, 7);
 require('./qikuan_business_slide').addQikuanOpeningTrendSlide(
   pptx, D.qikuanBusiness, {addTemplateBackground, addPanel, addSectionPill}, 8);
+if (!(D.dataAudit?.selected_batches || []).some(run =>
+  run.metric_code === 'orchestration_opening_metrics')) {
+  [slide, slide2, slide3, slide4].forEach(item => {
+    item.addShape(pptx.ShapeType.rect, {x: .26, y: .78, w: 12.8, h: 6.18,
+      fill: {color: 'FFFFFF'}, line: {color: 'FFFFFF', transparency: 100}});
+    item.addText(`${D.displayMonthFull}专线业务发展指标尚无成功计算批次，原页面数据待补充`, {
+      x: .7, y: 3.15, w: 11.9, h: .5, fontFace: 'Microsoft YaHei',
+      fontSize: 19, color: '777777', align: 'center', margin: 0,
+    });
+  });
+}
+require('./qikuan_activation_silence_slide').addQikuanActivationSilenceSlide(
+  pptx, D.qikuanActivationSilence, {addTemplateBackground, addPanel, addSectionPill}, 9);
 const automationToc = pptx.addSlide();
 addTemplateBackground(automationToc);
 automationToc.addText('目  录', {
@@ -703,7 +716,7 @@ automationTocItems.forEach((item, index) => {
     color: C.white, align: 'center', margin: 0,
   });
 });
-automationToc.addText('9', {
+automationToc.addText('10', {
   x: 12.65, y: 7.18, w: 0.28, h: 0.18,
   fontFace: 'Microsoft YaHei', fontSize: 8, color: C.lime, align: 'right', margin: 0,
 });
@@ -770,7 +783,7 @@ slide5.addText('口径：自动率按清洗后工单统计，共9个环节；处
   x: 0.45, y: 7.16, w: 11.9, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
-slide5.addText('10', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+slide5.addText('11', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 slide5.addNotes('本页数据来自动态工作表“互联网自动率YYYY年M月”。全部自动率来自关联资管最新环节的数据库中间表计算结果；工程施工原因沿用离线原因结果。');
 
 // Page 9: Internet-line move automation. Two of the four panels have source data.
@@ -830,7 +843,7 @@ slide6.addText('口径：整体自动率=9个环节自动数之和/(清洗后变
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
-slide6.addText('11', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+slide6.addText('12', { x: 12.65, y: 7.18, w: 0.28, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 slide6.addNotes('本页来自互联网专线移机自动率和互联网专线移机地市自动率工作表。全部自动率来自关联资管最新环节的数据库中间表计算结果，变更按移机统计。');
 
 // Page 10: Internet-line removal automation. The third panel is intentionally blank.
@@ -879,7 +892,7 @@ slide7.addText('口径：整体自动率=6个环节自动数之和/(清洗后拆
   x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5,
   color: C.gray, margin: 0,
 });
-slide7.addText('12', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+slide7.addText('13', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 slide7.addNotes('本页来自互联网专线拆机自动率和互联网专线拆机地市自动率工作表。全部自动率来自关联资管最新环节的数据库中间表计算结果。');
 
 // Page 11: Terminal recovery section divider.
@@ -913,7 +926,7 @@ terminalTocItems.forEach((item, index) => {
     color: C.white, align: 'center', margin: 0,
   });
 });
-terminalSectionSlide.addText('13', {
+terminalSectionSlide.addText('14', {
   x: 12.65, y: 7.18, w: 0.28, h: 0.18,
   fontFace: 'Microsoft YaHei', fontSize: 8, color: C.lime, align: 'right', margin: 0,
 });
@@ -1041,7 +1054,7 @@ terminalOverviewSlide.addText('注1：终端回收率=拆机设备回收单量/�
   x: 0.18, y: 6.90, w: 12.62, h: 0.41,
   fontFace: 'Microsoft YaHei', fontSize: 7.5, color: C.gray, margin: 0, fit: 'shrink',
 });
-terminalOverviewSlide.addText('14', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+terminalOverviewSlide.addText('15', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 terminalOverviewSlide.addNotes('新增内容页：终端回收率概况，数据来自终端回收概况结果表。');
 
 // Page 13: Terminal recovery detail by device type.
@@ -1110,7 +1123,7 @@ terminalDetailSlide.addChart(pptx.ChartType.bar, terminal.installerDevices.serie
   x: 0.24, y: 5.25, w: 12.70, h: 1.88,
   valAxisMaxVal: 360,
 });
-terminalDetailSlide.addText('15', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+terminalDetailSlide.addText('16', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 terminalDetailSlide.addNotes('新增内容页：终端回收数量拆分，数据来自终端回收明细结果表。');
 
 // Page 14: Business support section divider.
@@ -1143,7 +1156,7 @@ businessSupportTocItems.forEach((item, index) => {
     color: C.white, align: 'center', margin: 0,
   });
 });
-businessSupportToc.addText('16', {
+businessSupportToc.addText('17', {
   x: 12.65, y: 7.18, w: 0.28, h: 0.18,
   fontFace: 'Microsoft YaHei', fontSize: 8, color: C.lime, align: 'right', margin: 0,
 });
@@ -1220,7 +1233,7 @@ if (qikuanReturn) {
 }
 withdrawalSlide.addText('注：退单率=退单完成/提供文件的全部受理明细；撤单完成不计入分子。',
   { ...withdrawalText, y: 6.84, h: .21, fontSize: 8, color: C.ink });
-withdrawalSlide.addText('17', { x: 12.58, y: 7.18, w: .35, h: .18, fontSize: 8, color: C.gray, margin: 0 });
+withdrawalSlide.addText('18', { x: 12.58, y: 7.18, w: .35, h: .18, fontSize: 8, color: C.gray, margin: 0 });
 withdrawalSlide.addNotes('专线原因、企宽撤退与企宽退单分别来自标准化手工结果；企宽两个口径分别存储，不互相覆盖。');
 
 // Page 16: Repeat complaint and new-install fault report.
@@ -1361,7 +1374,7 @@ complaintFaultSlide.addChart([
   chartColors: ['4F81BD', 'C0504D', '9BBB59'],
   border: { color: C.white, transparency: 100 },
 });
-complaintFaultSlide.addText('18', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+complaintFaultSlide.addText('19', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 complaintFaultSlide.addNotes('业务情况-商客业务重复投诉与新装报障，页面数据来自重复投诉与新装报障结果表。');
 
 pptx.writeFile({ fileName: outputFile });

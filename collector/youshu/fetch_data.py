@@ -91,6 +91,34 @@ DEFAULT_CFG = {
             "defaultDateRange": "近三个月", 
         },
         {
+            "name": "企宽装机清单",
+            "url": "http://10.76.134.138:30000/bi/api/dash/report/asyncExportExcel?trigger=User",
+            "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=47422&did=171531",
+            "body": {
+                "type": "component", "pid": 31, "reportId": 47422,
+                "tempQueryId": "@@NEW_TEMP_QUERY_ID@@", "dashboardId": 171531,
+                "componentId": "c-4dJCjsoLFUBmmai3b1LeN6",
+                "exportType": "xlsx", "enhance": False, "useOriginData": True,
+                "conditionFormat": False, "includeTitle": False,
+                "excelSplitLimit": 1000000, "isAsync": True,
+            },
+            "setCacheBody": "@@FILE:task_install_list_47422.json@@",
+            "setCacheUrl": "http://10.76.134.138:30000/bi/api/dash/util/setCache?trigger=User",
+            "dateFilterComponent": "c-h9UaZVkn3DCQAY6srqngS8",
+            "nettypeFilterComponent": "c-g7xjwbQQ8vfGyC8NDVfLF3",
+            "nettypeValue": "1",
+            "fixedListFilters": {
+                "c-pE3qeHjnAF3W4YuRVStSAU": ["已报结"],
+                "c-hRsbunr97LE1rFSKPQA4ZC": [],
+                "c-bthoB1xbdi4f47haRQDBeL": [],
+                "c-7bRZnViVHu2Z9ifRKXnenG": [],
+                "c-gbjkFCRLTSTrX9TXWgEnfQ": [],
+            },
+            "splitRegion": True,
+            "regions": [None],
+            "strictErrors": True,
+        },
+        {
             "name": "新装退单汇总",
             "url": "http://10.76.134.138:30000/bi/api/dash/report/exportExcel?trigger=User",
             "referrer": "http://10.76.134.138:30000/bi/dash/folder/31?rid=44677&did=159450",
@@ -147,6 +175,11 @@ def load_config():
         sys.exit(1)
     with open(CFG_FILE, "r", encoding="utf-8") as f:
         cfg = json.load(f)
+    # Old local credential files do not contain newly added project tasks.
+    # Keep credentials untouched and register only this task in memory.
+    cfg["tasks"] = [task for task in cfg.get("tasks", []) if task.get("name") != "企宽装机清单"]
+    cfg["tasks"].append(json.loads(json.dumps(next(
+        task for task in DEFAULT_CFG["tasks"] if task["name"] == "企宽装机清单"))))
     _resolve_file_refs(cfg)
     return cfg
 
@@ -178,21 +211,26 @@ def save_response(name, resp, outdir, start, end, index=None, tag=None):
     ctype = resp.headers.get("content-type", "")
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     fname = re.sub(_BAD_CHARS_RE, "_", name)
-    if index:
-        fname = f"{index:02d}_{fname}"
-    if tag:
-        fname = f"{fname}_{re.sub(_BAD_CHARS_RE, '_', str(tag))}"
-    if start:
-        fname = f"{fname}_{start}"
-    if end:
-        fname = f"{fname}_至{end}"
+    compact_name = name == "企宽装机清单" and start and end
+    if compact_name:
+        fname = f"{fname}_{start}_{end}"
+    else:
+        if index:
+            fname = f"{index:02d}_{fname}"
+        if tag:
+            fname = f"{fname}_{re.sub(_BAD_CHARS_RE, '_', str(tag))}"
+        if start:
+            fname = f"{fname}_{start}"
+        if end:
+            fname = f"{fname}_至{end}"
+    timestamp_suffix = "" if compact_name else f"_{ts}"
     if "json" in ctype:
-        path = os.path.join(outdir, f"{fname}_{ts}.json")
+        path = os.path.join(outdir, f"{fname}{timestamp_suffix}.json")
         with open(path, "w", encoding="utf-8") as f:
             json.dump(resp.json(), f, ensure_ascii=False, indent=2) if _is_json(resp) \
                 else f.write(resp.text)
         return path, "json"
-    path = os.path.join(outdir, f"{fname}_{ts}.xlsx")
+    path = os.path.join(outdir, f"{fname}{timestamp_suffix}.xlsx")
     with open(path, "wb") as f:
         f.write(resp.content)
     return path, "xlsx"
@@ -345,12 +383,16 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
                 return rf, {"stage": "flushReport", "detail": rf.text[:300]}
         body = setcache
         if (start and end and (task.get("dateFilterComponent") or task.get("dateParameters"))) \
-                or region or clear_region or nettype:
+                or region or clear_region or nettype or task.get("fixedListFilters"):
             body = json.loads(json.dumps(setcache))
             dfc = task.get("dateFilterComponent")
-            if start and end and dfc and inject_date_filter(body, dfc,
-                                                            f"{start} 00:00:00", f"{end} 24:00:00"):
-                print(f"    [动态] dateTimeFilter 已设为 {start} ~ {end}")
+            if start and end and dfc:
+                changed = inject_date_filter(body, dfc,
+                                             f"{start} 00:00:00", f"{end} 24:00:00")
+                if task.get("strictErrors") and not changed:
+                    raise ValueError(f"日期筛选组件不存在：{dfc}")
+                if changed:
+                    print(f"    [动态] dateTimeFilter 已设为 {start} ~ {end}")
             dp = task.get("dateParameters")
             if start and end and dp and inject_date_parameters(body, dp.get("startField"),
                                                                dp.get("endField"), start, end):
@@ -361,8 +403,15 @@ def request_dynamic(task, headers, timeout, start=None, end=None,
             elif region and rfc and inject_list_filter(body, rfc, [region]):
                 print(f"    [动态] 地市筛选已设为 {region}")
             nfc = task.get("nettypeFilterComponent")
-            if nettype and nfc and inject_list_filter(body, nfc, [nettype]):
-                print(f"    [动态] 宽带类型筛选已设为 {nettype}")
+            if nettype and nfc:
+                changed = inject_list_filter(body, nfc, [nettype])
+                if task.get("strictErrors") and not changed:
+                    raise ValueError(f"宽带类型筛选组件不存在：{nfc}")
+                if changed:
+                    print(f"    [动态] 宽带类型筛选已设为 {nettype}")
+            for component_id, values in task.get("fixedListFilters", {}).items():
+                if not inject_list_filter(body, component_id, values):
+                    raise ValueError(f"看板筛选组件不存在：{component_id}")
         print("    [动态] POST setCache 获取新 tempQueryId ...")
         r0 = requests.post(
             sc_url,

@@ -11,16 +11,16 @@ description: 从质量评估 MySQL 指标结果及已计算的手工指标 JSON 
 
 - 主入口：`reporting/build_internet_line_ppt.py`。校验参数和输入、读取数据库、生成审计文件、调用 Node 绘图并执行 PPTX 后处理。
 - 数据映射：`reporting/database_results.py`。只读连接 MySQL，从 `metric_run` 和 `各模块 result_* 结果表（通过 storage/metric_results.py 读取）` 选择成功批次，整理业务发展、自动率、终端回收、撤退单率、重复投诉率和新装报障率数据。
-- 绘图脚本：`reporting/create_internet_line_ppt.js`。由主入口调用，不要单独运行；使用 PptxGenJS 创建 16:9、微软雅黑主题的 18 页完整月报。
+- 绘图脚本：`reporting/create_internet_line_ppt.js`。由主入口调用，不要单独运行；使用 PptxGenJS 创建 16:9、微软雅黑主题的 19 页完整月报。
 - 辅助导出：`reporting/export_complaint_results.py`。只在需要核对已选中的投诉类指标结果时运行，不是生成 PPT 的必需步骤。
 - 默认底板：`reporting/templates/通用模板.pptx`。`--background-mode ppt` 时由主入口应用其母版、版式和主题。
 - 图片底板：`reporting/templates/template_background_image1.jpeg`。仅在 `--background-mode image` 时使用，此模式不能同时传 `--template`。
-- 终端回收模板：`reporting/templates/终端回收页模版.pptx`。主入口存在该文件时会用其内容替换完整稿第 14～15 页并更新图表缓存和文本。
+- 终端回收模板：`reporting/templates/终端回收页模版.pptx`。主入口存在该文件时会用其内容替换完整稿第 15～16 页并更新图表缓存和文本。
 - `reporting/templates/撤退单模版.pptx` 当前没有被主入口引用；不要假设修改它会改变生成结果。
 
 ## 企宽业务页（第7～8页）
 
-- 固定插在原第6页传输专线之后、原第7页自动情况目录之前。第7页展示存量、当月开通量和同比，第8页展示截至报告月的近12个完整自然月企宽开通趋势。完整稿现在18页，后续页顺延，终端回收模板替换位置为第14～15页。
+- 固定插在第6页传输专线之后。第7页展示存量、当月开通量和同比，第8页展示截至报告月的近12个完整自然月企宽开通趋势。第9页为企宽业务激活即沉默；完整稿现在19页，终端回收模板替换位置为第15～16页。
 - 页面标题为“业务存量及发展量-企宽业务”，沿用用户参考页的上下两段摘要、左侧全省数量图、右侧11地市同比图。图表是可编辑原生图表，负增长必须显示在零线以下。
 - 数据适配：`reporting/qikuan_business.py`；绘图：`reporting/qikuan_business_slide.js`，由主脚本调用。不要另建计算技能来承载PPT绘图。
 - 存量从 `--manual-metrics-dir` 中读取目标月唯一 `metric_set=qikuan_stock` JSON，或用 `--qikuan-stock-json` 指定。该指标只能手工提供，不在线采集。
@@ -42,6 +42,11 @@ python3 reporting/build_internet_line_ppt.py --month 2026-09 --offline-qikuan-pr
 
 离线预览可追加两个 JSON 路径参数以填入已计算结果。预览不是数据完整月报，缺失项未补齐时不能宣称成稿。
 
+## 企宽业务激活即沉默页（第9页）
+
+- 数据适配：`reporting/qikuan_activation_silence.py`；绘图：`reporting/qikuan_activation_silence_slide.js`。主入口从数据库读取报告月最新成功的 `qikuan_activation_silence` 批次及 `result_qikuan_activation_silence`，生成全省、地市、区县和网格排名。没有成功批次时页面明确提示指标尚未计算。
+- 页面展示报告月指标；计算时分母取报告月 T-3 自然月的有数企宽装机清单，手工沉默清单按工单号与之匹配形成分子。网格按“地市＋市场网格”汇总，仅展示分母至少5单的前10网格。例如2026-10页面使用2026-07企宽工单作分母；计算流程见 `skills/calculate-qikuan-activation-silence/SKILL.md`。PPT入口只读取计算结果，不重新处理原始清单。
+
 ## 月份与输入
 
 - `--month` 必须是 `YYYY-MM`。用户未显式指定月份时，从当前对话中的月报时间提取年月；对话中无法确定时先询问，不得使用系统当前月份猜测。
@@ -54,6 +59,8 @@ python3 reporting/build_internet_line_ppt.py --month 2026-09 --offline-qikuan-pr
 完整月报主要依赖以下成功指标批次：
 
 - `orchestration_opening_metrics`：业务发展量、12 个月趋势和互联网专线开通/移机/拆机自动率。
+- `qikuan_opening_metrics`、企宽存量 JSON：业务发展页第7～8页的开通量、趋势和存量。
+- `qikuan_activation_silence`：业务发展页第9页的激活即沉默占比及排名。
 - `terminal_recovery`：终端回收城市、设备和业务维度。
 - `dedicated_line_opening_withdrawal_rate`：开通撤退单率。
 - `dedicated_line_repeat_complaint_rate`、`qianliyan_repeat_complaint_rate`：重复投诉率。
@@ -114,15 +121,15 @@ python3 reporting/build_internet_line_ppt.py \
 
 ## 完整稿与章节稿
 
-不传 `--section` 时生成 18 页完整稿。需要单独章节时只允许以下值：
+不传 `--section` 时生成 19 页完整稿。需要单独章节时只允许以下值：
 
 | 章节 | 保留的原始页 | 结果页数 |
 | --- | --- | --- |
-| `业务发展情况` | 1、2、3、4、5、6、7、8 | 8 |
+| `业务发展情况` | 1、2、3、4、5、6、7、8、9 | 9 |
 | `企宽业务` | 7、8 | 2 |
-| `专线自动情况` | 1、2、10、11、12 | 5 |
-| `终端回收情况` | 1、2、14、15 | 4 |
-| `业务支撑情况` | 1、2、17、18 | 4 |
+| `专线自动情况` | 1、2、11、12、13 | 5 |
+| `终端回收情况` | 1、2、15、16 | 4 |
+| `业务支撑情况` | 1、2、18、19 | 4 |
 
 示例：
 
@@ -149,15 +156,15 @@ python3 reporting/export_complaint_results.py \
 
 ## 构建后处理
 
-主入口在 Node 生成后依次执行：应用通用模板母版、修正多系列地市图数据标签颜色、格式化撤退单率折线、格式化投诉与新装报障组合图、用专用模板替换终端回收第 14～15 页，最后按需裁剪章节。任一步失败都应视为整个 PPT 构建失败，不交付半成品。
+主入口在 Node 生成后依次执行：应用通用模板母版、修正多系列地市图数据标签颜色、格式化撤退单率折线、格式化投诉与新装报障组合图、用专用模板替换终端回收第 15～16 页，最后按需裁剪章节。任一步失败都应视为整个 PPT 构建失败，不交付半成品。
 
 ## 验证
 
 1. 命令退出为 0，PPTX 和 `.audit.json` 均存在；保留中间 JSON 时还应存在同名 `.json`。
-2. PPTX 是可正常解压的 Office 文件，完整稿有 18 页；章节稿页数与上表一致。
+2. PPTX 是可正常解压的 Office 文件，完整稿有 19 页；章节稿页数与上表一致。
 3. 检查 `.audit.json` 的 `selected_batches`、`used_results` 和 `missing`：所需指标批次月份正确，所选章节不得有未解释的 `missing_result` 或 `null_or_nonfinite_value`。
 4. `reason=no_corresponding_stored_result` 表示当前映射明确没有对应落库结果并以 0 占位；包括部分终端装维单位、撤退原因和重复投诉合计字段。必须向用户披露相关页面存在占位，不能把 0 表述为真实业务值。
-5. 渲染 PPTX 进行视觉检查：母版和背景正确、标题月份正确、中文字体为微软雅黑、图表未溢出或遮挡、百分比和正负方向正确，第 14～15 页确实采用终端回收模板。
+5. 渲染 PPTX 进行视觉检查：母版和背景正确、标题月份正确、中文字体为微软雅黑、图表未溢出或遮挡、百分比和正负方向正确，第 15～16 页确实采用终端回收模板。
 6. 若只生成章节稿，确认保留页顺序与原始页码一致，页脚数字保持原稿编号属于预期行为。
 
 ## 失败处理与边界

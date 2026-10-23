@@ -31,6 +31,7 @@ DATASETS: dict[str, Dataset] = {
     ),
     "eoms_complaint": Dataset("eoms_complaint", "EOMS政企投诉工单", "EOMS", "工单号"),
     "youshu_install": Dataset("youshu_install", "有数企宽新装清单", "有数", "工单id"),
+    "youshu_install_list": Dataset("youshu_install_list", "有数企宽装机清单", "有数", "工单id"),
     "youshu_complaint": Dataset(
         "youshu_complaint", "有数企宽投诉清单", "有数", "工单号"
     ),

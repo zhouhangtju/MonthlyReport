@@ -31,6 +31,12 @@ TASKS = {
         "prefix": "企宽新装清单_",
         "regions": 1,
     },
+    "install_list": {
+        "task_name": "企宽装机清单",
+        "dataset_code": "youshu_install_list",
+        "prefix": "企宽装机清单_",
+        "regions": 1,
+    },
     "complaint": {
         "task_name": "企宽投诉清单",
         "dataset_code": "youshu_complaint",
@@ -106,7 +112,7 @@ def run_fetch(
 ) -> list[Path]:
     validate_runtime_files()
     output_dir.mkdir(parents=True, exist_ok=True)
-    before = {path.resolve() for path in matching_files(output_dir, kind)}
+    before = {path.resolve(): path.stat().st_mtime_ns for path in matching_files(output_dir, kind)}
     command = [
         python,
         "-u",
@@ -125,8 +131,9 @@ def run_fetch(
     result = subprocess.run(command, cwd=MODULE_ROOT)
     if result.returncode != 0:
         raise RuntimeError(f"有数取数脚本执行失败，退出码 {result.returncode}")
-    after = {path.resolve() for path in matching_files(output_dir, kind)}
-    produced = sorted(after - before)
+    after = {path.resolve(): path.stat().st_mtime_ns for path in matching_files(output_dir, kind)}
+    produced = sorted(path for path, modified_at in after.items()
+                      if path not in before or modified_at != before[path])
     expected = expected_file_count(kind, start, end, chunk_days)
     if len(produced) < expected:
         raise RuntimeError(
@@ -155,7 +162,7 @@ def collect(
     python: str = sys.executable,
 ) -> dict[str, object]:
     if kind not in TASKS:
-        raise ValueError("kind 必须是 install 或 complaint")
+        raise ValueError("kind 必须是 install、install_list 或 complaint")
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
     output_dir = (
@@ -211,6 +218,7 @@ def collect(
         working_dir = temporary_dir
     files: list[Path] = []
     etl_results: list[dict[str, object]] = []
+    validation: dict[str, int] | None = None
     try:
         print(f"[取数] 开始下载，输出目录：{working_dir}", flush=True)
         files = run_fetch(
@@ -218,6 +226,9 @@ def collect(
             chunk_days=chunk_days, interval=interval, timeout=timeout,
             poll_timeout=poll_timeout, two_phase=two_phase, python=python,
         )
+        if kind == "install_list":
+            from storage.youshu_install_list import validate_exports
+            validation = validate_exports(files)
         if mode in {"database", "both"}:
             for index, path in enumerate(files, 1):
                 print(f"[入库 {index}/{len(files)}] 开始：{path.name}（整批完成后提交）", flush=True)
@@ -266,18 +277,20 @@ def collect(
         "skip_reason": None,
         "files": [str(path.resolve()) for path in files] if mode in {"file", "both"} else [],
         "etl_runs": etl_results,
+        "validation": validation,
     }
 
 
 def run_script(kind: str) -> None:
-    label = "企宽新装单" if kind == "install" else "企宽投诉单"
+    label = {"install": "企宽新装单", "install_list": "企宽装机清单",
+             "complaint": "企宽投诉单"}[kind]
     parser = argparse.ArgumentParser(description=f"从有数平台获取{label}")
-    parser.add_argument("--start-date", required=True)
-    parser.add_argument("--end-date", required=True)
+    parser.add_argument("--start-date", required=kind != "install_list")
+    parser.add_argument("--end-date", required=kind != "install_list")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output-dir", type=Path, default=Path("data/raw/youshu"))
     parser.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
-    parser.add_argument("--chunk-days", type=int, default=3)
+    parser.add_argument("--chunk-days", type=int, default=35 if kind == "install_list" else 3)
     parser.add_argument("--interval", type=float, default=0.5)
     parser.add_argument("--timeout", type=int, default=120)
     parser.add_argument("--poll-timeout", type=int, default=600)
@@ -287,6 +300,13 @@ def run_script(kind: str) -> None:
     parser.add_argument("--node", default="node")
     parser.add_argument("--python", default=sys.executable)
     args = parser.parse_args()
+    if kind == "install_list":
+        from storage.youshu_install_list import default_period, validate_period
+        if bool(args.start_date) != bool(args.end_date):
+            parser.error("--start-date 和 --end-date 必须同时提供")
+        if args.start_date is None:
+            args.start_date, args.end_date = default_period()
+        validate_period(args.start_date, args.end_date)
     result = collect(
         kind, args.start_date, args.end_date,
         mode=args.mode, output_dir=args.output_dir, database=args.database,
