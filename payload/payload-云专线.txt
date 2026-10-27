@@ -1,0 +1,136 @@
+请求1
+请求 URL
+http://188.103.124.75:9527/PSM/bus/sml/query/soc-report-cloudnet-golden-all-report-search
+请求方法
+POST
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+请求头
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+content-length
+361
+content-type
+application/json
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+origin
+http://188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+payload
+{"pageSize":20,"pageNumber":1,"sort":"create_time","queryType":"select","order":"desc","time_type":"day","start_time":"2026-09-26","end_time":"2026-10-25","finish_start_time":"","finish_end_time":"","create_start_at_time":"","create_end_at_time":"","submit_start_at_time":"","submit_end_at_time":"","id":"soc-report-cloudnet-golden-all-report-search","city":""}
+
+
+请求2
+请求 URL
+http://188.103.124.75:9527/soc/customReport/getAllReportConfig
+请求方法
+GET
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+请求头
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+请求3
+请求 URL
+http://188.103.124.75:9527/PSM/bus/sml/export/export
+请求方法
+POST
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+
+
+请求头
+
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+content-length
+3736
+content-type
+application/x-www-form-urlencoded
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+origin
+http://188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+payload
+FileTitle
+【云网业务综合指标报表】查询结果
+params
+{"exportType":"xls","ifId":"soc-report-cloudnet-golden-all-report-search-export","time_type":"day","start_time":"2026-09-26","end_time":"2026-10-25","finish_start_time":"","finish_end_time":"","create_start_at_time":"","create_end_at_time":"","submit_start_at_time":"","submit_end_at_time":"","id":"soc-report-cloudnet-golden-all-report-search","city":""}
+HeaderTitle
+地市,#,city,#,;#;业务开通工单总数,#,total_service_activation_orders,#,;#;端到端业务开通平均时长,#,avg_end_to_end_duration_minutes,#,;#;线上配置环节平均时长,#,avg_configuration_duration_minutes,#,;#;人工环节平均时长,#,avg_human_duration_minutes,#,;#;业务受理平均时长,#,avg_business_review_duration_minutes,#,;#;方案设计平均时长,#,avg_solution_design_duration_minutes,#,;#;电路调度平均时长,#,avg_circuit_scheduling_duration_minutes,#,;#;数据网配置平均时长,#,avg_network_configuration_duration_minutes,#,;#;PON激活平均时长,#,avg_pon_activation_duration_minutes,#,;#;调测平均时长,#,avg_commissioning_duration_minutes,#,;#;工程建设平均时长,#,avg_engineering_construction_duration_minutes,#,;#;光路调度平均时长,#,avg_optical_scheduling_duration_minutes,#,;#;现场施工平均时长,#,avg_on_site_construction_duration_minutes,#,;#;资源分配成功率,#,resource_allocation_success_rate,#,;#;资源分配成功率(5分钟维度),#,resource_allocation_success_rate_5m,#,;#;装机一次上门率,#,first_visit_completion_rate,#,;#;业务开通前端退单率,#,front_desk_return_order_rate,#,;#;自动化率,#,automation_rate,#,;#;环节自动化进度,#,stage_automation_progress,#,;#;时效进度,#,timeliness_progress_val,#,;#;场景进度,#,scene_progress,#,;#;业务开通像前端开放数据字段数,#,open_data_fields,#,;#;业务开通向前端开放功能数,#,open_function_count,#,;#;
+
+FileTitle=%E3%80%90%E4%BA%91%E7%BD%91%E4%B8%9A%E5%8A%A1%E7%BB%BC%E5%90%88%E6%8C%87%E6%A0%87%E6%8A%A5%E8%A1%A8%E3%80%91%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C&params=%7B%22exportType%22%3A%22xls%22%2C%22ifId%22%3A%22soc-report-cloudnet-golden-all-report-search-export%22%2C%22time_type%22%3A%22day%22%2C%22start_time%22%3A%222026-09-26%22%2C%22end_time%22%3A%222026-10-25%22%2C%22finish_start_time%22%3A%22%22%2C%22finish_end_time%22%3A%22%22%2C%22create_start_at_time%22%3A%22%22%2C%22create_end_at_time%22%3A%22%22%2C%22submit_start_at_time%22%3A%22%22%2C%22submit_end_at_time%22%3A%22%22%2C%22id%22%3A%22soc-report-cloudnet-golden-all-report-search%22%2C%22city%22%3A%22%22%7D&HeaderTitle=%E5%9C%B0%E5%B8%82%2C%23%2Ccity%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%B7%A5%E5%8D%95%E6%80%BB%E6%95%B0%2C%23%2Ctotal_service_activation_orders%2C%23%2C%3B%23%3B%E7%AB%AF%E5%88%B0%E7%AB%AF%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_end_to_end_duration_minutes%2C%23%2C%3B%23%3B%E7%BA%BF%E4%B8%8A%E9%85%8D%E7%BD%AE%E7%8E%AF%E8%8A%82%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_configuration_duration_minutes%2C%23%2C%3B%23%3B%E4%BA%BA%E5%B7%A5%E7%8E%AF%E8%8A%82%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_human_duration_minutes%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%8F%97%E7%90%86%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_business_review_duration_minutes%2C%23%2C%3B%23%3B%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_solution_design_duration_minutes%2C%23%2C%3B%23%3B%E7%94%B5%E8%B7%AF%E8%B0%83%E5%BA%A6%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_circuit_scheduling_duration_minutes%2C%23%2C%3B%23%3B%E6%95%B0%E6%8D%AE%E7%BD%91%E9%85%8D%E7%BD%AE%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_network_configuration_duration_minutes%2C%23%2C%3B%23%3BPON%E6%BF%80%E6%B4%BB%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_pon_activation_duration_minutes%2C%23%2C%3B%23%3B%E8%B0%83%E6%B5%8B%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_commissioning_duration_minutes%2C%23%2C%3B%23%3B%E5%B7%A5%E7%A8%8B%E5%BB%BA%E8%AE%BE%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_engineering_construction_duration_minutes%2C%23%2C%3B%23%3B%E5%85%89%E8%B7%AF%E8%B0%83%E5%BA%A6%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_optical_scheduling_duration_minutes%2C%23%2C%3B%23%3B%E7%8E%B0%E5%9C%BA%E6%96%BD%E5%B7%A5%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%2C%23%2Cavg_on_site_construction_duration_minutes%2C%23%2C%3B%23%3B%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E6%88%90%E5%8A%9F%E7%8E%87%2C%23%2Cresource_allocation_success_rate%2C%23%2C%3B%23%3B%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E6%88%90%E5%8A%9F%E7%8E%87%285%E5%88%86%E9%92%9F%E7%BB%B4%E5%BA%A6%29%2C%23%2Cresource_allocation_success_rate_5m%2C%23%2C%3B%23%3B%E8%A3%85%E6%9C%BA%E4%B8%80%E6%AC%A1%E4%B8%8A%E9%97%A8%E7%8E%87%2C%23%2Cfirst_visit_completion_rate%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%89%8D%E7%AB%AF%E9%80%80%E5%8D%95%E7%8E%87%2C%23%2Cfront_desk_return_order_rate%2C%23%2C%3B%23%3B%E8%87%AA%E5%8A%A8%E5%8C%96%E7%8E%87%2C%23%2Cautomation_rate%2C%23%2C%3B%23%3B%E7%8E%AF%E8%8A%82%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%9B%E5%BA%A6%2C%23%2Cstage_automation_progress%2C%23%2C%3B%23%3B%E6%97%B6%E6%95%88%E8%BF%9B%E5%BA%A6%2C%23%2Ctimeliness_progress_val%2C%23%2C%3B%23%3B%E5%9C%BA%E6%99%AF%E8%BF%9B%E5%BA%A6%2C%23%2Cscene_progress%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%83%8F%E5%89%8D%E7%AB%AF%E5%BC%80%E6%94%BE%E6%95%B0%E6%8D%AE%E5%AD%97%E6%AE%B5%E6%95%B0%2C%23%2Copen_data_fields%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%90%91%E5%89%8D%E7%AB%AF%E5%BC%80%E6%94%BE%E5%8A%9F%E8%83%BD%E6%95%B0%2C%23%2Copen_function_count%2C%23%2C%3B%23%3B

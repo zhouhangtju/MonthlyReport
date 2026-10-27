@@ -51,8 +51,8 @@ def _database_name() -> str:
 
 
 def _translate_placeholders(sql: str) -> str:
-    """Translate sqlite-style ``?`` placeholders to DB-API ``%s`` placeholders."""
-    return sql.replace("?", "%s")
+    """Escape literal percent signs before translating ``?`` to DB-API ``%s``."""
+    return sql.replace("%", "%%").replace("?", "%s")
 
 
 def _split_sql_script(script: str) -> list[str]:
@@ -97,7 +97,7 @@ class MySQLCursor:
         return self._cursor.lastrowid
 
     def execute(self, sql: str, params: Iterable[Any] | None = None):
-        self._cursor.execute(_translate_placeholders(sql), params)
+        self._cursor.execute(_translate_placeholders(sql) if params is not None else sql, params)
         return self
 
     def executemany(self, sql: str, params: Iterable[Iterable[Any]]):

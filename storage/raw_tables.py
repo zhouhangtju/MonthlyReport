@@ -124,7 +124,7 @@ def read_records(connection, dataset_code: str, period_start: str | None = None,
     table = quote_identifier(dataset.code)
     if dataset.auto_increment:
         if not period_start or not period_end:
-            raise ValueError(f"{dataset_code}: 出入库读取必须指定完整周期")
+            raise ValueError(f"{dataset_code}: 周期快照读取必须指定完整周期")
         batch = connection.execute(
             "SELECT run_id FROM raw_period_batch WHERE dataset_code=? AND period_start=? AND period_end=?",
             (dataset_code, period_start, period_end),

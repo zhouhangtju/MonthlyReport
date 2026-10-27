@@ -14,10 +14,14 @@ class Dataset:
 
     @property
     def auto_increment(self) -> bool:
-        return self.code in {"integration_terminal_outbound", "integration_terminal_inbound"}
+        return self.code.startswith("orch_golden_") or self.code in {"integration_terminal_outbound", "integration_terminal_inbound"}
 
 
 DATASETS: dict[str, Dataset] = {
+    "orch_golden_transport": Dataset("orch_golden_transport", "编排点金传输", "编排", "id"),
+    "orch_golden_internet": Dataset("orch_golden_internet", "编排点金互联网", "编排", "id"),
+    "orch_golden_cloud": Dataset("orch_golden_cloud", "编排点金云", "编排", "id"),
+
     "terminal_material_names": Dataset("terminal_material_names", "终端物料名称映射", "本地配置", "物料名称"),
     "integration_removal_order": Dataset("integration_removal_order", "一体化专线拆机清单", "一体化", "工单号"),
     "eoms_service_removal_order": Dataset("eoms_service_removal_order", "EOMS服务类拆机工单", "EOMS", "工单号"),

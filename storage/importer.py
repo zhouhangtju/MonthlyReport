@@ -79,6 +79,8 @@ def iter_excel(path: Path, dataset_code: str | None = None) -> Iterator[dict[str
             sheet.reset_dimensions()
             rows = sheet.iter_rows(values_only=True)
             header = next(rows, None)
+            if dataset_code and dataset_code.startswith("orch_golden_"):
+                header = next(rows, None)
             if not header:
                 raise ValueError("Excel 缺少表头")
             columns = [str(value).strip() if value is not None else "" for value in header]
@@ -107,12 +109,13 @@ def iter_legacy_xls(path: Path, dataset_code: str | None = None) -> Iterator[dic
     sheet = workbook.sheet_by_index(0)
     if sheet.nrows == 0:
         raise ValueError("Excel 缺少表头")
-    columns = [str(sheet.cell_value(0, index)).strip() for index in range(sheet.ncols)]
+    header_index = 1 if dataset_code and dataset_code.startswith("orch_golden_") else 0
+    columns = [str(sheet.cell_value(header_index, index)).strip() for index in range(sheet.ncols)]
     if dataset_code == "youshu_install":
         columns = map_headers(columns)
     elif not all(columns) or len(columns) != len(set(columns)):
         raise ValueError("Excel 表头包含空列名或重复列名")
-    for row_index in range(1, sheet.nrows):
+    for row_index in range(header_index + 1, sheet.nrows):
         row: dict[str, object] = {}
         values = []
         for column_index, column in enumerate(columns):
@@ -161,7 +164,8 @@ def read_headers(path: Path, dataset_code: str | None = None) -> list[str]:
             workbook = xlrd.open_workbook(path)
             try:
                 sheet = workbook.sheet_by_index(0)
-                values = sheet.row_values(0) if sheet.nrows else []
+                header_index = 1 if dataset_code and dataset_code.startswith("orch_golden_") else 0
+                values = sheet.row_values(header_index) if sheet.nrows > header_index else []
             finally:
                 workbook.release_resources()
         else:
@@ -170,7 +174,10 @@ def read_headers(path: Path, dataset_code: str | None = None) -> list[str]:
                 try:
                     sheet = workbook.worksheets[0]
                     sheet.reset_dimensions()
-                    values = next(sheet.iter_rows(values_only=True), [])
+                    rows = sheet.iter_rows(values_only=True)
+                    values = next(rows, [])
+                    if dataset_code and dataset_code.startswith("orch_golden_"):
+                        values = next(rows, [])
                 finally:
                     workbook.close()
     headers = [str(v).strip() if v is not None else '' for v in values]
@@ -196,6 +203,8 @@ def _stage(source_path, dataset, staged, counts, errors):
     headers = read_headers(source_path, dataset.code)
     validate_headers(dataset.code, headers)
     columns = source_columns(dataset.code)
+    if dataset.code.startswith("orch_golden_") and headers != columns:
+        raise ValueError("点金报表表头与配置不一致，整批拒绝入库")
     if dataset.code == "youshu_install":
         unexpected = [header for header in headers if header not in columns]
         if unexpected:
@@ -343,7 +352,7 @@ def import_file(database_path: Path | None, dataset: Dataset, source_path: Path,
     if not source_path.is_file():
         raise FileNotFoundError(source_path)
     if dataset.auto_increment and (not period_start or not period_end):
-        raise ValueError('出入库文件必须提供 period_start 和 period_end，按周期替换而非重复追加')
+        raise ValueError('周期快照必须提供 period_start 和 period_end，按周期替换而非重复追加')
     if (period_start is None) != (period_end is None):
         raise ValueError('开始日期和结束日期必须一起提供')
     if period_start and date.fromisoformat(period_start) > date.fromisoformat(period_end):

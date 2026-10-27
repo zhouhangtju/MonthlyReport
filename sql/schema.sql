@@ -1182,3 +1182,127 @@ CREATE TABLE IF NOT EXISTS `result_qikuan_activation_silence` (
     KEY idx_month_city (month, city),
     FOREIGN KEY (metric_run_id) REFERENCES metric_run(metric_run_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 点金行动整周期统计报表（原始字段与周期关联）。
+CREATE TABLE IF NOT EXISTS `orch_golden_transport` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `有无资源开通场景` LONGTEXT,
+    `接入方式` LONGTEXT,
+    `地市` LONGTEXT,
+    `业务开通工单总数` LONGTEXT,
+    `端到端业务开通平均时长(小时)` LONGTEXT,
+    `开通配置平均时长(小时)` LONGTEXT,
+    `人工环节平均时长(小时)` LONGTEXT,
+    `业务受理平均时长(小时)` LONGTEXT,
+    `方案设计平均时长(小时)` LONGTEXT,
+    `电路调度环节时长(小时)` LONGTEXT,
+    `开通结果审核平均时长(小时)` LONGTEXT,
+    `业务开通装机一次上门率(%)` LONGTEXT,
+    `业务开通向前端开放数据字段数` LONGTEXT,
+    `时效进度` LONGTEXT,
+    `环节自动化进度(%)` LONGTEXT,
+    `业务开通向前端开放功能数` LONGTEXT,
+    `场景进度` LONGTEXT,
+    `自动化环节数` LONGTEXT,
+    `业务开通前端退单率(%)` LONGTEXT,
+    `资源分配成功率（%）` LONGTEXT,
+    `5分钟资源分配成功率(%)` LONGTEXT,
+    `方案设计请求1-资源配置成功率(%)` LONGTEXT,
+    `方案设计请求2-资源配置成功率(%)` LONGTEXT,
+    `资源分配-资源配置成功率(%)` LONGTEXT,
+    `同地市一次上门率(%)` LONGTEXT,
+    `跨地市一次上门率(%)` LONGTEXT
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orch_golden_transport_version` (
+    version_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    source_record_id VARCHAR(255) COLLATE utf8mb4_bin NOT NULL,
+    run_id VARCHAR(80) NOT NULL,
+    row_hash CHAR(64) NOT NULL,
+    source_data LONGTEXT NOT NULL,
+    observed_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY uk_version_record_hash (source_record_id, row_hash),
+    KEY idx_version_run (run_id),
+    FOREIGN KEY (run_id) REFERENCES etl_run(run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orch_golden_internet` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `有无资源开通场景` LONGTEXT,
+    `接入方式` LONGTEXT,
+    `地市` LONGTEXT,
+    `业务开通工单总数` LONGTEXT,
+    `端到端业务开通平均时长(小时)` LONGTEXT,
+    `开通配置平均时长(小时)` LONGTEXT,
+    `人工环节平均时长(小时)` LONGTEXT,
+    `业务受理平均时长(小时)` LONGTEXT,
+    `方案设计平均时长(小时)` LONGTEXT,
+    `数据网配置平均时长(小时)` LONGTEXT,
+    `电路调度平均时长(小时)` LONGTEXT,
+    `开通结果审核平均时长(小时)` LONGTEXT,
+    `业务开通装机一次上门率(%)` LONGTEXT,
+    `业务开通前端退单率(%)` LONGTEXT,
+    `资源分配成功率（%）` LONGTEXT,
+    `5分钟资源分配成功率(%)` LONGTEXT,
+    `自动化环节数` LONGTEXT,
+    `环节自动化进度` LONGTEXT,
+    `时效进度` LONGTEXT,
+    `场景进度` LONGTEXT,
+    `业务开通向前端开放数据字段数` LONGTEXT,
+    `业务开通向前端开放功能数` LONGTEXT,
+    `方案设计请求1-资源配置成功率(%)` LONGTEXT,
+    `方案设计请求2-资源配置成功率(%)` LONGTEXT,
+    `资源分配-资源配置成功率(%)` LONGTEXT
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orch_golden_internet_version` (
+    version_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    source_record_id VARCHAR(255) COLLATE utf8mb4_bin NOT NULL,
+    run_id VARCHAR(80) NOT NULL,
+    row_hash CHAR(64) NOT NULL,
+    source_data LONGTEXT NOT NULL,
+    observed_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY uk_version_record_hash (source_record_id, row_hash),
+    KEY idx_version_run (run_id),
+    FOREIGN KEY (run_id) REFERENCES etl_run(run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orch_golden_cloud` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+    `地市` LONGTEXT,
+    `业务开通工单总数` LONGTEXT,
+    `端到端业务开通平均时长` LONGTEXT,
+    `线上配置环节平均时长` LONGTEXT,
+    `人工环节平均时长` LONGTEXT,
+    `业务受理平均时长` LONGTEXT,
+    `方案设计平均时长` LONGTEXT,
+    `电路调度平均时长` LONGTEXT,
+    `数据网配置平均时长` LONGTEXT,
+    `PON激活平均时长` LONGTEXT,
+    `调测平均时长` LONGTEXT,
+    `工程建设平均时长` LONGTEXT,
+    `光路调度平均时长` LONGTEXT,
+    `现场施工平均时长` LONGTEXT,
+    `资源分配成功率` LONGTEXT,
+    `资源分配成功率(5分钟维度)` LONGTEXT,
+    `装机一次上门率` LONGTEXT,
+    `业务开通前端退单率` LONGTEXT,
+    `自动化率` LONGTEXT,
+    `环节自动化进度` LONGTEXT,
+    `时效进度` LONGTEXT,
+    `场景进度` LONGTEXT,
+    `业务开通像前端开放数据字段数` LONGTEXT,
+    `业务开通向前端开放功能数` LONGTEXT
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `orch_golden_cloud_version` (
+    version_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    source_record_id VARCHAR(255) COLLATE utf8mb4_bin NOT NULL,
+    run_id VARCHAR(80) NOT NULL,
+    row_hash CHAR(64) NOT NULL,
+    source_data LONGTEXT NOT NULL,
+    observed_at VARCHAR(40) NOT NULL,
+    UNIQUE KEY uk_version_record_hash (source_record_id, row_hash),
+    KEY idx_version_run (run_id),
+    FOREIGN KEY (run_id) REFERENCES etl_run(run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

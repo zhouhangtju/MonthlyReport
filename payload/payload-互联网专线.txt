@@ -1,0 +1,137 @@
+请求1
+请求 URL
+http://188.103.124.75:9527/PSM/bus/sml/query/data_share_snhlw_report_level_four_statics-info-search
+请求方法
+POST
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+请求头
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+content-length
+407
+content-type
+application/json
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+origin
+http://188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+payload
+{"pageSize":20,"pageNumber":1,"sort":"create_time","queryType":"select","order":"desc","time_type":"day","start_time":"2026-09-25","end_time":"2026-10-25","finish_start_time":"","finish_end_time":"","create_start_at_time":"","create_end_at_time":"","submit_start_at_time":"","submit_end_at_time":"","id":"data_file_snhlw_level_four_statics","access_mode_data_share":"","is_resource_data_share":"","city":""}
+
+
+
+请求2
+请求 URL
+http://188.103.124.75:9527/soc/customReport/getAllReportConfig
+请求方法
+GET
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+请求头
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+
+
+请求3
+请求 URL
+http://188.103.124.75:9527/PSM/bus/sml/export/export
+请求方法
+POST
+状态代码
+200 OK
+Remote Address
+188.103.124.75:9527
+引用站点策略
+no-referrer
+
+请求头
+accept
+application/json, text/plain, */*
+accept-encoding
+gzip, deflate
+accept-language
+zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6
+authorization
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+cache-control
+no-cache
+connection
+keep-alive
+content-length
+3843
+content-type
+application/x-www-form-urlencoded
+cookie
+inas_portallogin_user_username=sundongchuan
+host
+188.103.124.75:9527
+origin
+http://188.103.124.75:9527
+pragma
+no-cache
+token
+78ba3f6a-b2d4-4954-a388-c30eaf3f88e3
+user-agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0
+
+FileTitle
+【互联网L4工单统计报表】查询结果
+params
+{"exportType":"xls","ifId":"data_share_snhlw_report_level_four_statics-info-search-export","time_type":"day","start_time":"2026-09-25","end_time":"2026-10-25","finish_start_time":"","finish_end_time":"","create_start_at_time":"","create_end_at_time":"","submit_start_at_time":"","submit_end_at_time":"","id":"data_file_snhlw_level_four_statics","access_mode_data_share":"","is_resource_data_share":"","city":""}
+HeaderTitle
+有无资源开通场景,#,is_resource,#,;#;接入方式,#,access_mode,#,;#;地市,#,city,#,;#;业务开通工单总数,#,kt_total,#,;#;端到端业务开通平均时长(小时),#,kt_time,#,;#;开通配置平均时长(小时),#,ktpz_time,#,;#;人工环节平均时长(小时),#,rg_time,#,;#;业务受理平均时长(小时),#,ywsh_time,#,;#;方案设计平均时长(小时),#,fasj_time,#,;#;数据网配置平均时长(小时),#,sjwpz_time,#,;#;电路调度平均时长(小时),#,dldd_time,#,;#;开通结果审核平均时长(小时),#,ktjgsh_time,#,;#;业务开通装机一次上门率(%),#,ycsm_ratio,#,;#;业务开通前端退单率(%),#,td_ratio,#,;#;资源分配成功率（%）,#,zyfp_ratio,#,;#;5分钟资源分配成功率(%),#,zyfp_five_ratio,#,;#;自动化环节数,#,auto_num,#,;#;环节自动化进度,#,zdh_jd,#,;#;时效进度,#,sx_jd,#,;#;场景进度,#,cj_jd,#,;#;业务开通向前端开放数据字段数,#,kt_fields,#,;#;业务开通向前端开放功能数,#,kt_gns,#,;#;方案设计请求1-资源配置成功率(%),#,zyfp_on_ratio,#,;#;方案设计请求2-资源配置成功率(%),#,zyfp_tw_ratio,#,;#;资源分配-资源配置成功率(%),#,zyfp_th_ratio,#,;#;
+
+FileTitle=%E3%80%90%E4%BA%92%E8%81%94%E7%BD%91L4%E5%B7%A5%E5%8D%95%E7%BB%9F%E8%AE%A1%E6%8A%A5%E8%A1%A8%E3%80%91%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C&params=%7B%22exportType%22%3A%22xls%22%2C%22ifId%22%3A%22data_share_snhlw_report_level_four_statics-info-search-export%22%2C%22time_type%22%3A%22day%22%2C%22start_time%22%3A%222026-09-25%22%2C%22end_time%22%3A%222026-10-25%22%2C%22finish_start_time%22%3A%22%22%2C%22finish_end_time%22%3A%22%22%2C%22create_start_at_time%22%3A%22%22%2C%22create_end_at_time%22%3A%22%22%2C%22submit_start_at_time%22%3A%22%22%2C%22submit_end_at_time%22%3A%22%22%2C%22id%22%3A%22data_file_snhlw_level_four_statics%22%2C%22access_mode_data_share%22%3A%22%22%2C%22is_resource_data_share%22%3A%22%22%2C%22city%22%3A%22%22%7D&HeaderTitle=%E6%9C%89%E6%97%A0%E8%B5%84%E6%BA%90%E5%BC%80%E9%80%9A%E5%9C%BA%E6%99%AF%2C%23%2Cis_resource%2C%23%2C%3B%23%3B%E6%8E%A5%E5%85%A5%E6%96%B9%E5%BC%8F%2C%23%2Caccess_mode%2C%23%2C%3B%23%3B%E5%9C%B0%E5%B8%82%2C%23%2Ccity%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%B7%A5%E5%8D%95%E6%80%BB%E6%95%B0%2C%23%2Ckt_total%2C%23%2C%3B%23%3B%E7%AB%AF%E5%88%B0%E7%AB%AF%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Ckt_time%2C%23%2C%3B%23%3B%E5%BC%80%E9%80%9A%E9%85%8D%E7%BD%AE%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Cktpz_time%2C%23%2C%3B%23%3B%E4%BA%BA%E5%B7%A5%E7%8E%AF%E8%8A%82%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Crg_time%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%8F%97%E7%90%86%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Cywsh_time%2C%23%2C%3B%23%3B%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Cfasj_time%2C%23%2C%3B%23%3B%E6%95%B0%E6%8D%AE%E7%BD%91%E9%85%8D%E7%BD%AE%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Csjwpz_time%2C%23%2C%3B%23%3B%E7%94%B5%E8%B7%AF%E8%B0%83%E5%BA%A6%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Cdldd_time%2C%23%2C%3B%23%3B%E5%BC%80%E9%80%9A%E7%BB%93%E6%9E%9C%E5%AE%A1%E6%A0%B8%E5%B9%B3%E5%9D%87%E6%97%B6%E9%95%BF%28%E5%B0%8F%E6%97%B6%29%2C%23%2Cktjgsh_time%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E8%A3%85%E6%9C%BA%E4%B8%80%E6%AC%A1%E4%B8%8A%E9%97%A8%E7%8E%87%28%25%29%2C%23%2Cycsm_ratio%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%89%8D%E7%AB%AF%E9%80%80%E5%8D%95%E7%8E%87%28%25%29%2C%23%2Ctd_ratio%2C%23%2C%3B%23%3B%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E6%88%90%E5%8A%9F%E7%8E%87%EF%BC%88%25%EF%BC%89%2C%23%2Czyfp_ratio%2C%23%2C%3B%23%3B5%E5%88%86%E9%92%9F%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E6%88%90%E5%8A%9F%E7%8E%87%28%25%29%2C%23%2Czyfp_five_ratio%2C%23%2C%3B%23%3B%E8%87%AA%E5%8A%A8%E5%8C%96%E7%8E%AF%E8%8A%82%E6%95%B0%2C%23%2Cauto_num%2C%23%2C%3B%23%3B%E7%8E%AF%E8%8A%82%E8%87%AA%E5%8A%A8%E5%8C%96%E8%BF%9B%E5%BA%A6%2C%23%2Czdh_jd%2C%23%2C%3B%23%3B%E6%97%B6%E6%95%88%E8%BF%9B%E5%BA%A6%2C%23%2Csx_jd%2C%23%2C%3B%23%3B%E5%9C%BA%E6%99%AF%E8%BF%9B%E5%BA%A6%2C%23%2Ccj_jd%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%90%91%E5%89%8D%E7%AB%AF%E5%BC%80%E6%94%BE%E6%95%B0%E6%8D%AE%E5%AD%97%E6%AE%B5%E6%95%B0%2C%23%2Ckt_fields%2C%23%2C%3B%23%3B%E4%B8%9A%E5%8A%A1%E5%BC%80%E9%80%9A%E5%90%91%E5%89%8D%E7%AB%AF%E5%BC%80%E6%94%BE%E5%8A%9F%E8%83%BD%E6%95%B0%2C%23%2Ckt_gns%2C%23%2C%3B%23%3B%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1%E8%AF%B7%E6%B1%821-%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE%E6%88%90%E5%8A%9F%E7%8E%87%28%25%29%2C%23%2Czyfp_on_ratio%2C%23%2C%3B%23%3B%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1%E8%AF%B7%E6%B1%822-%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE%E6%88%90%E5%8A%9F%E7%8E%87%28%25%29%2C%23%2Czyfp_tw_ratio%2C%23%2C%3B%23%3B%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D-%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE%E6%88%90%E5%8A%9F%E7%8E%87%28%25%29%2C%23%2Czyfp_th_ratio%2C%23%2C%3B%23%3B
+
+

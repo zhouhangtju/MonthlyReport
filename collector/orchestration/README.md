@@ -495,3 +495,48 @@ collector/orchestration/client.py
 ```
 
 原脚本作为迁移来源和历史对照保留，新脚本作为后续运行及 Skill 调用入口。
+
+## 17. 点金行动统计报表
+
+入口 `fetch_golden.py` 支持传输（`transport`）、互联网（`internet`）、云（`cloud`），默认 `all`。
+起止日期直接传给报表接口，每类只获取一个完整周期，不进行日期切分。
+
+在项目根目录运行：
+
+```bash
+/Users/hzhou/anaconda3/envs/verl/bin/python collector/orchestration/fetch_golden.py \
+  --kind all --start-date 2026-09-26 --end-date 2026-10-25 --mode both
+```
+
+认证使用 `GDDL_TOKEN`、`GDDL_COOKIE` 环境变量，或 `--token`、`--cookie`。
+Token 同时传给 `authorization` 和 `token` 请求头，不使用旧工单接口的 `zytoken`。
+依赖仍为项目 requirements.txt 中的 requests、openpyxl、xlrd、pymysql。
+
+- `file`：保留原始 XLS，不连接数据库。
+- `database`：临时下载并入库，结束后清理临时文件。
+- `both`：保留原始文件并入库；已有数据库快照也会补齐文件并导入实际文件。
+- `--refresh`（别名 `--overwrite`）：重新下载并更新周期快照。
+- `--output-dir`：默认 `data/raw/orchestration`，按数据集分目录。
+- `--timeout`：默认 180 秒。
+
+数据集为 `orch_golden_transport`、`orch_golden_internet`、`orch_golden_cloud`。
+首次数据库操作通过现有初始化机制创建表。原始表使用自增 id，
+`raw_period_batch`、`raw_period_row` 保存完整周期当前快照，读取使用
+`storage.raw_tables.read_records(connection, dataset_code, period_start, period_end)`。
+刷新事务替换指定周期关联，保留其他周期及审计历史；不直接查询原始表累计所有历史行。
+只入库模式仅在数据集、开始和结束日期完全一致且成功时跳过；不采用周期并集覆盖。
+
+三个导出文件第一行是标题、第二行是表头。解析和入库严格核对各自固定表头。
+下载先写临时文件，检查 Excel 文件头、表头、地市和统计维度唯一性后才替换正式文件。
+源文件按原样保留，数据值不做单位转换、补零或地市改名。
+云时长例如 `25.4382(1天1时26分17秒)` 按文本保留，其数字表示小时；
+百分比 `100%` 和缺失空白均保留。全省行与地市行分别保留，不合计重复计算。
+
+本地样例测试：
+
+```bash
+python -m unittest discover -s tests -p test_golden_collector.py
+```
+
+MySQL 集成测试 `test_golden_storage.py` 使用独立测试数据库，验证重复导入及周期隔离；
+需要 MySQL 可用且已安装 pymysql。样例文件需保留在 payload 目录。
