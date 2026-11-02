@@ -1,17 +1,17 @@
 ---
-name: collect-youshu-install-completed
+name: collect-youshu-qikuan-install-completed
 description: 从有数平台采集全省企宽装机报结工单量，按完整统计周期导出地市和区县汇总，校验并保存 Excel 或写入 MySQL；也支持已下载的地市、区县双文件离线导入。用于报表 38598 的装机报结量，不用于派单口径新装明细、投诉报结量或企宽存量。
 ---
 
 # 企宽装机报结量取数
 
-调用现有项目入口 `collector/youshu/fetch_install_completed.py`，不重写接口或绕过校验。
+调用现有项目入口 `collector/youshu/fetch_qikuan_install_completed.py`，不重写接口或绕过校验。
 指标为报表 38598 / 看板 136752 的装机工单 ORDERID 去重数，按当前状态时间 OPERTIME 查询。
 地市、区县是同一次采集的两种汇总粒度，必须成对获取与校验。
 
 ## 定位项目与明确周期
 
-优先使用当前项目：查找同时存在上述入口和 `storage/youshu_install_completed.py` 的项目根目录。
+优先使用当前项目：查找同时存在上述入口和 `storage/youshu_qikuan_install_completed.py` 的项目根目录。
 技能随仓库放在 `skills/` 时可从技能目录向上定位；安装到全局技能目录时，从当前工作区或用户提供的仓库位置定位。
 本对话开发目录是 `/Users/hzhou/Desktop/政企/projects/MonthlyReport`，仅在实际存在且用户未指定其他部署目录时使用。
 不要假定 Windows 部署路径相同。多个候选无法区分时再询问项目位置。
@@ -36,19 +36,19 @@ Excel 文件名日期是下载日期，不能作为统计周期；历史抓包�
 在线示例（日期按本次请求替换）：
 
 ```bash
-python3 collector/youshu/fetch_install_completed.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both
+python3 collector/youshu/fetch_qikuan_install_completed.py --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
 
 离线示例（两个文件路径均引用用户提供的实际文件，含空格时加引号）：
 
 ```bash
-python3 collector/youshu/fetch_install_completed.py --start-date 2026-08-01 --end-date 2026-08-31 --city-file "/path/to/city.xlsx" --county-file "/path/to/county.xlsx" --mode both
+python3 collector/youshu/fetch_qikuan_install_completed.py --start-date 2026-08-01 --end-date 2026-08-31 --city-file "/path/to/city.xlsx" --county-file "/path/to/county.xlsx" --mode both
 ```
 
 需要自定义文件根目录时用 `--output-dir`。无需更改默认时，文件保存在：
 
 ```text
-data/raw/youshu/install_completed/<开始日期>_<结束日期>/<批次ID>/
+data/raw/youshu/qikuan_install_completed/<开始日期>_<结束日期>/<批次ID>/
   city/*.xlsx
   county/*.xlsx
   manifest.json
@@ -83,15 +83,15 @@ data/raw/youshu/install_completed/<开始日期>_<结束日期>/<批次ID>/
 
 入库分别进入：
 
-- `youshu_install_completed_city`
-- `youshu_install_completed_county`
+- `youshu_qikuan_install_completed_city`
+- `youshu_qikuan_install_completed_county`
 
 两表与 ETL 成功记录在同一事务提交；报告批次 ID、周期、地市/区县行数、总量及文件/manifest 路径。
 database 模式已清理临时文件时不提供失效的下载链接。
 需要核实数据库结果或读取已覆盖周期时，在项目根目录调用
-`storage.youshu_install_completed.load_latest(start, end)`，它返回同一最新成功批次的 city 和 county。
+`storage.youshu_qikuan_install_completed.load_latest(start, end)`，它返回同一最新成功批次的 city 和 county。
 不跨历史批次求和，不把大周期汇总当成小周期覆盖。
 
 失败时读取本批次 manifest，报告失败阶段、HTTP 状态、code 和错误消息（隐去认证信息）；
 失败文件保留用于诊断。没有平台响应证据时明确原因未确定，不能直接断定是 payload 或登录错误。
-按需阅读项目的 `collector/youshu/INSTALL_COMPLETED.md` 获取部署、建表和故障处理细节。
+按需阅读项目的 `collector/youshu/QIKUAN_INSTALL_COMPLETED.md` 获取部署、建表和故障处理细节。

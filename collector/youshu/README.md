@@ -1,7 +1,7 @@
 # 有数平台取数说明
 
-新增的“企宽装机报结量（地市、区县）”使用独立入口 `fetch_install_completed.py`、
-独立下载目录和两张业务表，详见 [装机报结量使用说明](INSTALL_COMPLETED.md)。
+新增的“企宽装机报结量（地市、区县）”使用独立入口 `fetch_qikuan_install_completed.py`、
+独立下载目录和两张业务表，详见 [企宽装机报结量使用说明](QIKUAN_INSTALL_COMPLETED.md)。
 下文的新装清单仍是原有派单时间口径。
 
 报表 47422 的“企宽装机清单”明细使用独立入口 `fetch_install_list.py` 和数据集

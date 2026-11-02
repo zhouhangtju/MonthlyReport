@@ -7,8 +7,8 @@ from unittest.mock import patch, Mock
 
 from openpyxl import Workbook
 
-from collector.youshu import fetch_install_completed as collector
-from storage import youshu_install_completed as storage
+from collector.youshu import fetch_qikuan_install_completed as collector
+from storage import youshu_qikuan_install_completed as storage
 
 
 class Connection:
@@ -152,12 +152,12 @@ class CompletedTests(unittest.TestCase):
         self.assertEqual(storage.latest_success("2026-08-01", "2026-08-31"), "test")
         self.assertIsNone(storage.latest_success("2026-08-01", "2026-08-15"))
         with storage.connect() as conn:
-            self.assertEqual(conn.execute("SELECT COUNT(*) FROM youshu_install_completed_city").fetchone()[0], 11)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM youshu_qikuan_install_completed_city").fetchone()[0], 11)
 
     def test_second_table_failure_rolls_back(self):
         path = self.db()
         with sqlite3.connect(path) as conn:
-            conn.execute("""CREATE TRIGGER reject_county BEFORE INSERT ON youshu_install_completed_county
+            conn.execute("""CREATE TRIGGER reject_county BEFORE INSERT ON youshu_qikuan_install_completed_county
                          BEGIN SELECT RAISE(ABORT, 'forced failure'); END""")
         storage.start_run("test", "2026-08-01", "2026-08-31")
         with self.assertRaises(sqlite3.IntegrityError):
@@ -196,8 +196,8 @@ class CompletedTests(unittest.TestCase):
         self.assertEqual(latest["collection_run_id"], c["collection_run_id"])
 
     def test_download_two_components_without_date_splitting(self):
-        (self.root / "task_install_completed_38598.json").write_bytes(
-            (collector.MODULE / "task_install_completed_38598.json").read_bytes())
+        (self.root / "task_qikuan_install_completed_38598.json").write_bytes(
+            (collector.MODULE / "task_qikuan_install_completed_38598.json").read_bytes())
         (self.root / "有数配置.json").write_text(json.dumps({"base": "http://example.test", "headers": {}}))
         exporter = Mock()
         exporter.run_export.side_effect = [(str(self.city), "xlsx"), (str(self.county), "xlsx")]

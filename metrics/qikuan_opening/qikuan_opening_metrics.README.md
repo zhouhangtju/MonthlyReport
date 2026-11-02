@@ -14,7 +14,7 @@ monthly_sum 模式读取两年各自1至N月的有效地市快照并按月相加
 不向源表创建虚构的累计采集批次。两个年度始终采用相同累计模式。
 默认 exact 模式仍按下文要求读取四个精确周期；不自动在两种口径间回退。
 
-输入为 MySQL 中 `youshu_install_completed_city` 的完整成功采集快照；平台装机报结量按本指标口径作为企宽开通量。
+输入为 MySQL 中 `youshu_qikuan_install_completed_city` 的完整成功采集快照；平台装机报结量按本指标口径作为企宽开通量。
 不读取原始 Excel，不自动联网取数，不使用派单时间口径的 `youshu_install`。
 
 ```bash

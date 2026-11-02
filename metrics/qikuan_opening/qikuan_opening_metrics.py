@@ -9,7 +9,7 @@ import sys
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from storage import youshu_install_completed as source
+from storage import youshu_qikuan_install_completed as source
 from storage.database import connect
 from storage.metric_results import insert_results
 

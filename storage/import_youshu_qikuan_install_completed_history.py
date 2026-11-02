@@ -13,9 +13,9 @@ import uuid
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from openpyxl import load_workbook
 from storage.database import connect
-from storage.youshu_install_completed import CITIES, count_value, now
+from storage.youshu_qikuan_install_completed import CITIES, count_value, now
 
-DATASET = 'youshu_install_completed_history_city'
+DATASET = 'youshu_qikuan_install_completed_history_city'
 
 
 def parse(path, sheet='Sheet1'):
@@ -82,14 +82,14 @@ def import_history(parsed, apply=False, overwrite=False):
         for (start,end), rows in parsed['months'].items():
             existing = conn.execute('''SELECT c.collection_run_id FROM collection_run c
                 WHERE c.status='success' AND c.period_start=? AND c.period_end=?
-                AND c.dataset_code IN ('youshu_install_completed',?)
-                AND EXISTS (SELECT 1 FROM youshu_install_completed_city d
+                AND c.dataset_code IN ('youshu_qikuan_install_completed',?)
+                AND EXISTS (SELECT 1 FROM youshu_qikuan_install_completed_city d
                             WHERE d.collection_run_id=c.collection_run_id)
                 ORDER BY c.finished_at DESC,c.collection_run_id DESC LIMIT 1 FOR UPDATE''',
                 (start,end,DATASET)).fetchone()
             action = 'insert'
             if existing:
-                values = conn.execute('''SELECT city,completed_order_count FROM youshu_install_completed_city
+                values = conn.execute('''SELECT city,completed_order_count FROM youshu_qikuan_install_completed_city
                     WHERE collection_run_id=?''',(existing['collection_run_id'],)).fetchall()
                 actual = {r['city']: int(r['completed_order_count']) for r in values}
                 if len(values) != 11 or actual != {c:r['value'] for c,r in rows.items()}:
@@ -107,7 +107,7 @@ def import_history(parsed, apply=False, overwrite=False):
                     continue
                 start,end = plan['start'],plan['end']
                 rows = parsed['months'][(start,end)]
-                run_id = f'history_city_{start}_{uuid.uuid4().hex[:24]}'
+                run_id = f'qikuan_history_city_{start}_{uuid.uuid4().hex[:24]}'
                 etl_id = run_id+'_etl'
                 stamp = now()
                 provenance = json.dumps({'kind':'historical_manual_city_only', 'file':parsed['path'],
@@ -119,7 +119,7 @@ def import_history(parsed, apply=False, overwrite=False):
                     # Their raw city/county rows and ETL audit remain intact for historical traceability.
                     conn.execute('''UPDATE collection_run SET status='superseded'
                         WHERE status='success' AND period_start=? AND period_end=?
-                        AND dataset_code IN ('youshu_install_completed',?)''',(start,end,DATASET))
+                        AND dataset_code IN ('youshu_qikuan_install_completed',?)''',(start,end,DATASET))
                 conn.execute('''INSERT INTO collection_run (collection_run_id,dataset_code,period_start,period_end,
                     started_at,finished_at,status,expected_files,produced_files,imported_files,source_files,etl_run_ids)
                     VALUES (?,?,?,?,?,?,'success',1,1,1,?,?)''',
@@ -127,8 +127,8 @@ def import_history(parsed, apply=False, overwrite=False):
                 conn.execute('''INSERT INTO etl_run (run_id,dataset_code,source_system,source_file,file_sha256,
                     period_start,period_end,started_at,finished_at,status,rows_read,rows_inserted)
                     VALUES (?,?,?,?,?,?,?,?,?,'success',12,11)''',
-                    (etl_id,'youshu_install_completed_city','历史人工补录',parsed['path'],parsed['sha256'],start,end,stamp,stamp))
-                conn.executemany('''INSERT INTO youshu_install_completed_city (collection_run_id,period_start,
+                    (etl_id,'youshu_qikuan_install_completed_city','历史人工补录',parsed['path'],parsed['sha256'],start,end,stamp,stamp))
+                conn.executemany('''INSERT INTO youshu_qikuan_install_completed_city (collection_run_id,period_start,
                     period_end,city,completed_order_count,source_file,collected_at) VALUES (?,?,?,?,?,?,?)''',
                     [(run_id,start,end,c,r['value'],parsed['path'],stamp) for c,r in rows.items()])
                 plan['collection_run_id'] = run_id

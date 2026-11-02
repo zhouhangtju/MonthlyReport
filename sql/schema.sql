@@ -1096,7 +1096,7 @@ CREATE TABLE IF NOT EXISTS raw_period_row (
 
 -- Independent city/county snapshots. Requires existing collection_run and etl_run.
 
-CREATE TABLE IF NOT EXISTS youshu_install_completed_city (
+CREATE TABLE IF NOT EXISTS youshu_qikuan_install_completed_city (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     collection_run_id VARCHAR(80) NOT NULL,
     period_start DATE NOT NULL,
@@ -1110,7 +1110,7 @@ CREATE TABLE IF NOT EXISTS youshu_install_completed_city (
     FOREIGN KEY (collection_run_id) REFERENCES collection_run(collection_run_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS youshu_install_completed_county (
+CREATE TABLE IF NOT EXISTS youshu_qikuan_install_completed_county (
     id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     collection_run_id VARCHAR(80) NOT NULL,
     period_start DATE NOT NULL,

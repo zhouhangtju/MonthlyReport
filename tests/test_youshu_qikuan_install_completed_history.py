@@ -4,8 +4,8 @@ import tempfile
 from pathlib import Path
 import unittest
 from unittest.mock import patch
-from storage import import_youshu_completed_history as h
-from tests.test_youshu_install_completed import Connection
+from storage import import_youshu_qikuan_install_completed_history as h
+from tests.test_youshu_qikuan_install_completed import Connection
 
 
 class HistoryTests(unittest.TestCase):
@@ -19,7 +19,7 @@ class HistoryTests(unittest.TestCase):
               produced_files INTEGER,imported_files INTEGER,source_files TEXT,etl_run_ids TEXT);
               CREATE TABLE etl_run(run_id TEXT,dataset_code TEXT,source_system TEXT,source_file TEXT,file_sha256 TEXT,
               period_start TEXT,period_end TEXT,started_at TEXT,finished_at TEXT,status TEXT,rows_read INTEGER,rows_inserted INTEGER);
-              CREATE TABLE youshu_install_completed_city(collection_run_id TEXT,period_start TEXT,period_end TEXT,
+              CREATE TABLE youshu_qikuan_install_completed_city(collection_run_id TEXT,period_start TEXT,period_end TEXT,
               city TEXT,completed_order_count INTEGER,source_file TEXT,collected_at TEXT);''')
         patcher=patch.object(h,'connect',side_effect=lambda:Connection(self.path))
         patcher.start();self.addCleanup(patcher.stop)
@@ -42,10 +42,10 @@ class HistoryTests(unittest.TestCase):
 
     def test_failure_rolls_back_audit_and_rows(self):
         with sqlite3.connect(self.path) as db:
-            db.execute("CREATE TRIGGER reject_row BEFORE INSERT ON youshu_install_completed_city BEGIN SELECT RAISE(ABORT,'forced'); END")
+            db.execute("CREATE TRIGGER reject_row BEFORE INSERT ON youshu_qikuan_install_completed_city BEGIN SELECT RAISE(ABORT,'forced'); END")
         with self.assertRaises(sqlite3.IntegrityError):h.import_history(self.data,True)
         with sqlite3.connect(self.path) as db:
-            for table in ('collection_run','etl_run','youshu_install_completed_city'):
+            for table in ('collection_run','etl_run','youshu_qikuan_install_completed_city'):
                 self.assertEqual(db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0],0)
 
     def test_overwrite_keeps_history_and_repeat_is_skipped(self):
@@ -58,8 +58,8 @@ class HistoryTests(unittest.TestCase):
         self.assertEqual(h.import_history(self.data,True,True)['inserted_rows'],11)
         with sqlite3.connect(self.path) as db:
             self.assertEqual(db.execute('SELECT status FROM collection_run WHERE collection_run_id=?',(old,)).fetchone()[0],'superseded')
-            self.assertEqual(db.execute('SELECT COUNT(*) FROM youshu_install_completed_city').fetchone()[0],22)
-            self.assertEqual(db.execute("SELECT completed_order_count FROM youshu_install_completed_city d JOIN collection_run c ON c.collection_run_id=d.collection_run_id WHERE c.status='success' AND city='杭州'").fetchone()[0],20)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM youshu_qikuan_install_completed_city').fetchone()[0],22)
+            self.assertEqual(db.execute("SELECT completed_order_count FROM youshu_qikuan_install_completed_city d JOIN collection_run c ON c.collection_run_id=d.collection_run_id WHERE c.status='success' AND city='杭州'").fetchone()[0],20)
         self.assertEqual(h.import_history(self.data,True,True)['inserted_rows'],0)
         # Reimporting a previously used file must create a fresh batch rather than collide with its old ID.
         self.data['months'][('2025-01-01','2025-01-31')]['杭州']['value']=10
@@ -69,17 +69,17 @@ class HistoryTests(unittest.TestCase):
         h.import_history(self.data,True)
         self.data['months'][('2025-01-01','2025-01-31')]['杭州']['value']=20
         with sqlite3.connect(self.path) as db:
-            db.execute("CREATE TRIGGER reject_row BEFORE INSERT ON youshu_install_completed_city BEGIN SELECT RAISE(ABORT,'forced'); END")
+            db.execute("CREATE TRIGGER reject_row BEFORE INSERT ON youshu_qikuan_install_completed_city BEGIN SELECT RAISE(ABORT,'forced'); END")
         with self.assertRaises(sqlite3.IntegrityError):h.import_history(self.data,True,True)
         with sqlite3.connect(self.path) as db:
             self.assertEqual(db.execute('SELECT status FROM collection_run').fetchone()[0],'success')
-            self.assertEqual(db.execute('SELECT COUNT(*) FROM youshu_install_completed_city').fetchone()[0],11)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM youshu_qikuan_install_completed_city').fetchone()[0],11)
 
     def test_history_import_to_monthly_sum_calculation(self):
         from metrics.qikuan_opening import qikuan_opening_metrics as m
         self.data['months']={}
-        for year in (2025,2026):
-            for month in range(1,10):
+        for year, last_month in ((2025,12),(2026,9)):
+            for month in range(1,last_month+1):
                 bounds=(f'{year}-{month:02}-01',f'{year}-{month:02}-{calendar.monthrange(year,month)[1]:02}')
                 self.data['months'][bounds]={c:{'value':10 if year==2025 else 20,'cell':'C3'} for c in h.CITIES}
         h.import_history(self.data,True)

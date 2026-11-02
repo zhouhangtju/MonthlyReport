@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import Mock, patch
 import zipfile
 
-from collector.youshu.fetch_install_completed import build_task
+from collector.youshu.fetch_qikuan_install_completed import build_task
 
 
 def load_exporter():

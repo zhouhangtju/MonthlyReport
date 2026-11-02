@@ -25,8 +25,8 @@ python3 metrics/qikuan_opening/qikuan_opening_metrics.py --month 2026-07 --mode 
 源数据为四个完整自然周期：本年当月、去年同月、本年1月至当月、去年1月至同月。
 每周期选择最新完整成功采集批次，1月复用相同周期；累计不通过相加月度去重数计算。
 缺少周期时读取程序返回的 missing_periods 并报告清单，不当作零，不生成部分结果。
-仅当用户任务包含补取数据时，调用 `collector/youshu/fetch_install_completed.py` 补齐明确缺失周期；
-已有相应取数技能时可遵循它，未安装时查阅项目 `collector/youshu/INSTALL_COMPLETED.md`。
+仅当用户任务包含补取数据时，调用 `collector/youshu/fetch_qikuan_install_completed.py` 补齐明确缺失周期；
+已有相应取数技能时可遵循它，未安装时查阅项目 `collector/youshu/QIKUAN_INSTALL_COMPLETED.md`。
 仅要求计算时不自行联网取数。原始 Excel 须通过双文件离线导入链路入库后计算。
 
 计算口径：本指标以有数装机报结工单量作为企宽开通量，日期字段为 OPERTIME。

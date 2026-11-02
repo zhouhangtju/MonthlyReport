@@ -10,8 +10,8 @@ import tempfile
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from storage import youshu_install_completed as storage
-from storage.youshu_install_completed import initialize
+from storage import youshu_qikuan_install_completed as storage
+from storage.youshu_qikuan_install_completed import initialize
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE = Path(__file__).resolve().parent
@@ -21,7 +21,7 @@ DATE_COMPONENT = "c-nhA776eaE65rKUBeF3jUqB"
 
 def build_task(level, base, start, end):
     storage.validate_period(start, end)
-    template = json.loads((MODULE / "task_install_completed_38598.json").read_text("utf-8"))
+    template = json.loads((MODULE / "task_qikuan_install_completed_38598.json").read_text("utf-8"))
     filters = [c for c in template["data"]["state"]["components"]
                if c.get("id") == DATE_COMPONENT and c.get("type") == "dateTimeFilter"]
     if len(filters) != 1:
@@ -90,12 +90,12 @@ def collect(start, end, *, mode="both", output_dir=None, refresh=False,
             covered = storage.latest_success(start, end)
             if covered:
                 return {"skipped": True, "skip_reason": "exact_period_already_covered", "collection_run_id": covered}
-    run_id = "completed_" + uuid.uuid4().hex
+    run_id = "qikuan_completed_" + uuid.uuid4().hex
     root = Path(output_dir) if output_dir else ROOT / "data/raw/youshu"
     if not root.is_absolute():
         root = ROOT / root
-    temporary = Path(tempfile.mkdtemp(prefix="youshu_completed_")) if mode == "database" else None
-    directory = temporary or root.resolve() / "install_completed" / f"{start}_{end}" / run_id
+    temporary = Path(tempfile.mkdtemp(prefix="youshu_qikuan_completed_")) if mode == "database" else None
+    directory = temporary or root.resolve() / "qikuan_install_completed" / f"{start}_{end}" / run_id
     directory.mkdir(parents=True, exist_ok=True)
     manifest_path = directory / "manifest.json"
     manifest = {"collection_run_id": run_id, "dataset": storage.DATASET,

@@ -1,6 +1,6 @@
 # 企宽装机报结量（地市、区县）
 
-独立于 `fetch_install.py` 的派单明细链路。入口为 `fetch_install_completed.py`，
+独立于 `fetch_install.py` 的派单明细链路。入口为 `fetch_qikuan_install_completed.py`，
 共用已有登录配置和 `fetch_data.run_export` 导出能力，不使用旧任务列表、按日拆批或旧明细入库器。
 
 ## 口径
@@ -18,7 +18,7 @@
 在项目根目录执行（部署依赖沿用 `requirements.txt`）：
 
 ```bash
-python3 collector/youshu/fetch_install_completed.py \
+python3 collector/youshu/fetch_qikuan_install_completed.py \
   --start-date 2026-08-01 --end-date 2026-08-31 --mode both
 ```
 
@@ -35,7 +35,7 @@ HTTP 状态和平台错误码写入异常及失败 manifest。`610` 或 `401/403
 离线导入两份已下载文件：
 
 ```bash
-python3 collector/youshu/fetch_install_completed.py \
+python3 collector/youshu/fetch_qikuan_install_completed.py \
   --start-date 2026-08-01 --end-date 2026-08-31 \
   --city-file /path/to/city.xlsx --county-file /path/to/county.xlsx \
   --mode both
@@ -60,7 +60,7 @@ python3 collector/youshu/fetch_install_completed.py \
 ## 原始文件目录
 
 ```text
-data/raw/youshu/install_completed/
+data/raw/youshu/qikuan_install_completed/
   <开始日期>_<结束日期>/
     <采集批次ID>/
       city/*.xlsx
@@ -81,13 +81,23 @@ data/raw/youshu/install_completed/
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root -p quality_assessment \
-  < sql/create_youshu_install_completed.sql
+  < sql/create_youshu_qikuan_install_completed.sql
 ```
+
+如果数据库已经存在旧表 `youshu_install_completed_city` 和
+`youshu_install_completed_county`，不要新建空表，改为执行一次：
+
+```bash
+mysql --default-character-set=utf8mb4 -u root -p quality_assessment \
+  < sql/migrate_youshu_install_completed_to_qikuan.sql
+```
+
+该迁移只重命名表和数据集代码，已有数据、索引、审计批次均保留。
 
 全新数据库使用项目原有初始化流程；`sql/schema.sql` 已包含相同的新表定义。
 
-- `youshu_install_completed_city`：每批次、周期、地市一条。
-- `youshu_install_completed_county`：每批次、周期、地市、区县一条。
+- `youshu_qikuan_install_completed_city`：每批次、周期、地市一条。
+- `youshu_qikuan_install_completed_county`：每批次、周期、地市、区县一条。
 - 数量使用 `BIGINT UNSIGNED`，起止日期使用 `DATE`；采集时间保存带 UTC 时区的 ISO 字符串。
 - 每次强制重取保留新批次，无需额外版本表。
 - 同批次、相同源文件重复导入幂等；已成功批次不允许更换源文件。
@@ -96,7 +106,7 @@ mysql --default-character-set=utf8mb4 -u root -p quality_assessment \
 读取同周期最新完整快照：
 
 ```python
-from storage.youshu_install_completed import load_latest
+from storage.youshu_qikuan_install_completed import load_latest
 data = load_latest("2026-08-01", "2026-08-31")
 # data['city']、data['county'] 来自同一 collection_run_id。
 province_total = sum(row['completed_order_count'] for row in data['city'])
@@ -118,7 +128,7 @@ province_total = sum(row['completed_order_count'] for row in data['city'])
 ## 验证
 
 ```bash
-python3 -m unittest tests.test_youshu_install_completed tests.test_youshu_export_flow -v
+python3 -m unittest tests.test_youshu_qikuan_install_completed tests.test_youshu_export_flow -v
 ```
 
 测试覆盖完整周期双导出、解析校验、失败审计、事务回滚、重复入库、精确周期覆盖和最新快照。

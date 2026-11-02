@@ -9,14 +9,14 @@ from pathlib import Path
 from openpyxl import load_workbook
 from storage.database import connect
 
-DATASET = "youshu_install_completed"
+DATASET = "youshu_qikuan_install_completed"
 TABLES = {level: f"{DATASET}_{level}" for level in ("city", "county")}
 CITIES = set("杭州 湖州 嘉兴 金华 丽水 宁波 绍兴 台州 温州 舟山 衢州".split())
 
 
 def initialize():
     """Add only the new tables; do not run unrelated legacy migrations."""
-    sql = Path(__file__).resolve().parents[1] / "sql/create_youshu_install_completed.sql"
+    sql = Path(__file__).resolve().parents[1] / "sql/create_youshu_qikuan_install_completed.sql"
     with connect() as conn:
         # These shared audit tables are supplied by the existing application schema.
         conn.execute("SELECT collection_run_id FROM collection_run LIMIT 0")
@@ -112,9 +112,9 @@ def latest_success(start, end):
             WHERE c.dataset_code=? AND c.period_start=? AND c.period_end=?
               AND c.status='success' AND c.expected_files=2
               AND c.produced_files=2 AND c.imported_files=2
-              AND EXISTS (SELECT 1 FROM youshu_install_completed_city d
+              AND EXISTS (SELECT 1 FROM youshu_qikuan_install_completed_city d
                   WHERE d.collection_run_id=c.collection_run_id)
-              AND EXISTS (SELECT 1 FROM youshu_install_completed_county d
+              AND EXISTS (SELECT 1 FROM youshu_qikuan_install_completed_county d
                   WHERE d.collection_run_id=c.collection_run_id)
             ORDER BY c.finished_at DESC, c.collection_run_id DESC LIMIT 1""",
             (DATASET, start, end)).fetchone()
@@ -142,14 +142,14 @@ def load_latest_city(start, end):
     with connect() as conn:
         batch = conn.execute('''SELECT c.collection_run_id,c.dataset_code FROM collection_run c
             WHERE c.status='success' AND c.period_start=? AND c.period_end=?
-              AND ((c.dataset_code='youshu_install_completed' AND c.expected_files=2
+              AND ((c.dataset_code='youshu_qikuan_install_completed' AND c.expected_files=2
                     AND c.produced_files=2 AND c.imported_files=2)
-                OR (c.dataset_code='youshu_install_completed_history_city' AND c.expected_files=1
+                OR (c.dataset_code='youshu_qikuan_install_completed_history_city' AND c.expected_files=1
                     AND c.produced_files=1 AND c.imported_files=1))
             ORDER BY c.finished_at DESC,c.collection_run_id DESC LIMIT 1''',(start,end)).fetchone()
         if batch is None:
             raise ValueError('该统计周期没有完整成功的报结量数据')
-        rows = conn.execute('''SELECT * FROM youshu_install_completed_city
+        rows = conn.execute('''SELECT * FROM youshu_qikuan_install_completed_city
             WHERE collection_run_id=? ORDER BY city''',(batch['collection_run_id'],)).fetchall()
     return {'collection_run_id': batch['collection_run_id'], 'dataset_code': batch['dataset_code'],
             'city': [dict(r) for r in rows]}
