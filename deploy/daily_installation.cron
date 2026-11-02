@@ -1,0 +1,3 @@
+# Install in crontab on a host whose timezone is Asia/Shanghai.
+# Replace /absolute/path/MonthlyReport and /absolute/path/python with deployment paths.
+0 5 * * * cd /absolute/path/MonthlyReport && /absolute/path/python tools/daily_installation.py >> /absolute/path/MonthlyReport/outputs/daily_installation_cron.log 2>&1
