@@ -14,14 +14,13 @@ import tempfile
 import zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
-from xml.sax.saxutils import escape
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1]))
 
 from database_results_by_city import build_data, month_bounds, normalize_city
-from reporting.build_internet_line_ppt import replace_terminal_recovery_slides_from_template
+from terminal_recovery_template_by_city import replace_city_terminal_recovery_slides_from_template
 
 
 REPORTING_DIR = HERE.parent
@@ -134,58 +133,6 @@ def verify_pptx(path: Path) -> None:
         raise RuntimeError(f"地市版月报PPT页数应为15，实际为{len(slides)}")
 
 
-def _format_count(value) -> str:
-    number = float(value)
-    return str(int(number)) if number.is_integer() else f"{number:g}"
-
-
-def apply_city_terminal_text(pptx_path: Path, terminal_data: dict) -> None:
-    """在省级终端回收模板替换完成后，仅处理地市版文字口径。"""
-    target_city = terminal_data["targetCity"]
-    province_rate = f"{float(terminal_data['city']['rate']) * 100:.2f}%"
-    target_rate = f"{float(terminal_data['targetCityRate']) * 100:.2f}%"
-    province_completed = str(terminal_data["city"]["completedTotal"])
-    target_completed = _format_count(terminal_data["targetCityCompletedTotal"])
-
-    def update_runs(xml: str, exact: dict[str, str], fragments: dict[str, str]) -> str:
-        def replace_match(match):
-            value = match.group(1)
-            if value in exact:
-                value = exact[value]
-            for old, new in fragments.items():
-                value = value.replace(old, new)
-            return f"<a:t>{escape(value)}</a:t>"
-        return re.sub(r"<a:t>(.*?)</a:t>", replace_match, xml, flags=re.S)
-
-    with zipfile.ZipFile(pptx_path, "r") as source_zip:
-        entries = {info.filename: source_zip.read(info.filename) for info in source_zip.infolist()}
-    slide12 = "ppt/slides/slide12.xml"
-    slide13 = "ppt/slides/slide13.xml"
-    if slide12 in entries:
-        xml = entries[slide12].decode("utf-8")
-        entries[slide12] = update_runs(
-            xml,
-            {f"{province_rate} ": f"{target_rate} "},
-            {"全省终端回收率": f"{target_city}终端回收率"},
-        ).encode("utf-8")
-    if slide13 in entries:
-        xml = entries[slide13].decode("utf-8")
-        entries[slide13] = update_runs(
-            xml,
-            {province_completed: target_completed},
-            {"全省终端": f"{target_city}终端"},
-        ).encode("utf-8")
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pptx", dir=pptx_path.parent) as tmp:
-        temporary = Path(tmp.name)
-    try:
-        with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as target_zip:
-            for name, content in entries.items():
-                target_zip.writestr(name, content)
-        temporary.replace(pptx_path)
-    finally:
-        temporary.unlink(missing_ok=True)
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="生成指定地市业务发展、专线自动及终端回收情况PPTX")
     parser.add_argument("--month", required=True, type=month_argument, help="月报月份，YYYY-MM")
@@ -232,8 +179,7 @@ def main() -> None:
     subprocess.run([str(NODE_BIN), str(DRAW_SCRIPT), str(data_json), str(output)],
                    cwd=PROJECT_DIR, env=env, check=True)
     apply_template_master(output, template)
-    replace_terminal_recovery_slides_from_template(output, data["terminalRecovery"], args.month)
-    apply_city_terminal_text(output, data["terminalRecovery"])
+    replace_city_terminal_recovery_slides_from_template(output, data["terminalRecovery"], args.month)
     verify_pptx(output)
     if not args.keep_json:
         data_json.unlink(missing_ok=True)

@@ -182,6 +182,22 @@ def apply_results(data, documents, audit, db):
             raise ValueError('工程施工数量合计不一致')
         data['internetAuto']['manualReasons'] = {'cities': CITIES, 'constructionCounts': values,
                                                  'province': reasons['全省'], 'byCity': rows}
+        for business in data.get('automationBusinesses', []):
+            extra = document.get('business_results', {}).get(business['name'])
+            if extra is None:
+                if business['opening'].get('automationSource') == 'intermediate_orchestration_orders':
+                    raise ValueError(f"缺少{business['name']}辅助原因结果，请重新运行资管CSV辅助分析")
+                continue
+            reasons = extra['opening_network_nonautomatic_reasons']
+            rows = {c.removesuffix('市'): v for c, v in reasons['地市'].items()}
+            if set(rows) - set(CITIES):
+                raise ValueError(f"{business['name']}原因结果存在未知地市")
+            values = [count(rows.get(c, {}).get('工程施工工单数', 0), c) for c in CITIES]
+            if sum(values) != reasons['全省']['工程施工工单数']:
+                raise ValueError(f"{business['name']}工程施工数量合计不一致")
+            business['opening']['manualReasons'] = {
+                'cities': CITIES, 'constructionCounts': values,
+                'province': reasons['全省'], 'byCity': rows}
     if REPEAT in documents:
         document = documents[REPEAT]
         rows = {c.removesuffix('市'): v for c, v in document['cities'].items()}

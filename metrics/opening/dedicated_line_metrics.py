@@ -762,12 +762,13 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
     period_start, _ = month_dates(str(report["start_month"]))
     _, period_end = month_dates(str(report["end_month"]))
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    run_version = report.get('automation_rule_version') or METRIC_VERSION
     with connect(database) as connection:
         connection.execute(
             """INSERT INTO metric_run (metric_run_id, metric_code, metric_version,
                period_start, period_end, started_at, status, source_runs)
                VALUES (?, ?, ?, ?, ?, ?, 'running', ?)""",
-            (run_id, METRIC_CODE, METRIC_VERSION, period_start, period_end, now, json.dumps(source_runs)),
+            (run_id, METRIC_CODE, run_version, period_start, period_end, now, json.dumps(source_runs)),
         )
         connection.commit()
     try:
@@ -836,22 +837,27 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
 
 
 def run(database: Path, start_month: str, end_month: str, *, mode: str = "both", output: Path | None = None,
-        batch_size: int = 5000, temp_dir: Path | None = None, asset_csv: Path | None = None) -> dict[str, object]:
+        batch_size: int = 5000, temp_dir: Path | None = None, asset_csv: Path | None = None,
+        process_log_cookie: str | None = None) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
     database = database.expanduser().resolve() if database is not None else None
     if asset_csv is None or not Path(asset_csv).is_file():
         raise ValueError('新版自动率需要指定 --asset-csv，当月完结工单对应的资管环节明细CSV')
+    if process_log_cookie is not None:
+        from metrics.opening.process_log_backfill import parse_cookie
+        parse_cookie(process_log_cookie)
     log("开始按月流式计算，跨批去重使用临时磁盘文件")
     report, source_runs = load_and_calculate(database, start_month, end_month, batch_size, temp_dir)
-    from metrics.opening.automation_intermediate import build
+    from metrics.opening.automation_intermediate import AUTOMATION_RULE_VERSION, build
     audit_dir = (output.parent if output else Path('outputs/orchestration_automation'))
-    automation, automation_audit = build(database, end_month, asset_csv, audit_dir, batch_size)
+    automation, automation_audit = build(database, end_month, asset_csv, audit_dir, batch_size,
+                                         process_log_cookie=process_log_cookie)
     automation_codes = {item['metric_code'] for item in automation}
     report['results'] = [item for item in report['results'] if not (
         item['metric_code'] in automation_codes and item['dimension'].get('month') == end_month)] + automation
     report['automation_audit'] = automation_audit
-    report['automation_rule_version'] = '2.0.0-latest-asset-9-9-6'
+    report['automation_rule_version'] = AUTOMATION_RULE_VERSION
     log(f"指标计算完成，共 {len(report['results'])} 条结果")
     print_report(report)
     report["source_runs"] = source_runs
@@ -882,8 +888,9 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=5000, help="每批读取条数，默认5000")
     parser.add_argument("--temp-dir", type=Path, help="月内去重临时文件目录，需要有可用磁盘空间")
     parser.add_argument('--asset-csv', type=Path, required=True, help='当月完结工单对应的资管专线环节CSV')
+    parser.add_argument('--process-log-cookie', help='可选：提供子系统 Cookie 或 token 时补齐流程日志；不传则跳过')
     args = parser.parse_args()
-    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv)
+    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv, process_log_cookie=args.process_log_cookie)
     print(json.dumps({
         "metric_run_id": report["metric_run_id"],
         "result_count": len(report["results"]),

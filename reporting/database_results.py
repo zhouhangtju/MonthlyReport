@@ -152,8 +152,13 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
             "trend": [get(code, "month", month=m) for m in months],
         }
 
-    def automation(action):
-        code = f"internet_{action}_automation_rate"
+    def automation(action, business_prefix='internet'):
+        code = f"{business_prefix}_{action}_automation_rate"
+        def rate_value(metric_code, kind, **dims):
+            row = db.find(opening, metric_code, kind, month=month, **dims)
+            if row is not None and row.get('denominator') == 0:
+                return None
+            return count(metric_code, kind, **dims)
         stages = [s for s in STAGES if not (action == "removal" and s == "方案设计")]
         rows = [r for r in db.rows.get(opening, []) if r['metric_code'] == code and r['dimension_type'] == 'month_stage' and r['dimension'].get('month') == month]
         if rows:
@@ -164,10 +169,10 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
             stages = [s for s, _ in (REMOVAL if action == 'removal' else OPENING)]
         result = {"automaticCount": get(code, "month_all_stages", "numerator", month=month),
                   "totalCount": get(code, "month_all_stages", "denominator", month=month),
-                  "overallRate": count(code, "month_all_stages"), "labels": stages,
-                  "rates": [count(code, "month_stage", stage=s) for s in stages]}
+                  "overallRate": rate_value(code, "month_all_stages"), "labels": stages,
+                  "rates": [rate_value(code, "month_stage", stage=s) for s in stages]}
         if action != "opening":
-            result.update(cities=CITIES, activationRates=[count(f"internet_{action}_activation_rate", "month_city", city=c) for c in CITIES])
+            result.update(cities=CITIES, activationRates=[rate_value(f"{business_prefix}_{action}_activation_rate", "month_city", city=c) for c in CITIES])
         if enhanced:
             result['automationSource'] = 'intermediate_orchestration_orders'
             if not result['totalCount']:
@@ -180,7 +185,7 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
                        'removal': [('release', '组织资源释放')]}[action]
             for name, stage in mapping:
                 result[name] = {'cities': CITIES,
-                    'rates': [count(code, 'month_city_stage', city=c, stage=stage) for c in CITIES],
+                    'rates': [rate_value(code, 'month_city_stage', city=c, stage=stage) for c in CITIES],
                     'numerators': [get(code, 'month_city_stage', 'numerator', month=month, city=c, stage=stage) for c in CITIES],
                     'denominators': [get(code, 'month_city_stage', 'denominator', month=month, city=c, stage=stage) for c in CITIES]}
                 result[name]['rates'] = [r if d else None for r, d in zip(result[name]['rates'], result[name]['denominators'])]
@@ -309,6 +314,38 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
         "internetAuto": automation("opening"), "internetMoveAuto": automation("move"), "internetRemovalAuto": automation("removal"),
         "terminalRecovery": terminal_data, "withdrawal": withdrawal, "complaintFault": complaint,
     }
+    stop_resume_cities = ['杭州', '湖州', '嘉兴', '金华', '丽水', '宁波', '衢州', '绍兴', '台州', '温州', '舟山']
+    def stop_resume(prefix, name):
+        code = f'{prefix}_stop_resume_automation_rate'
+        def stored(metric_code, kind, field='metric_value', **dims):
+            row = db.find(opening, metric_code, kind, month=month, **dims)
+            if row is None:
+                get(metric_code, kind, field, month=month, **dims)
+                return None
+            if row.get(field) is None:
+                return None
+            return get(metric_code, kind, field, month=month, **dims)
+        return {'prefix': prefix, 'name': name,
+                'automaticCount': stored(code, 'month_all_stages', 'numerator'),
+                'totalCount': stored(code, 'month_all_stages', 'denominator'),
+                'overallRate': stored(code, 'month_all_stages'),
+                'labels': ['受理', '资源查询', '配置激活', '报结'],
+                'rates': [stored(code, 'month_stage', stage=stage) for stage in ['受理', '资源查询', '配置激活', '报结']],
+                'cities': stop_resume_cities,
+                'activationRates': [stored(f'{prefix}_stop_resume_activation_rate', 'month_city', city=city)
+                                    for city in stop_resume_cities],
+                'previousOverallRate': None, 'mom': None}
+    data['stopResumeBusinesses'] = [stop_resume(prefix, name) for prefix, name in
+                                    [('internet', '互联网专线'), ('mpls', 'MPLS-VPN专线'),
+                                     ('transmission', '传输专线')]]
+    data['automationBusinesses'] = [
+        {'prefix': prefix, 'name': name,
+         'opening': automation('opening', prefix),
+         'move': automation('move', prefix),
+         'removal': automation('removal', prefix)}
+        for prefix, name in [('mpls', 'MPLS-VPN专线'), ('transmission', '传输专线'),
+                             ('video', '视频监控MV专线')]
+    ]
     data["dataAudit"] = {"database": str(db.database), "period_start": db.start, "period_end": db.end,
                          "selected_batches": list(db.runs.values()), "used_results": list(db.used.values()), "missing": list(db.missing.values()),
                          "derived_results": {"terminalRecovery.city.expectedTotal": "sum of the eleven stored city expected counts", "terminalRecovery.city.completedTotal": "sum of the eleven stored city completed counts", "terminalRecovery.city.rate": "completedTotal / expectedTotal; zero when denominator is zero", "trendSummary": "stored rolling-12-month metric when available; otherwise sum and average of the twelve stored month_product results from the selected orchestration run"},
