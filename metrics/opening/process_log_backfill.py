@@ -6,6 +6,9 @@ import json
 import os
 import re
 import time
+import subprocess
+import sys
+from pathlib import Path
 from collections import Counter
 from datetime import datetime
 from urllib.parse import urlsplit
@@ -16,6 +19,28 @@ STAGES = ('组网方案', '资源反馈', '组织资源释放', '归档审核')
 ENTERPRISE = 'https://rmc-static-process-enterprise.oss.zj.chinamobile.com:7415'
 TOKEN_NAME = 'irm-frontend-process-enterprise-token'
 DATE_RANGE = 90
+COOKIE_FILE = Path(__file__).resolve().with_name("cookie.txt")
+
+
+def read_cookie_file(path=None):
+    """Read the login output without echoing credentials."""
+    path = Path(path) if path is not None else COOKIE_FILE
+    try:
+        content = path.read_text(encoding="utf-8-sig")
+    except OSError as exc:
+        raise ValueError("无法读取流程日志 Cookie 文件，请先执行 login_save_cookie.py") from exc
+    return parse_cookie(content)
+
+
+def refresh_cookie():
+    """Run SMS login interactively; never fall back to a stale cookie on failure."""
+    script = Path(__file__).resolve().with_name("login_save_cookie.py")
+    try:
+        subprocess.run([sys.executable, str(script)], check=True)
+    except subprocess.CalledProcessError:
+        raise RuntimeError("短信登录未成功，已停止流程日志补采") from None
+    read_cookie_file()
+
 
 
 class NoDataFound(RuntimeError):
@@ -143,9 +168,9 @@ def resolve_log_fills(response, pending):
     return {**handlers, **dict.fromkeys(slash_reasons, '/')}, slash_reasons
 
 
-def backfill(database, month: str, build_id: str, cookie: str) -> dict:
+def backfill(database, month: str, build_id: str) -> dict:
     """Query orders with any empty asset handler after explicit path rules."""
-    token = parse_cookie(cookie)
+    token = read_cookie_file()
     try:
         import truststore
     except ImportError:

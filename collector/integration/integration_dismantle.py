@@ -347,24 +347,14 @@ def post_export(session, token, url, body, output_path):
 
 def export_outbound(session, token, export_month, start_date, end_date, output_dir=EXPORT_DIR):
     """导出指定月份的终端出库数据。"""
-    body = {
-        "pageNum": 1,
-        "pageSize": EXPORT_PAGE_SIZE,
-        "operTypes": ["装机物资确认", "修障物资确认"],
-        "confirmTimeStart": start_date + " 00:00:00",
-        "confirmTimeEnd": end_date + " 23:59:59",
-        "fieldNames": [
-            "regionName", "countyName", "className", "applyCode", "title",
-            "operType", "relatedFormType", "relatedForm", "useApplyCode",
-            "materialId", "materialName", "model", "measurementUnit",
-            "status", "manufacturer", "newSnNum", "repairSnNum",
-            "recoveryNosnNum", "totalNum", "applyTime", "applier",
-            "confirmTime", "confirmPerson",
-        ],
-    }
-    output_path = os.path.join(output_dir, f"终端出库_{export_month}.xlsx")
-    url = f"{BASE}/api/materials/materialsmng/materials-return-log/detail/export"
-    return post_export(session, token, url, body, output_path)
+    from collector.integration.material_api import fetch_records, write_records
+    body = {"operTypes": ["装机物资确认", "修障物资确认"],
+            "confirmTimeStart": start_date + " 00:00:00",
+            "confirmTimeEnd": end_date + " 23:59:59"}
+    rows = fetch_records(session, token, "/api/materials/materialsmng/materials-return-log/detail", body)
+    output = Path(output_dir) / f"终端出库_{export_month}.xlsx"
+    write_records(output, rows, "outbound")
+    return True
 
 
 def export_inbound(session, token, export_month, start_date, end_date, output_dir=EXPORT_DIR):
@@ -517,6 +507,7 @@ def parser(description):
         "--inbound-end-date",
         help="终端入库查询结束日期；允许跨月，默认使用 --end-date",
     )
+    result.add_argument("--outbound-end-date", help="出库确认截止日，允许跨月，默认 --end-date")
     result.add_argument("--mode", choices=("file", "database", "both"), default="both")
     result.add_argument("--database", type=Path, help="兼容旧命令；始终使用 database.py 中的 MySQL 配置")
     result.add_argument("--output-dir", type=Path, default=EXPORT_DIR)
@@ -576,11 +567,13 @@ def _finish_exports(files, start_date, end_date, mode, database, staging_dir):
 
 
 
-def collect(start_date, end_date, *, inbound_end_date=None, mode="both",
+def collect(start_date, end_date, *, inbound_end_date=None, outbound_end_date=None, mode="both",
             database=None, output_dir=Path(EXPORT_DIR),
             reuse_existing=False, refresh=False,
             account=DEFAULT_ACCOUNT, password=DEFAULT_PASSWORD):
     month = validate_dates(start_date, end_date)
+    outbound_end = outbound_end_date or end_date
+    validate_inbound_dates(start_date, outbound_end)
     inbound_start = start_date
     inbound_end = inbound_end_date or end_date
     validate_inbound_dates(inbound_start, inbound_end)
@@ -595,7 +588,7 @@ def collect(start_date, end_date, *, inbound_end_date=None, mode="both",
         "integration_material_baseline": Path(output_dir) / "全省物资基准库.xlsx",
         "terminal_material_names": material_names,
     }, start_date, end_date, mode, database,
-       refresh or inbound_start != start_date or inbound_end != end_date,
+       True,
        reuse_existing)
     if cached is not None:
         return cached
@@ -608,7 +601,7 @@ def collect(start_date, end_date, *, inbound_end_date=None, mode="both",
         if not reuse_existing:
             print(
                 f"[INFO] 统计周期及终端出库查询范围：{start_date} 00:00:00 至 "
-                f"{end_date} 23:59:59",
+                f"{outbound_end} 23:59:59",
                 flush=True,
             )
             print(
@@ -622,16 +615,18 @@ def collect(start_date, end_date, *, inbound_end_date=None, mode="both",
                 session = login(session, account, password)
                 token = extract_token(session)
                 update_cred_json(account, token)
-                if not export_outbound(session, token, month, start_date, end_date, target_dir):
+                if not export_outbound(session, token, month, start_date, outbound_end, target_dir):
                     raise RuntimeError("Terminal outbound export failed")
                 if not export_inbound(session, token, month, inbound_start, inbound_end, target_dir):
                     raise RuntimeError("Terminal inbound export failed")
                 if not export_material_baseline(session, token, target_dir):
                     raise RuntimeError("Material baseline export failed")
         files["terminal_material_names"] = material_names
+        from collector.integration.material_api import validate_outbound_file
+        validate_outbound_file(files["integration_terminal_outbound"])
         result = finish_exports(files, start_date, end_date, mode, database)
         result["query_ranges"] = {
-            "terminal_outbound": {"start": start_date, "end": end_date},
+            "terminal_outbound": {"start": start_date, "end": outbound_end},
             "terminal_inbound": {"start": inbound_start, "end": inbound_end},
         }
         return result

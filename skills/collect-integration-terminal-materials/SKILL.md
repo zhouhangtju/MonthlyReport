@@ -50,3 +50,14 @@ py -3.11 collector/integration/integration_dismantle.py --start-date 2026-09-01 
 等待所有导出结束，检查实际查询截止日期、每类文件/ETL/源快照、`failed=0`；数据库模式不要求保留本地文件。下载失败不得拿旧文件冒充本次结果，停止后续算数并报告脱敏错误，不无限重试。
 
 完整流程还需两个工单取数 Skill。全部入库后执行 `calculate-terminal-recovery`；使用同一数据库时按顺序运行，避免并发写入和覆盖同名文件。详见 `metrics/terminal_recovery/README.md`。
+
+
+## 全字段出库与跨月查询（更新）
+出库改用materials-return-log/detail分页采集48个字段，保留旧中文列并增加接口原始字段。
+新、返修、回收的有SN/无SN数量分别保存；旧中文数量列沿用原export字段映射。
+首次升级已有数据库，先执行sql/expand_terminal_outbound_20261105.sql，仅执行一次，保留历史记录。
+新增--outbound-end-date允许出库截止日跨月，覆盖上文默认月内范围；统计批次仍由--start-date、--end-date定义。
+python collector/integration/integration_dismantle.py --start-date 2026-09-01 --end-date 2026-09-30 --outbound-end-date 2026-10-10 --mode both
+
+未传新参数时截止到--end-date；不影响--inbound-end-date。
+全字段升级后默认重新采集，不复用旧覆盖记录；--reuse-existing要求含48字段的新格式工作簿。

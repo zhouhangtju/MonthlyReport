@@ -275,7 +275,7 @@ def write_automation_outputs(results, audit, output_dir):
                              '' if item['metric_value'] is None else f'{item["metric_value"]:.6%}'])
 
 
-def build(database, month, asset_csv, output_dir, batch_size=5000, process_log_cookie=None):
+def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=False):
     from pymysql.cursors import SSDictCursor
     from metrics.opening.dedicated_line_metrics import shift_month, log
     asset_csv = Path(asset_csv).resolve()
@@ -387,15 +387,15 @@ def build(database, month, asset_csv, output_dir, batch_size=5000, process_log_c
                             pending.clear()
                     if pending:
                         destination.executemany(sql, pending)
-            if process_log_cookie is not None:
+            if process_logs:
                 from metrics.opening.process_log_backfill import backfill
 
-                process_log_audit = backfill(database, month, build_id, process_log_cookie)
+                process_log_audit = backfill(database, month, build_id)
                 audit['process_log_backfill'] = {key: value for key, value in process_log_audit.items()
                                                  if key != 'details'}
                 (output_dir / f'流程日志补齐明细_{month}.json').write_text(
                     json.dumps(process_log_audit, ensure_ascii=False, indent=2), encoding='utf-8')
-            if process_log_cookie is not None:
+            if process_logs:
                 # The review CSV must show the committed post-fill handlers.
                 with connect(database) as source, review_path.open('w', encoding='utf-8-sig', newline='') as target:
                     writer = csv.writer(target)

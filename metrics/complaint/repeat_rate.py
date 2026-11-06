@@ -20,7 +20,7 @@ class Profile:
     numerator_unit: str
 
 
-LINE = Profile("dedicated_line_repeat_complaint_rate", "1.6.0", "专线/专网重复投诉率", 1, "重复投诉Key")
+LINE = Profile("dedicated_line_repeat_complaint_rate", "1.7.0", "专线/专网重复投诉率", 1, "重复投诉Key")
 QLY = Profile("qianliyan_repeat_complaint_rate", "1.0.0", "千里眼重复投诉率", 24, "唯一客户标识")
 
 
@@ -149,7 +149,7 @@ def line_customer_id(row: dict[str, object]) -> str:
 def is_business_row(row: dict[str, object], profile: Profile) -> bool:
     category = text(row.get("业务类别"))
     if profile == LINE:
-        return "专线" in category or "专网" in category
+        return "专线专网" in category
     return "千里眼" in category or ("视频监控" in category and "专线专网" not in category)
 
 

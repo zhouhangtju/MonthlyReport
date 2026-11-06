@@ -1,0 +1,7 @@
+# 库存利旧中间结果
+入口 terminal_inventory_reuse.py，命令与参数见 skills/calculate-terminal-inventory-reuse/SKILL.md。
+按用户指定口径执行六表计算，输出为可复核静态计算值，不包含Excel动态公式。对照表复制有效数据及表头，不保留源文件装饰格式。
+原始库存数据优先复用MySQL平台导出快照；可用--input读取文件。
+结果存储在intermediate_terminal_inventory_reuse，按metric_run_id、sheet_name、row_number标识。原始行与三列计算结果完整保存在row_data；material_category、city、blocked_model、reusable_quantity支持直接查询。
+sheet1为全部库存分类地市汇总；sheet2为不可利旧型号命中记录的分类地市汇总。两表数量名称沿用用户口径，不能把sheet2视为可实际使用数量。
+对照数据和输入文件均记录SHA256。批次统计成功后才提交，不影响其他指标和原始库存表。

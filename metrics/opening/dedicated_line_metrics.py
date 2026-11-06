@@ -838,21 +838,21 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
 
 def run(database: Path, start_month: str, end_month: str, *, mode: str = "both", output: Path | None = None,
         batch_size: int = 5000, temp_dir: Path | None = None, asset_csv: Path | None = None,
-        process_log_cookie: str | None = None) -> dict[str, object]:
+        process_logs: bool = True) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
     database = database.expanduser().resolve() if database is not None else None
     if asset_csv is None or not Path(asset_csv).is_file():
         raise ValueError('新版自动率需要指定 --asset-csv，当月完结工单对应的资管环节明细CSV')
-    if process_log_cookie is not None:
-        from metrics.opening.process_log_backfill import parse_cookie
-        parse_cookie(process_log_cookie)
+    if process_logs:
+        from metrics.opening.process_log_backfill import refresh_cookie
+        refresh_cookie()
     log("开始按月流式计算，跨批去重使用临时磁盘文件")
     report, source_runs = load_and_calculate(database, start_month, end_month, batch_size, temp_dir)
     from metrics.opening.automation_intermediate import AUTOMATION_RULE_VERSION, build
     audit_dir = (output.parent if output else Path('outputs/orchestration_automation'))
     automation, automation_audit = build(database, end_month, asset_csv, audit_dir, batch_size,
-                                         process_log_cookie=process_log_cookie)
+                                         process_logs=process_logs)
     automation_codes = {item['metric_code'] for item in automation}
     report['results'] = [item for item in report['results'] if not (
         item['metric_code'] in automation_codes and item['dimension'].get('month') == end_month)] + automation
@@ -888,9 +888,9 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=5000, help="每批读取条数，默认5000")
     parser.add_argument("--temp-dir", type=Path, help="月内去重临时文件目录，需要有可用磁盘空间")
     parser.add_argument('--asset-csv', type=Path, required=True, help='当月完结工单对应的资管专线环节CSV')
-    parser.add_argument('--process-log-cookie', help='可选：提供子系统 Cookie 或 token 时补齐流程日志；不传则跳过')
+    parser.add_argument('--skip-process-log', action='store_true', help='跳过短信登录和流程日志补齐；默认先短信登录并读取本地Cookie')
     args = parser.parse_args()
-    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv, process_log_cookie=args.process_log_cookie)
+    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv, process_logs=not args.skip_process_log)
     print(json.dumps({
         "metric_run_id": report["metric_run_id"],
         "result_count": len(report["results"]),

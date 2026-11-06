@@ -208,7 +208,9 @@ def create_export_session(token):
 # 导出任务
 # ============================================================
 
-def build_export_variables(begin_finish_time, month_end_time, service_type):
+def build_export_variables(begin_finish_time, month_end_time, service_type, operate_type="拆除"):
+    if operate_type not in {"拆除", "开通"}:
+        raise ValueError("Unsupported operation type")
     common = [
         {"pageNum": 1},
         {"pageSize": 10},
@@ -221,7 +223,7 @@ def build_export_variables(begin_finish_time, month_end_time, service_type):
             }
         },
         {"deleted": "0"},
-        {"operateType": "拆除"},
+        {"operateType": operate_type},
         {"status": "COMPLETED"},
     ]
 
@@ -368,11 +370,12 @@ def download_export(session, job_id, begin_finish_time, month_end_time, prefix, 
     )
 
 
-def export_qiwan(begin_finish_time, month_end_time, service_type=None, output_dir=None):
+def export_qiwan(begin_finish_time, month_end_time, service_type=None, output_dir=None, *, operate_type="拆除"):
     variables, prefix = build_export_variables(
         begin_finish_time,
         month_end_time,
         service_type,
+        operate_type=operate_type,
     )
     payload = {
         "datasource_id": "",

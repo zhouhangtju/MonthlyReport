@@ -14,13 +14,12 @@ from metrics.installation.common import city, identifier, load_dataset, parse_ti
 
 
 METRIC_CODE = "qikuan_install_fault_rate"
-METRIC_VERSION = "1.0.0"
+METRIC_VERSION = "1.1.0"
 
 
 def calculate(installs: list[dict[str, object]], complaints: list[dict[str, object]], start: str, end: str) -> dict[str, object]:
     start_time, end_time = period_bounds(start, end)
-    # 与原 calculate_qikuan_install_fault_rate.py 保持一致：
-    # 新装分母不再按统计期二次过滤，只剔除完全相同的重复行。
+    # 新装按派单时间限定统计期，并剔除完全相同的重复行。
     deduplicated_installs: list[dict[str, object]] = []
     seen_install_rows: set[str] = set()
     for row in installs:
@@ -40,7 +39,7 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
     for row in deduplicated_installs:
         row["_dataset_code"] = "youshu_install"
         account, order_id, assigned = identifier(row.get("宽带账号")), identifier(row.get("工单id")), parse_time(row.get("派单时间"))
-        if not account or not order_id or assigned is None:
+        if not account or not order_id or assigned is None or not start_time <= assigned <= end_time:
             invalid_installs.append(row)
             continue
         row["_account"] = account
@@ -73,7 +72,7 @@ def calculate(installs: list[dict[str, object]], complaints: list[dict[str, obje
         "period_end": end,
         "rules": {
             "join_key": "宽带账号",
-            "install_period_filter": "不二次过滤新装派单时间",
+            "install_period_filter": "新装派单时间在统计起止日期内（含首末日）",
             "install_deduplication": "仅剔除所有业务字段完全相同的行",
             "match": "统计期内存在派单时间晚于新装派单时间的投诉",
         },

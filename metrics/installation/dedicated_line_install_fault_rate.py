@@ -17,7 +17,7 @@ from metrics.installation.common import (
 )
 
 METRIC_CODE = "dedicated_line_install_fault_rate"
-METRIC_VERSION = "2.0.0"
+METRIC_VERSION = "2.1.0"
 RETURNED_FLAGS = {"1", "1.0", "是"}
 INVALID_IDS = {"", "/", "nan", "none", "null", "nat"}
 
@@ -36,7 +36,7 @@ def calculate(
     """直接完成投诉筛选、新装关联及全省、地市统计，不依赖其他指标入口。"""
     start_time, end_time = period_bounds(start, end)
     selected, excluded = [], []
-    business_rows = returned_rows = 0
+    business_rows = returned_rows = empty_complaint_rows = 0
     for source in complaints:
         reason = ""
         category = text(source.get("业务类别"))
@@ -47,6 +47,12 @@ def calculate(
             if text(source.get("是否退单")) in RETURNED_FLAGS:
                 returned_rows += 1
                 reason = "投诉退单"
+            elif (
+                text(source.get("客服流水号")).lower() in INVALID_IDS
+                and text(source.get("完成建议")).lower() in INVALID_IDS
+            ):
+                empty_complaint_rows += 1
+                reason = "客服流水号和报结意见均为空"
         if reason:
             excluded.append({
                 **source,
@@ -104,6 +110,7 @@ def calculate(
         "complaint_business_scope": "业务类别包含专线或专网",
         "returned_complaints": "匹配前剔除是否退单为1、1.0或是的投诉；空值保留",
         "complaint_time": "投诉派单时间在统计期内",
+        "empty_complaint_exclusion": "客服流水号和完成建议（人工导出称报结意见）均为空时剔除；NULL等空值标记按空处理",
     }
     quality = {
         "raw_install_rows": len(installs),
@@ -111,6 +118,7 @@ def calculate(
         "business_complaint_rows": business_rows,
         "excluded_non_business_complaint_rows": len(complaints) - business_rows,
         "excluded_returned_complaint_rows": returned_rows,
+        "excluded_empty_complaint_rows": empty_complaint_rows,
         "filtered_complaint_rows": len(selected),
         "valid_install_rows": len(valid_installs),
         "complaint_rows_in_period": complaint_rows_in_period,

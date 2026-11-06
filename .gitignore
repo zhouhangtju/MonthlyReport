@@ -16,3 +16,6 @@ collector/eoms/eoms_login.json
 collector/eoms/login.db
 collector/credentials/
 outputs/
+
+metrics/opening/cookie.txt
+metrics/opening/cookie.txt.tmp
