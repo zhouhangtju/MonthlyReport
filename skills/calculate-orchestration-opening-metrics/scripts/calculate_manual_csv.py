@@ -277,6 +277,7 @@ def main():
     parser = argparse.ArgumentParser(description="按工单维度计算四类专线各地市环节辅助自动率和非自动原因")
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--json-output", required=True, type=Path)
+    parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     parser.add_argument("--csv-output", type=Path)
     parser.add_argument('--month', required=True, help='月报归属月份 YYYY-MM，源文件必须是该期完结工单全集')
     args = parser.parse_args()
@@ -296,10 +297,15 @@ def main():
                                   'filter': '订单状态=已完成 AND 订单类型=变更 AND 调整类型 IN (移机,部分移机,内部移机)',
                                   'eligible_orders': len(move_order_ids)}
     args.json_output.parent.mkdir(parents=True, exist_ok=True)
-    args.json_output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    args.json_output.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     if args.csv_output:
         args.csv_output.parent.mkdir(parents=True, exist_ok=True)
         write_summary_csv(result, args.csv_output)
+    if args.mysql:
+        from storage.manual_results import save_manual_result
+        save_manual_result(result)
+        print(f"已入库 manual_metric_result: internet_line_manual_automation / {args.month}")
+
 
 
 if __name__ == "__main__":

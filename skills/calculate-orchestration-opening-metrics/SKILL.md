@@ -100,3 +100,21 @@ python reporting/build_internet_line_ppt.py --month 2026-09 --section 专线自�
 - 当前中间表为持久化表 intermediate_orchestration_orders，按月替换数据；重新构建9月不删除其他月份、原始表或正式结果批次。
 
 日志补齐最新规则：查无订单或指定环节填 `/`，日志处理人明确为 `/` 时可回填该占位符；技术异常及环节存在但处理人为空时继续留空。多orderId或缺少orderId不当作查无数据。查询仍沿用90天范围，审计区分查无数据、填斜杠和失败。已删除统一补填全部资管空值的参数及函数。线上仍从编排原始表重建、关联资管、可选日志补齐、汇总入库，不提供CSV导入参数。本次用户回传CSV仅作线下模拟，不新增项目入口。
+
+
+## 辅助原因结果入库
+
+与其他 manual 技能一致，在原命令末尾增加 --mysql 即可同时保存到 MySQL。不加该参数时仍只输出 JSON 和可选 CSV。
+
+```bash
+python skills/calculate-orchestration-opening-metrics/scripts/calculate_manual_csv.py \
+  --input "/absolute/path/to/资管专线.csv" \
+  --month 2026-10 \
+  --json-output outputs/manual_metrics/互联网专线自动率_2026-10.json \
+  --csv-output outputs/manual_metrics/互联网专线自动率_2026-10.csv \
+  --mysql
+```
+
+复用 storage.manual_results.save_manual_result，结果写入 manual_metric_result。
+metric_set 为 internet_line_manual_automation，report_month 为所选月份，同指标同月份重跑更新结果。
+保存四类业务完整辅助结果，全省及地市原因数量和占比均保留。

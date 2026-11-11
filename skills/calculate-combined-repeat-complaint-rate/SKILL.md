@@ -22,3 +22,7 @@ python3 metrics/complaint/combined_repeat_complaint_rate.py \
 若 `python3` 不可用，可改用 `python`；先确认它是 Python 3.10 及以上且已安装项目依赖。默认输出为 `outputs/manual_metrics/合计重复投诉率_YYYY-MM.json`，也可用 `--output` 指定路径。
 
 运行后核对全省和 11 地市合计率、前三地市、公式和权重，以及 `sources` 中三份输入文件的 SHA-256。生成 PPT 时同一月份、同一 `metric_set` 的结果 JSON 在 `outputs/manual_metrics` 中只能保留一份。详细口径见 `metrics/complaint/combined_repeat_complaint_rate.README.md`。
+
+### MySQL 入库
+
+需要同时入库时，在计算命令中传入 `--mysql --month YYYY-MM`。结果写入 `manual_metric_result`，同指标同月份再次运行会更新该月结果。

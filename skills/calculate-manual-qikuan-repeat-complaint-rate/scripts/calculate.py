@@ -8,6 +8,10 @@ import re
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from storage.manual_results import save_manual_result
 
 from openpyxl import load_workbook
 
@@ -224,6 +228,7 @@ def main() -> None:
     parser.add_argument("--month", required=True, help="目标月份，格式YYYY-MM")
     parser.add_argument("--json-output", type=Path, help="默认 outputs/manual_metrics/企宽重复投诉率起始日期_结束日期.json")
     parser.add_argument("--csv-output", type=Path)
+    parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     args = parser.parse_args()
 
     rows, sources = load_inputs(args.input)
@@ -238,6 +243,8 @@ def main() -> None:
     if args.csv_output:
         args.csv_output.parent.mkdir(parents=True, exist_ok=True)
         write_csv_summary(result, args.csv_output)
+    if args.mysql:
+        save_manual_result(result)
 
 
 if __name__ == "__main__":

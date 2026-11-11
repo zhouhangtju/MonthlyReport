@@ -9,6 +9,10 @@ from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from storage.manual_results import save_manual_result
 import re
 
 from openpyxl import load_workbook
@@ -281,6 +285,7 @@ def main():
                         help="仅临时试算，不把本月结果写回历史台账")
     parser.add_argument("--output", type=Path,
                         help="结果JSON路径；不传时写入 outputs/manual_metrics/企宽存量_YYYY-MM.json")
+    parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     args = parser.parse_args()
     try:
         months = periods(args.month)
@@ -307,6 +312,8 @@ def main():
             print(f"历史台账{action}：{args.history_json.resolve()}")
         if result["missing_periods"]:
             print("缺少比较月份：" + "、".join(result["missing_periods"]))
+        if args.mysql:
+            save_manual_result(result)
     except (ValueError, OSError) as exc:
         parser.exit(2, f"错误：{exc}\n")
 

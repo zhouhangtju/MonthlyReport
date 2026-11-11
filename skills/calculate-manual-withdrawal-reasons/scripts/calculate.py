@@ -6,6 +6,10 @@ import re
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from storage.manual_results import save_manual_result
 
 import pandas as pd
 
@@ -49,8 +53,11 @@ def summarize_file(input_path: Path, sheet: str, month: str | None = None) -> di
 def main() -> None:
     parser = argparse.ArgumentParser(description="按地市和原因大类统计专线撤退单")
     parser.add_argument("--input", required=True, type=Path); parser.add_argument("--sheet", default="撤退单清单"); parser.add_argument("--month"); parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     args = parser.parse_args(); result = summarize_file(args.input.resolve(), args.sheet, args.month)
     args.output.parent.mkdir(parents=True, exist_ok=True); args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    if args.mysql:
+        save_manual_result(result)
     print(f"完成：{args.output.resolve()} (明细 {result['summary']['source_row_count']} 条，大类 {len(result['dimensions']['categories'])} 个，地市 {len(result['dimensions']['cities'])} 个)")
 
 

@@ -7,6 +7,10 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from storage.manual_results import save_manual_result
 
 
 CITIES = ["杭州", "嘉兴", "宁波", "温州", "金华", "绍兴", "湖州", "台州", "衢州", "丽水", "舟山"]
@@ -138,6 +142,7 @@ def main() -> None:
     parser.add_argument("--month", required=True, help="月报月份，格式YYYY-MM")
     parser.add_argument("--output", type=Path,
                         help="合计重复投诉率结果JSON；不传时使用相对路径 outputs/manual_metrics/合计重复投诉率_月份.json")
+    parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     args = parser.parse_args()
     output = args.output or Path("outputs") / "manual_metrics" / f"合计重复投诉率_{args.month}.json"
     result = calculate(read_json(args.line_result), read_json(args.qianliyan_result),
@@ -149,6 +154,8 @@ def main() -> None:
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    if args.mysql:
+        save_manual_result(result)
     print(json.dumps({"output_file": str(output.resolve()), "province": result["province"],
                       "top_cities": result["top_cities"]}, ensure_ascii=False, indent=2))
 
