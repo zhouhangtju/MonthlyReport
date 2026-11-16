@@ -275,7 +275,7 @@ def write_automation_outputs(results, audit, output_dir):
                              '' if item['metric_value'] is None else f'{item["metric_value"]:.6%}'])
 
 
-def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=False):
+def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=False, reuse_log_build=None):
     from pymysql.cursors import SSDictCursor
     from metrics.opening.dedicated_line_metrics import shift_month, log
     asset_csv = Path(asset_csv).resolve()
@@ -355,6 +355,13 @@ def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=
                 existing_columns = {item['Field'] for item in destination.execute(f'SHOW COLUMNS FROM {TABLE}').fetchall()}
                 if '调整类型' not in existing_columns:
                     destination.execute(f'ALTER TABLE {TABLE} ADD COLUMN `调整类型` LONGTEXT AFTER `订单类型`')
+                if reuse_log_build:
+                    audit['reused_handler_build'] = reuse_log_build
+                    stage_fields = ','.join(f'`{stage}`' for stage in ASSET_STAGES)
+                    destination.execute(f"""CREATE TEMPORARY TABLE previous_handlers (PRIMARY KEY(`订单号`))
+                        SELECT `订单号`,{stage_fields}, SHA2(source_payload,256) AS source_hash,
+                        SHA2(asset_matches,256) AS asset_hash FROM {TABLE} WHERE report_month=? AND build_id=?""",
+                        (month,reuse_log_build))
                 destination.execute(f'DELETE FROM {TABLE} WHERE report_month=?', (month,))
                 insert_columns = ('report_month', 'build_id', *COLUMNS, 'source_payload', 'asset_matches')
                 sql = f'INSERT INTO {TABLE} (' + ','.join(f'`{c}`' for c in insert_columns) + ') VALUES (' + ','.join('?' for _ in insert_columns) + ')'
@@ -387,6 +394,17 @@ def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=
                             pending.clear()
                     if pending:
                         destination.executemany(sql, pending)
+                if reuse_log_build:
+                    for stage in ASSET_STAGES:
+                        destination.execute(f"""UPDATE {TABLE} n JOIN previous_handlers p
+                           ON n.`订单号`=p.`订单号` AND SHA2(n.source_payload,256)=p.source_hash
+                           AND SHA2(n.asset_matches,256)=p.asset_hash SET n.`{stage}`=p.`{stage}`
+                           WHERE n.build_id=? AND n.`{stage}`='' AND p.`{stage}`<>''""",(build_id,))
+                    pending_sql = ' OR '.join(f"NULLIF(TRIM(`{s}`),'') IS NULL" for s in ASSET_STAGES)
+                    remaining = destination.execute(f'SELECT COUNT(*) AS n FROM {TABLE} WHERE build_id=? AND ({pending_sql})',
+                                                    (build_id,)).fetchone()['n']
+                    if remaining:
+                        raise ValueError(f'旧批次无法补齐 {remaining} 单，本次替换将回滚')
             if process_logs:
                 from metrics.opening.process_log_backfill import backfill
 
@@ -395,7 +413,7 @@ def build(database, month, asset_csv, output_dir, batch_size=5000, process_logs=
                                                  if key != 'details'}
                 (output_dir / f'流程日志补齐明细_{month}.json').write_text(
                     json.dumps(process_log_audit, ensure_ascii=False, indent=2), encoding='utf-8')
-            if process_logs:
+            if process_logs or reuse_log_build:
                 # The review CSV must show the committed post-fill handlers.
                 with connect(database) as source, review_path.open('w', encoding='utf-8-sig', newline='') as target:
                     writer = csv.writer(target)

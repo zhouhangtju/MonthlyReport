@@ -66,30 +66,21 @@ class CityResults:
         self.nulls: dict[str, dict] = {}
         self.used: dict[str, dict] = {}
         with connect(database) as connection:
-            runs = connection.execute(
-                """SELECT * FROM metric_run
-                   WHERE metric_code=? AND status='success' AND period_end=?
-                   ORDER BY started_at DESC, metric_run_id DESC""",
-                (owner, self.end),
-            ).fetchall()
-            selected = None
-            selected_rows = []
-            for run in runs:
-                rows = connection.execute(
-                    """SELECT result_id,metric_run_id,metric_code,dimension_type,
-                              dimension_value,numerator,denominator,metric_value
-                       FROM result_orchestration_opening
-                       WHERE metric_run_id=? ORDER BY result_id""",
-                    (run["metric_run_id"],),
-                ).fetchall()
-                parsed = [dict(row, dimension=json.loads(row["dimension_value"])) for row in rows]
-                if any(normalize_city(row["dimension"].get("city", "")) == self.city for row in parsed):
-                    selected, selected_rows = dict(run), parsed
-                    break
-            if selected is None:
-                raise RuntimeError(f"没有找到 {self.city} {month} 的成功地市指标批次")
-            self.run = selected
-            self.rows = selected_rows
+            run = connection.execute(
+                """SELECT * FROM metric_run WHERE metric_code='orchestration_city_metrics'
+                   AND status='success' AND period_end=? ORDER BY finished_at DESC,metric_run_id DESC LIMIT 1""",
+                (self.end,)).fetchone()
+            if not run:
+                raise RuntimeError(f"缺少 {month} 的全地市成功批次，请运行省级专线算数入口")
+            rows = connection.execute(
+                """SELECT result_id,metric_run_id,metric_code,dimension_type,dimension_value,
+                          numerator,denominator,metric_value FROM result_orchestration_city
+                   WHERE metric_run_id=? AND report_month=? AND city=? ORDER BY result_id""",
+                (run["metric_run_id"],month,self.city)).fetchall()
+            if not rows:
+                raise RuntimeError(f"批次 {run['metric_run_id']} 缺少 {self.city} 的指标")
+            self.run = dict(run)
+            self.rows = [dict(row, dimension=json.loads(row["dimension_value"])) for row in rows]
 
     def find(self, code: str, kind: str, **dimension: str):
         matches = []
@@ -114,10 +105,10 @@ class CityResults:
         value = row[field] if row else None
         if row is None:
             self.missing[key] = dict(spec, reason="missing_result")
-            return 0
+            return None
         if value is None or not isinstance(value, (int, float)) or not math.isfinite(value):
-            self.nulls[key] = dict(spec, reason="null_or_nonfinite_value", filled_value=0)
-            return 0
+            self.nulls[key] = dict(spec, reason="null_or_nonfinite_value", filled_value=None)
+            return None
         self.used[key] = dict(spec, metric_run_id=row["metric_run_id"], result_id=row["result_id"], value=value)
         return value
 
@@ -220,7 +211,7 @@ class SupportResults:
 
 def build_data(database: Path | None, month: str, city: str) -> dict:
     db = CityResults(database, month, city)
-    auto = CityResults(database, month, city, AUTOMATION_OWNER)
+    auto = db
     terminal = TerminalResults(database, month, city)
     support = SupportResults(database, month, city)
     city = db.city
@@ -309,7 +300,8 @@ def build_data(database: Path | None, month: str, city: str) -> dict:
                         city=city, product=product) for value in months]
         for product in PRODUCTS
     }
-    other_trend = [sum(product_trends[p][index] for p in PRODUCTS[2:]) for index in range(12)]
+    other_trend = [sum(values) if all(v is not None for v in values) else None
+                   for values in zip(*(product_trends[p] for p in PRODUCTS[2:]))]
     trend_summary = {
         product: {
             "sum": numerator("internet_product_average_monthly_orders", "rolling_12_months_city_product",
@@ -518,9 +510,9 @@ def build_data(database: Path | None, month: str, city: str) -> dict:
         "selected_automation_batch": auto.run,
         "selected_terminal_batch": terminal.run,
         "selected_support_batch": support.run,
-        "used_results": list(db.used.values()) + list(auto.used.values()) + list(terminal.used.values()) + support.used,
-        "missing": list(db.missing.values()) + list(auto.missing.values()) + list(terminal.missing.values()),
-        "null_values": list(db.nulls.values()) + list(auto.nulls.values()),
+        "used_results": list(db.used.values()) + list(terminal.used.values()) + support.used,
+        "missing": list(db.missing.values()) + list(terminal.missing.values()),
+        "null_values": list(db.nulls.values()),
         "policy": "只读取成功的地市指标批次；区县使用区县名称；缺失指标不在绘图层重算。",
     }
     return data

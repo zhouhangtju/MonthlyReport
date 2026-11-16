@@ -58,12 +58,12 @@ REMOVAL_STAGES = [
 ]
 
 READ_COLUMNS = list(dict.fromkeys([
-    '订单号', '订单结束时间', '订单状态', '业务类型', '订单类型', '地市', '产品名称',
+    '订单号', '订单结束时间', '订单状态', '业务类型', '订单类型', '地市', '产品名称', '区县名称', '主题',
     *[field for _, field, _ in OPENING_STAGES + REMOVAL_STAGES],
 ]))
 
 
-def summarize_month(batches, month, include_current=False, temp_dir=None):
+def summarize_month(batches, month, include_current=False, temp_dir=None, city_volumes=None):
     """Bounded batches + disk-backed last-record-wins dedup; never retain raw lists."""
     raw_count = missing_month = empty_sequence = 0
     detail_months = set()
@@ -112,6 +112,8 @@ def summarize_month(batches, month, include_current=False, temp_dir=None):
                     products[business, product] += 1
                     if city in CITY_ORDER:
                         cities[business, city, product] += 1
+                        if include_current and city_volumes is not None:
+                            city_volumes.observe(city, business, product, row)
                 if include_current and business == BUSINESS_TYPE:
                     for _, field, automatic in actions[kind]:
                         if row[field] == automatic:
@@ -122,6 +124,8 @@ def summarize_month(batches, month, include_current=False, temp_dir=None):
                         activation[kind, 'province'] += 1
                         if city in CITY_ORDER:
                             activation[kind, city] += 1
+            if city_volumes is not None and raw_count:
+                city_volumes.monthly(month, cities)
             output = []
             for business, names, code in groups:
                 count = totals[business, '开通'] if business == BUSINESS_TYPE else sum(products[business, p] for p in names)
@@ -152,7 +156,7 @@ def summarize_month(batches, month, include_current=False, temp_dir=None):
             cache.close()
 
 
-def calculate_month_batches(month_batches, start_month, end_month, summaries=(), temp_dir=None):
+def calculate_month_batches(month_batches, start_month, end_month, summaries=(), temp_dir=None, city_volumes=None):
     """Consume one month at a time; retain only small aggregate results."""
     base = []
     quality = {'database_rows': 0, 'snapshot_database_rows': 0,
@@ -160,7 +164,7 @@ def calculate_month_batches(month_batches, start_month, end_month, summaries=(),
     detail_months = set()
     rolling = {shift_month(end_month, offset) for offset in range(-11, 1)}
     for month, batches in month_batches:
-        output, stats = summarize_month(batches, month, month == end_month, temp_dir)
+        output, stats = summarize_month(batches, month, month == end_month, temp_dir, city_volumes)
         base.extend(r for r in output if r['metric_code'] != 'other_internet_opening_orders' or month in rolling)
         quality['database_rows'] += stats['database_rows']
         quality['rows_missing_order_month'] += stats['rows_missing_order_month']
@@ -179,14 +183,14 @@ def calculate_month_batches(month_batches, start_month, end_month, summaries=(),
     return report
 
 
-def load_and_calculate(database, start_month, end_month, batch_size=5000, temp_dir=None):
+def load_and_calculate(database, start_month, end_month, batch_size=5000, temp_dir=None, city_volumes=None):
     from pymysql.cursors import SSDictCursor
     if batch_size < 1:
         raise ValueError('batch_size 必须大于 0')
     required = sorted(set(month_range(start_month, end_month) +
                           [shift_month(end_month, -1), shift_month(end_month, -12)] +
                           [shift_month(end_month, n) for n in range(-11, 1)]))
-    initialize(database)
+    initialize(database, dataset_codes=(DATASET_CODE,))
     # One snapshot for all month queries, source runs and historical summaries.
     with connect(database) as connection:
         connection.execute('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ')
@@ -215,7 +219,9 @@ def load_and_calculate(database, start_month, end_month, batch_size=5000, temp_d
             for month in required:
                 log(f'开始流式读取 {month}，每批 {batch_size} 条，仅查询 {len(READ_COLUMNS)} 列')
                 yield month, batches(month)
-        report = calculate_month_batches(months(), start_month, end_month, summaries, temp_dir)
+        report = calculate_month_batches(months(), start_month, end_month, summaries, temp_dir, city_volumes)
+        if city_volumes is not None:
+            report['city_missing_history'] = city_volumes.complete(summaries, set(required))
     return report, source_runs
 
 
@@ -285,7 +291,7 @@ def load_rows(
 ) -> tuple[list[dict[str, object]], list[str]]:
     """Legacy materialized reader for compatibility/tests; CLI uses load_and_calculate."""
     log(f"正在初始化数据库：{database}")
-    initialize(database)
+    initialize(database, dataset_codes=(DATASET_CODE,))
     where = ""
     parameters: tuple[str, ...] = ()
     if first_month and last_month:
@@ -326,7 +332,7 @@ def load_monthly_summaries(
     last_month: str,
 ) -> list[dict[str, object]]:
     """读取可替代已清理订单明细的基础月度指标。"""
-    initialize(database)
+    initialize(database, dataset_codes=(DATASET_CODE,))
     with connect(database) as connection:
         records = connection.execute(
             """SELECT metric_code, dimension_type, dimension_value,
@@ -757,7 +763,7 @@ def print_report(report: dict[str, object]) -> None:
 
 
 def save_results(database: Path, report: dict[str, object], source_runs: list[str]) -> str:
-    initialize(database)
+    initialize(database, dataset_codes=(DATASET_CODE,))
     run_id = f"metric_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
     period_start, _ = month_dates(str(report["start_month"]))
     _, period_end = month_dates(str(report["end_month"]))
@@ -838,21 +844,28 @@ def save_results(database: Path, report: dict[str, object], source_runs: list[st
 
 def run(database: Path, start_month: str, end_month: str, *, mode: str = "both", output: Path | None = None,
         batch_size: int = 5000, temp_dir: Path | None = None, asset_csv: Path | None = None,
-        process_logs: bool = True) -> dict[str, object]:
+        process_logs: bool = True, reuse_log_build=None, use_existing_cookie: bool = False) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
     database = database.expanduser().resolve() if database is not None else None
     if asset_csv is None or not Path(asset_csv).is_file():
         raise ValueError('新版自动率需要指定 --asset-csv，当月完结工单对应的资管环节明细CSV')
-    if process_logs:
+    if use_existing_cookie:
+        if not process_logs or reuse_log_build:
+            raise ValueError('--use-existing-cookie 只适用于在线日志回填，不能与 --skip-process-log 或 --reuse-log-build 合用')
+        from metrics.opening.process_log_backfill import read_cookie_file
+        read_cookie_file()
+    elif process_logs and not reuse_log_build:
         from metrics.opening.process_log_backfill import refresh_cookie
         refresh_cookie()
     log("开始按月流式计算，跨批去重使用临时磁盘文件")
-    report, source_runs = load_and_calculate(database, start_month, end_month, batch_size, temp_dir)
+    from metrics.opening.bycity.city_results import CityVolumes, publish
+    volumes = CityVolumes(end_month, CITY_ORDER) if mode in {'both', 'database'} else None
+    report, source_runs = load_and_calculate(database, start_month, end_month, batch_size, temp_dir, volumes)
     from metrics.opening.automation_intermediate import AUTOMATION_RULE_VERSION, build
     audit_dir = (output.parent if output else Path('outputs/orchestration_automation'))
     automation, automation_audit = build(database, end_month, asset_csv, audit_dir, batch_size,
-                                         process_logs=process_logs)
+                                         process_logs=process_logs and not reuse_log_build, reuse_log_build=reuse_log_build)
     automation_codes = {item['metric_code'] for item in automation}
     report['results'] = [item for item in report['results'] if not (
         item['metric_code'] in automation_codes and item['dimension'].get('month') == end_month)] + automation
@@ -864,6 +877,9 @@ def run(database: Path, start_month: str, end_month: str, *, mode: str = "both",
     if mode in {"database", "both"}:
         log("正在批量写入 metric_run 和 result_orchestration_opening…")
         report["metric_run_id"] = save_results(database, report, source_runs)
+        report["city_run_id"] = publish(database, volumes, automation_audit, report["metric_run_id"],
+                                        automation, start_month, report["city_missing_history"])
+        log(f"地市指标入库完成：{report['city_run_id']}")
         log(f"指标入库完成：{report['metric_run_id']}")
     else:
         report["metric_run_id"] = None
@@ -888,9 +904,15 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=5000, help="每批读取条数，默认5000")
     parser.add_argument("--temp-dir", type=Path, help="月内去重临时文件目录，需要有可用磁盘空间")
     parser.add_argument('--asset-csv', type=Path, required=True, help='当月完结工单对应的资管专线环节CSV')
+    parser.add_argument('--reuse-log-build', help='重算时复用指定已完成批次的处理人；仅接受相同原始工单和资管匹配')
     parser.add_argument('--skip-process-log', action='store_true', help='跳过短信登录和流程日志补齐；默认先短信登录并读取本地Cookie')
+    parser.add_argument('--use-existing-cookie', action='store_true',
+                        help='读取 metrics/opening/cookie.txt，跳过短信登录并继续在线补齐流程日志')
     args = parser.parse_args()
-    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv, process_logs=not args.skip_process_log)
+    if args.use_existing_cookie and (args.skip_process_log or args.reuse_log_build):
+        parser.error('--use-existing-cookie 不能与 --skip-process-log 或 --reuse-log-build 合用')
+    report = run(args.database, args.start_month, args.end_month, mode=args.mode, output=args.output, batch_size=args.batch_size, temp_dir=args.temp_dir, asset_csv=args.asset_csv, process_logs=not args.skip_process_log, reuse_log_build=args.reuse_log_build,
+                 use_existing_cookie=args.use_existing_cookie)
     print(json.dumps({
         "metric_run_id": report["metric_run_id"],
         "result_count": len(report["results"]),

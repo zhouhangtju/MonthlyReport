@@ -166,7 +166,7 @@ def connect(path: Path | None = None) -> MySQLConnection:
     return MySQLConnection(_connect_raw(include_database=True))
 
 
-def initialize(path: Path | None = None) -> None:
+def initialize(path: Path | None = None, *, dataset_codes=None) -> None:
     del path
     pymysql, _DictCursor = _load_pymysql()
     database_name = _database_name()
@@ -183,7 +183,7 @@ def initialize(path: Path | None = None) -> None:
     with connect(None) as connection:
         from storage.raw_tables import check_existing_layouts
 
-        check_existing_layouts(connection)
+        check_existing_layouts(connection, dataset_codes)
         try:
             connection.executescript(schema)
             result_columns = {

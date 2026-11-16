@@ -7,6 +7,17 @@ description: 从 MySQL 的编排专线开通数据计算指定地市及区县的
 
 调用 `metrics/opening/bycity/dedicated_line_metrics_by_city.py`，从 MySQL `orch_opening` 读取已入库的编排专线明细，按目标地市及标准区县计算指标。原始数据与省级计算共用同一张表，不维护单独的地市采集脚本或地市原始表。区县先使用 `data/区县信息汇总.xlsx` 中当前地市的“区县→标准区县”映射清洗；无法映射时再从 `主题` 按区县别名或标准区县关键字回填。
 
+## 当前地市月报入口
+
+生成地市月报时，在项目根目录运行省级统一入口，一次发布 11 个地市的业务发展和四类专线自动率。使用当月真实资管 CSV 路径。
+
+```text
+python metrics/opening/dedicated_line_metrics.py --start-month 2025-10 --end-month 2026-09 --asset-csv "实际资管环节明细.csv" --mode both
+```
+
+地市 PPT 按报告月读取最新成功的 `orchestration_city_metrics` 批次，再从 `result_orchestration_city` 读取指定市和区县。已有成功批次时直接出报。以下单地市命令用于历史口径核验，无法发布新版地市月报批次。
+
+
 ## 数据准备判断
 
 月份必须从用户请求或当前月报任务中取得，不能把示例月份当成固定值。计算只读取 MySQL `orch_opening`，不从本地原始文件补数；数据库缺少的月份按0计算，并在结果的 `quality.missing_months_filled_zero` 中记录。同比需要目标月的去年同月，环比需要目标月的上月，滚动12个月使用目标月及向前连续11个月。

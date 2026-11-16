@@ -31,20 +31,20 @@ description: 从 MySQL 已落库的地市及区县级指标生成15页地市月�
 
 ## 数据准备
 
-四部分统一采用“独立计算技能 → metrics 脚本 → 数据库成功结果批次 → 本技能绘制 PPT”的流程。地市和月份必须来自本次请求；已有同周期、同地市且源数据未变化的成功结果时可以复用，缺少或需要更新时调用对应计算技能：
+业务发展和专线自动共用省级入口发布的全地市成功批次。地市和月份必须来自本次请求；已有同周期、同地市且源数据未变化的成功结果时可以复用，缺少或需要更新时调用对应计算技能：
 
 | 章节 | 计算技能 | 结果任务编码 | 结果表 |
 | --- | --- | --- | --- |
-| 业务发展情况 | [calculate-orchestration-opening-metrics-by-city](../calculate-orchestration-opening-metrics-by-city/SKILL.md) | `orchestration_opening_metrics_by_city` | `result_orchestration_opening` |
-| 专线自动情况 | [calculate-orchestration-automation-metrics-by-city](../calculate-orchestration-automation-metrics-by-city/SKILL.md) | `orchestration_automation_metrics_by_city` | `result_orchestration_opening` |
+| 业务发展情况 | 省级入口 `metrics/opening/dedicated_line_metrics.py` | `orchestration_city_metrics` | `result_orchestration_city` |
+| 专线自动情况 | 省级入口 `metrics/opening/dedicated_line_metrics.py` | `orchestration_city_metrics` | `result_orchestration_city` |
 | 终端回收情况 | [calculate-terminal-recovery-by-city](../calculate-terminal-recovery-by-city/SKILL.md) | `terminal_recovery_metrics_by_city` | `result_terminal_recovery` |
 | 业务情况—集团撤退单 | [calculate-opening-withdrawal-metrics-by-city](../calculate-opening-withdrawal-metrics-by-city/SKILL.md) | `business_support_withdrawal_by_city` | `result_opening_withdrawal` |
 
 计算步骤、原始数据和人工文件参数以对应计算技能为准。本技能只读数据库结果，不在绘图阶段读取人工 Excel 或重新计算业务指标。集团撤退单的专线原因和企宽明细必须在计算阶段选用本次周期的文件。
 
-生成前确认四类批次均为 `status='success'`，结果中的月份和 `city` 与请求一致。业务发展、自动率和终端回收的批次结束日期为月报月末；集团撤退单采用上月26日至本月25日，不能按月末筛选它的批次。
+生成前确认所需批次均为 `status='success'`，结果中的月份和 `city` 与请求一致。业务发展、自动率和终端回收的批次结束日期为月报月末；集团撤退单采用上月26日至本月25日，不能按月末筛选它的批次。
 
-业务发展页展示连续12个月趋势，计算起点取月报月向前11个月，并按对应技能处理同比、环比基期；数据库缺月补0的情况应保留审计记录。目标月应有 `month_city_county_product` 区县分布。
+业务发展页展示连续12个月趋势，计算起点取月报月向前11个月，并按对应技能处理同比、环比基期；历史基期缺失时保留空值和缺月审计。目标月应有 `month_city_county_product` 区县分布。
 
 ## 生成
 

@@ -22,6 +22,17 @@ python3 metrics/opening/bycity/automation_metrics_by_city.py \
 
 计算成功后检查任务状态为 `success`，目标地市、月份和中间表 `build_id` 唯一。若中间表没有目标月数据，先运行省级自动率准备流程，不得在本技能内回退读取原始 CSV。
 
+## 当前地市月报入口
+
+生成地市月报时，在项目根目录运行省级统一入口，一次发布 11 个地市的业务发展和四类专线自动率。使用当月真实资管 CSV 路径。
+
+```text
+python metrics/opening/dedicated_line_metrics.py --start-month 2025-10 --end-month 2026-09 --asset-csv "实际资管环节明细.csv" --mode both
+```
+
+地市 PPT 按报告月读取最新成功的 `orchestration_city_metrics` 批次，再从 `result_orchestration_city` 读取指定市和区县。已有成功批次时直接出报。以下单地市命令用于历史口径核验，无法发布新版地市月报批次。
+
+
 ## Python 解释器
 
 若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。

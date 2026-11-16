@@ -101,7 +101,7 @@ def table_statements() -> list[str]:
     return statements
 
 
-def check_existing_layouts(connection) -> None:
+def check_existing_layouts(connection, dataset_codes=None) -> None:
     rows = connection.execute(
         "SELECT TABLE_NAME AS table_name, COLUMN_NAME AS column_name, COLUMN_KEY AS column_key "
         "FROM information_schema.columns WHERE table_schema=DATABASE() ORDER BY ORDINAL_POSITION"
@@ -110,7 +110,7 @@ def check_existing_layouts(connection) -> None:
     for row in rows:
         actual.setdefault(row["table_name"], []).append(row)
     for code, dataset in DATASETS.items():
-        if code not in actual:
+        if code not in actual or (dataset_codes is not None and code not in dataset_codes):
             continue
         expected = (["id"] if dataset.auto_increment else []) + source_columns(code)
         found = actual[code]

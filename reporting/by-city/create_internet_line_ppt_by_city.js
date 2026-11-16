@@ -264,7 +264,7 @@ addRateChart(moveAuto, D.internetMoveAuto.stages.map(x => x.name === '开通结�
 addRateChart(moveAuto, D.internetMoveAuto.counties, stageSeries(D.internetMoveAuto, '组网方案'), 7.03, 1.82, 5.63, 1.76, D.internetMoveAuto.counties.length > 12 ? 6 : 8);
 addRateChart(moveAuto, D.internetMoveAuto.counties, stageSeries(D.internetMoveAuto, '资源反馈'), 0.94, 4.31, 5.63, 1.76, D.internetMoveAuto.counties.length > 12 ? 6 : 8);
 addRateChart(moveAuto, D.internetMoveAuto.counties, stageSeries(D.internetMoveAuto, '配置激活'), 7.03, 4.31, 5.63, 1.76, D.internetMoveAuto.counties.length > 12 ? 6 : 8);
-moveAuto.addText('口径：整体自动率=9个环节自动数之和/(清洗后变更工单数×9)；处理人含“自动”即自动，资管环节取最新记录；变更按移机统计。', { x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5, color: C.gray, margin: 0 });
+moveAuto.addText('口径：整体自动率=移机各环节自动数之和/有效参与数之和；处理人含“自动”即自动，资管环节取最新记录；移机包括移机、部分移机、内部移机。', { x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5, color: C.gray, margin: 0 });
 addPage(moveAuto, 9);
 
 // Page 10：完全沿用省级拆机自动率页三面板框架。
@@ -275,7 +275,7 @@ addPanel(removalAuto, 0.52, 1.42, 5.82, 2.28); addPanel(removalAuto, 6.43, 1.42,
 addRateChart(removalAuto, D.internetRemovalAuto.stages.map(x => x.name === '开通结果审核' ? '开通结果\n审核' : x.name), D.internetRemovalAuto.stages.map(x => x.value), 0.72, 1.82, 5.42, 1.62, 8);
 addRateChart(removalAuto, D.internetRemovalAuto.counties, stageSeries(D.internetRemovalAuto, '配置激活'), 6.64, 1.82, 5.94, 1.62, D.internetRemovalAuto.counties.length > 12 ? 6 : 8);
 addRateChart(removalAuto, D.internetRemovalAuto.counties, stageSeries(D.internetRemovalAuto, '组织资源释放'), 0.72, 4.26, 5.42, 1.82, D.internetRemovalAuto.counties.length > 12 ? 6 : 8);
-removalAuto.addText('口径：整体自动率=6个环节自动数之和/(清洗后拆除工单数×6)；处理人含“自动”即自动，组织资源释放取最新记录，未匹配计非自动。', { x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5, color: C.gray, margin: 0 });
+removalAuto.addText('口径：整体自动率=拆机各环节自动数之和/有效参与数之和；处理人含“自动”即自动，组织资源释放取最新记录，空值及/不计入分母。', { x: 0.45, y: 7.13, w: 12.0, h: 0.2, fontFace: 'Microsoft YaHei', fontSize: 7.5, color: C.gray, margin: 0 });
 addPage(removalAuto, 10);
 
 // 11. 终端回收情况目录。第12、13页在 Python 构建阶段由省级终端回收模板替换。
