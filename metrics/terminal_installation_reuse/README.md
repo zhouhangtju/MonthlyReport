@@ -11,8 +11,10 @@ python metrics/terminal_installation_reuse/terminal_installation_reuse.py --mont
 
 输出固定四个 sheet：开通清单、物料确认退库明细、匹配、sheet5。开通清单排除两类行业视频，追加安全终端部署服务/E企组网，再按七类业务映射。型号匹配实际是按物料名称返回划分类型；分类来自全省物资基准库。物料查询按终端回收口径取重复名称首条，三类标签的划分类型置零。只筛物料名称匹配成功行，不套用终端回收的额外业务筛选或去重。
 
-同一工单号多个业务类别报错；相同类别的重复工单保留在开通清单，但关联索引唯一，不放大出库行数。未匹配工单的物料明细保留，业务类别为空，仍参与地区汇总。业务类别未命中映射的已知工单才归为其他专线。
+同一工单号多个业务类别报错；相同类别的重复工单保留在开通清单，但关联索引唯一，不放大出库行数。匹配sheet仅保留物料名称匹配和关联单据号匹配均有值的记录；未匹配工单的记录仅保留在物料确认退库明细，计入审计，不参与地区汇总。业务类别未命中映射的已知工单才归为其他专线。
 
 sheet5 按地市和地市+区县分别求和三项有SN数量，不再按业务类别分组。两个统计层级不能相加。API字段使用 newSnNum/repairSnNum/recoverySnNum，禁止以旧简写数量替代。空数量为零，非法非空数值报出源行号。负数保留用于反向调整。Excel是计算结果快照，修改输入后需重跑脚本。
 
 数据库独立建表脚本为 sql/create_terminal_installation_reuse.sql，计算时自动执行。四个sheet完整行数据存入 intermediate_terminal_installation_reuse，表头和来源/计数/数量审计存入 terminal_installation_reuse_audit，同时登记 metric_run（metric_code=terminal_installation_reuse）。不向原始采集数据集注册计算结果。写入批次使用单个事务；重跑保留历史批次。默认输出 outputs/terminal_installation_reuse。
+
+区县汇总保留原始区县，新增标准区县、区县清洗依据；复用终端回收区县信息汇总.xlsx，支持 --district-mapping 覆盖。依次按本地市区县别名精确匹配、标题最长关键词匹配；不跨已知地市归属，不套用拆机专用业务剔除。中心及无法识别记录的标准区县为空，进入本地市“未匹配区县”组并审计，保留数量核对。

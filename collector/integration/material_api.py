@@ -59,6 +59,18 @@ def validate_outbound_file(path):
     wb = load_workbook(path, read_only=True)
     try:
         headers = next(wb.active.iter_rows(values_only=True))
-        if not set(FIELDS["outbound"]).issubset(headers):
-            raise ValueError("Old outbound workbook lacks API fields; collect again without --reuse-existing")
+        names = set(headers)
+        required = [
+            ("物料名称", "materialName"), ("关联单据号", "relatedForm"),
+            ("地市", "regionName"), ("区县", "countyName"),
+            ("型号", "model"), ("标题", "title"),
+            ("新物资数量有SN", "newSnNum"),
+            ("返修物资数量有SN", "repairSnNum"),
+            ("回收物资数量有SN", "recoverySnNum"),
+        ]
+        missing = ["/".join(pair) for pair in required if not names.intersection(pair)]
+        if missing:
+            raise ValueError("出库导出缺少必要字段：" + ", ".join(missing)
+                             + "；请核实平台是否支持fieldNames，不能用无SN数量代替")
+
     finally: wb.close()

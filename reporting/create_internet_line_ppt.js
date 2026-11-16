@@ -1195,6 +1195,10 @@ terminalDetailSlide.addChart(pptx.ChartType.bar, terminal.installerDevices.serie
 terminalDetailSlide.addText('28', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 terminalDetailSlide.addNotes('新增内容页：终端回收数量拆分，数据来自终端回收明细结果表。');
 
+require('./terminal_reuse_slide').addCumulativeTerminalReuseSlide(pptx, D.terminalReuseCumulative, addTemplateBackground, 29);
+require('./terminal_reuse_slide').addTerminalReuseSlide(pptx, D.terminalReuse, addTemplateBackground, 30);
+require('./terminal_reuse_slide').addTerminalReuseDeviceSlides(pptx, D.terminalReuse, addTemplateBackground, 31);
+
 // Page 14: Business support section divider.
 const businessSupportToc = pptx.addSlide();
 addTemplateBackground(businessSupportToc);
@@ -1225,7 +1229,7 @@ businessSupportTocItems.forEach((item, index) => {
     color: C.white, align: 'center', margin: 0,
   });
 });
-businessSupportToc.addText('29', {
+businessSupportToc.addText('33', {
   x: 12.65, y: 7.18, w: 0.28, h: 0.18,
   fontFace: 'Microsoft YaHei', fontSize: 8, color: C.lime, align: 'right', margin: 0,
 });
@@ -1302,7 +1306,7 @@ if (qikuanReturn) {
 }
 withdrawalSlide.addText('注：退单率=退单完成/提供文件的全部受理明细；撤单完成不计入分子。',
   { ...withdrawalText, y: 6.84, h: .21, fontSize: 8, color: C.ink });
-withdrawalSlide.addText('30', { x: 12.58, y: 7.18, w: .35, h: .18, fontSize: 8, color: C.gray, margin: 0 });
+withdrawalSlide.addText('34', { x: 12.58, y: 7.18, w: .35, h: .18, fontSize: 8, color: C.gray, margin: 0 });
 withdrawalSlide.addNotes('专线原因、企宽撤退与企宽退单分别来自标准化手工结果；企宽两个口径分别存储，不互相覆盖。');
 
 // Page 16: Repeat complaint and new-install fault report.
@@ -1443,7 +1447,7 @@ complaintFaultSlide.addChart([
   chartColors: ['4F81BD', 'C0504D', '9BBB59'],
   border: { color: C.white, transparency: 100 },
 });
-complaintFaultSlide.addText('31', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
+complaintFaultSlide.addText('35', { x: 12.58, y: 7.18, w: 0.35, h: 0.18, fontFace: 'Microsoft YaHei', fontSize: 8, color: C.gray, align: 'right', margin: 0 });
 complaintFaultSlide.addNotes('业务情况-商客业务重复投诉与新装报障，页面数据来自重复投诉与新装报障结果表。');
 
 pptx.writeFile({ fileName: outputFile });

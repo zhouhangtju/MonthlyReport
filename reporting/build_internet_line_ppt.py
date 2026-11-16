@@ -87,8 +87,8 @@ SECTION_SLIDE_MAP = {
     "业务发展情况": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     "企宽业务": [7, 8],
     "专线自动情况": [1, 2, *range(12, 26)],
-    "终端回收情况": [1, 2, 27, 28],
-    "业务支撑情况": [1, 2, 30, 31],
+    "终端回收情况": [1, 2, 27, 28, 29, 30, 31, 32],
+    "业务支撑情况": [1, 2, 34, 35],
 }
 
 
@@ -861,6 +861,56 @@ def apply_template_master(pptx_path, template_path):
             temp_path.unlink(missing_ok=True)
 
 
+def format_terminal_reuse_charts(path):
+    NS={'a':'http://schemas.openxmlformats.org/drawingml/2006/main',
+        'c':'http://schemas.openxmlformats.org/drawingml/2006/chart',
+        'r':'http://schemas.openxmlformats.org/officeDocument/2006/relationships'}
+    path=Path(path)
+    with zipfile.ZipFile(path) as z:
+        parts={n:z.read(n) for n in z.namelist()}
+    for key,value in NS.items(): ET.register_namespace(key,value)
+    slides=[name for name in parts if name.startswith('ppt/slides/slide') and name.endswith('.xml')]
+    for name in slides:
+        root=ET.fromstring(parts[name])
+        text=''.join(t.text or '' for t in root.findall('.//a:t',NS))
+        if '各业务旧终端耗用与利旧情况（' not in text and '累计终端利旧数' not in text: continue
+        rel_name=posixpath.join(posixpath.dirname(name),'_rels',posixpath.basename(name)+'.rels')
+        rels=ET.fromstring(parts[rel_name])
+        for rel in rels:
+            if not rel.get('Type','').endswith('/chart'):continue
+            target=posixpath.normpath(posixpath.join(posixpath.dirname(name),rel.get('Target'))).lstrip('/')
+            chart=ET.fromstring(parts[target])
+            for bar in chart.findall('.//c:barChart',NS):
+                for i,ser in enumerate(bar.findall('c:ser',NS)):
+                    for color in ser.findall('.//c:dLbls//a:srgbClr',NS):
+                        color.set('val','4F81BD' if i==0 else 'F79646')
+            for marker in chart.findall('.//c:lineChart/c:ser/c:marker',NS):
+                size=marker.find('c:size',NS)
+                if size is not None:size.set('val','3')
+                shape=marker.find('c:spPr',NS)
+                if shape is None:shape=ET.SubElement(marker,'{'+NS['c']+'}spPr')
+                fill=shape.find('a:solidFill',NS)
+                if fill is None:fill=ET.SubElement(shape,'{'+NS['a']+'}solidFill')
+                for child in list(fill):fill.remove(child)
+                ET.SubElement(fill,'{'+NS['a']+'}srgbClr',{'val':'FFFFFF'})
+                line=shape.find('a:ln',NS)
+                if line is not None:line.set('w','10160')
+            if '累计终端利旧数' in text:
+                for index, series in enumerate(chart.findall('.//c:lineChart/c:ser', NS)):
+                    color = 'C84343' if index == 0 else 'F79646'
+                    labels = series.find('c:dLbls', NS)
+                    if labels is not None:
+                        position = labels.find('c:dLblPos', NS)
+                        if position is not None: position.set('val', 't' if index == 0 else 'b')
+                        for item in labels.findall('.//a:srgbClr', NS): item.set('val', color)
+                    for item in series.findall('c:marker/c:spPr/a:ln/a:solidFill/a:srgbClr', NS): item.set('val', color)
+            parts[target]=ET.tostring(chart,encoding='utf-8',xml_declaration=True)
+    temp=path.with_name(path.stem+'.format.tmp.pptx')
+    with zipfile.ZipFile(temp,'w',zipfile.ZIP_DEFLATED) as z:
+        for name,content in parts.items():z.writestr(name,content)
+    temp.replace(path)
+
+
 def keep_selected_slides(pptx_path, keep_slide_numbers):
     """按原始页序只保留指定页，页脚数字和各页内容保持不变。"""
     keep_set = set(keep_slide_numbers)
@@ -907,8 +957,9 @@ def main():
     parser.add_argument("--template", type=Path, help="模板PPT路径，默认使用 reporting/templates/通用模板.pptx；仅适用于 ppt 模式")
     parser.add_argument(
         "--section",
+        nargs="+",
         choices=list(SECTION_SLIDE_MAP),
-        help="可选：只生成指定章节，可选值：业务发展情况、专线自动情况、终端回收情况、业务支撑情况；不传则生成全部",
+        help="可选：生成一个或多个指定章节；用空格分隔章节名称，不传则生成全部",
     )
     parser.add_argument("--keep-json", action="store_true", help="保留中间JSON数据")
     parser.add_argument('--manual-metrics-dir', type=Path, default=DEFAULT_DIRECTORY, help='标准化手工指标JSON目录，默认 outputs/manual_metrics')
@@ -941,10 +992,14 @@ def main():
     if template_path is not None and not template_path.exists():
         raise FileNotFoundError(f"找不到PPT模板：{template_path}")
 
-    required_manual = {
+    manual_by_section = {
         '业务发展情况': set(), '企宽业务': set(), '终端回收情况': set(),
         '专线自动情况': {AUTOMATION}, '业务支撑情况': {WITHDRAWAL, QIKUAN, RETURN, REPEAT, COMBINED_REPEAT},
-    }.get(args.section, METRIC_SETS)
+    }
+    required_manual = (
+        set().union(*(manual_by_section[section] for section in args.section))
+        if args.section else METRIC_SETS
+    )
     if args.offline_qikuan_preview:
         qikuan = build_qikuan(str(args.end_month), args.manual_metrics_dir,
                              stock_path=args.qikuan_stock_json, opening_path=args.qikuan_opening_json)
@@ -984,7 +1039,13 @@ def main():
         format_complaint_fault_charts(output_path)
         replace_terminal_recovery_slides_from_template(output_path, data["terminalRecovery"], data["currentMonth"])
     if args.section and not args.offline_qikuan_preview:
-        keep_selected_slides(output_path, SECTION_SLIDE_MAP[args.section])
+        selected_pages = sorted({
+            page for section in args.section for page in SECTION_SLIDE_MAP[section]
+        })
+        keep_selected_slides(output_path, selected_pages)
+
+    if not args.offline_qikuan_preview:
+        format_terminal_reuse_charts(output_path)
 
     if not args.keep_json:
         data_json.unlink(missing_ok=True)

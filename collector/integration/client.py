@@ -15,6 +15,7 @@ from typing import Any
 from collector.integration.login import BASE_URL, credentials, login_token
 from config.datasets import get_dataset
 from config.report_periods import integration_opening_period
+from storage.terminal_recovery import has_source_coverage, save_source
 from storage.database import has_successful_coverage
 
 
@@ -185,7 +186,7 @@ def collect(
         raise ValueError("mode 必须是 file、database 或 both")
     if mode in {"database", "both"} and not refresh and has_successful_coverage(
         database, DATASET_CODE, start, end
-    ):
+    ) and has_source_coverage(database, [DATASET_CODE], start, end):
         candidates = list((output_dir / DATASET_CODE).glob(f"售中开通工单_{start}_至_{end}.*"))
         return {
             "start": start,
@@ -222,6 +223,11 @@ def collect(
                 archive_root=None,
                 period_start=start,
                 period_end=end,
+            )
+            if etl["failed"]:
+                raise RuntimeError(f"{DATASET_CODE}: {etl['failed']} rows failed import; snapshot not saved")
+            etl["snapshot_id"] = save_source(
+                database, DATASET_CODE, path, start, end, etl["run_id"]
             )
         return {
             "start": start,

@@ -211,6 +211,41 @@ def _find_header_row(sheet):
     return max(candidates)[2] if candidates else 1
 
 
+
+def _outbound_export_headers(sheet):
+    """Flatten merged quantity headers without treating the SN subheader as data."""
+    header_row = _find_header_row(sheet)
+    headers = [cell.value for cell in sheet[header_row]]
+    next_values = [cell.value for cell in sheet[header_row + 1]] if sheet.max_row > header_row else []
+    # A single merged 有SN cell can span both new and repair quantity columns.
+    for merged in sheet.merged_cells.ranges:
+        if merged.min_row <= header_row + 1 <= merged.max_row:
+            value = sheet.cell(merged.min_row, merged.min_col).value
+            if str(value).strip() in {"有SN", "无SN"}:
+                for column in range(merged.min_col, merged.max_col + 1):
+                    if column <= len(next_values):
+                        next_values[column - 1] = value
+    has_subheader = any(str(v).strip() in {"有SN", "无SN"} for v in next_values if v is not None)
+    if has_subheader:
+        for i, value in enumerate(next_values):
+            sub = str(value).strip() if value is not None else ""
+            if sub not in {"有SN", "无SN"}:
+                continue
+            parent = headers[i]
+            if parent is None:
+                for merged in sheet.merged_cells.ranges:
+                    if merged.min_row <= header_row <= merged.max_row and merged.min_col <= i + 1 <= merged.max_col:
+                        parent = sheet.cell(merged.min_row, merged.min_col).value
+                        break
+            if parent is None:
+                raise ValueError("数量子表头缺少父表头")
+            headers[i] = str(parent).strip() + sub
+    headers = [str(v).strip() if v is not None else "" for v in headers]
+    if any(not v for v in headers) or len(set(headers)) != len(headers):
+        raise ValueError("出库导出表头为空或重复，请检查平台导出格式")
+    return headers, header_row + (2 if has_subheader else 1)
+
+
 def _request_export_range(session, token, url, body, start_time, end_time):
     """请求一个时间段，失败时最多重试 3 次。"""
     request_body = dict(body)
@@ -257,10 +292,12 @@ def post_export(session, token, url, body, output_path):
     request_count = 0
     result_workbook = None
     result_sheet = None
+    outbound_headers = None
+    is_outbound = url.endswith("/materials-return-log/detail/export")
 
     def fetch_range(start_time, end_time):
         """拉取一个区间；达到 20000 条时自动将时间段一分为二。"""
-        nonlocal total_rows, request_count, result_workbook, result_sheet
+        nonlocal total_rows, request_count, result_workbook, result_sheet, outbound_headers
         request_count += 1
         print(
             f"[INFO] 正在请求 {start_time.strftime('%Y-%m-%d %H:%M:%S')} 至 "
@@ -274,9 +311,13 @@ def post_export(session, token, url, body, output_path):
             workbook = load_workbook(BytesIO(content))
             sheet = workbook.active
             header_row = _find_header_row(sheet)
+            if is_outbound:
+                headers, data_start = _outbound_export_headers(sheet)
+            else:
+                data_start = header_row + 1
             rows = [
                 tuple(cell.value for cell in row)
-                for row in sheet.iter_rows(min_row=header_row + 1)
+                for row in sheet.iter_rows(min_row=data_start)
                 if any(cell.value is not None for cell in row)
             ]
         except Exception as ex:
@@ -304,8 +345,28 @@ def post_export(session, token, url, body, output_path):
             fetch_range(right_start, end_time)
             return
 
-        if result_workbook is None:
-            # 第一段保留接口原始标题、表头、列宽和样式。
+        if is_outbound:
+            if result_workbook is None:
+                from openpyxl import Workbook
+                result_workbook = Workbook()
+                result_sheet = result_workbook.active
+                result_sheet.title = "物料确认退库明细"
+                outbound_headers = headers
+                result_sheet.append(headers)
+            elif headers != outbound_headers:
+                workbook.close()
+                raise ValueError("各时间段出库表头不一致，停止合并")
+            from openpyxl.cell.cell import Cell
+            for values in rows:
+                cells = []
+                for value in values:
+                    cell = Cell(result_sheet, value=value)
+                    if isinstance(value, str):
+                        cell.data_type = "s"
+                    cells.append(cell)
+                result_sheet.append(cells)
+            workbook.close()
+        elif result_workbook is None:
             result_workbook = workbook
             result_sheet = result_workbook.active
         else:
@@ -347,14 +408,24 @@ def post_export(session, token, url, body, output_path):
 
 def export_outbound(session, token, export_month, start_date, end_date, output_dir=EXPORT_DIR):
     """导出指定月份的终端出库数据。"""
-    from collector.integration.material_api import fetch_records, write_records
-    body = {"operTypes": ["装机物资确认", "修障物资确认"],
-            "confirmTimeStart": start_date + " 00:00:00",
-            "confirmTimeEnd": end_date + " 23:59:59"}
-    rows = fetch_records(session, token, "/api/materials/materialsmng/materials-return-log/detail", body)
-    output = Path(output_dir) / f"终端出库_{export_month}.xlsx"
-    write_records(output, rows, "outbound")
-    return True
+    body = {
+        "pageNum": 1, "pageSize": EXPORT_PAGE_SIZE,
+        "operTypes": ["装机物资确认", "修障物资确认"],
+        "confirmTimeStart": start_date + " 00:00:00",
+        "confirmTimeEnd": end_date + " 23:59:59",
+        "fieldNames": [
+            "regionName", "countyName", "className", "applyCode", "title",
+            "operType", "relatedFormType", "relatedForm", "useApplyCode",
+            "materialId", "materialName", "model", "measurementUnit",
+            "status", "manufacturer", "newSnNum", "repairSnNum",
+            "recoveryNosnNum", "totalNum", "applyTime", "applier",
+            "confirmTime", "confirmPerson", "recoverySnNum",
+        ],
+    }
+    output = os.path.join(output_dir, f"终端出库_{export_month}.xlsx")
+    print("[INFO] 通过平台导出出库Excel，包含回收有SN字段 recoverySnNum", flush=True)
+    return post_export(session, token,
+        f"{BASE}/api/materials/materialsmng/materials-return-log/detail/export", body, output)
 
 
 def export_inbound(session, token, export_month, start_date, end_date, output_dir=EXPORT_DIR):

@@ -87,7 +87,9 @@ def read_table(content):
     else:
         wb = load_workbook(BytesIO(content), read_only=True, data_only=True)
         try:
-            rows = list(wb.active.values)
+            ws = wb.active
+            ws.reset_dimensions()
+            rows = list(ws.iter_rows(values_only=True))
         finally:
             wb.close()
     if not rows:
@@ -95,7 +97,16 @@ def read_table(content):
     headers = [text(h) for h in rows[0]]
     if not all(headers) or len(set(headers)) != len(headers):
         raise ValueError('输入存在空白或重复表头')
-    return headers, [list(r) for r in rows[1:] if any(text(v) for v in r)]
+    normalized = []
+    for index, values in enumerate(rows[1:], 2):
+        if not any(text(v) for v in values):
+            continue
+        values = list(values)
+        if any(text(v) for v in values[len(headers):]):
+            raise ValueError(f'第 {index} 行存在超出表头范围的数据')
+        # Dimension-free reads omit trailing empty cells; retain all header keys.
+        normalized.append(values[:len(headers)] + [None] * max(0, len(headers) - len(values)))
+    return headers, normalized
 
 
 def require(table, columns, label):
@@ -124,7 +135,9 @@ def load_source(path, codes, month):
     return read_table(content), source
 
 
-def calculate(opening, eoms, outbound, materials, baseline):
+def calculate(opening, eoms, outbound, materials, baseline, district_mapping=None):
+    from metrics.terminal_recovery.districts import load_mapping, resolve_mapping, CITIES, EXCLUDED as DISTRICT_EXCLUDED, city as clean_city
+    mapping = load_mapping(resolve_mapping(None, district_mapping))
     require(opening, ['工单号', '业务类型'], '开通清单')
     require(eoms, ['工单号', '服务类别'], 'EMOS开通清单')
     require(outbound, ['关联单据号', '物料名称', '地市', '区县'], '出库明细')
@@ -134,7 +147,7 @@ def calculate(opening, eoms, outbound, materials, baseline):
              'outbound_input': len(outbound[1]), 'opening_excluded': 0,
              'eoms_excluded': 0, 'duplicate_order_rows': 0,
              'blank_order_rows': 0, 'unmatched_material_rows': 0,
-             'unmatched_order_rows': 0, 'unmatched_category_rows': 0}
+             'unmatched_order_rows': 0, 'unmatched_category_rows': 0, 'unmatched_district_rows': 0, 'district_cleaning': {}}
     orders, lookup = [], {}
     for table, column, is_service in [(opening, '业务类型', False), (eoms, '服务类别', True)]:
         for values in table[1]:
@@ -167,6 +180,8 @@ def calculate(opening, eoms, outbound, materials, baseline):
             category_lookup[key] = row['分类']
 
     headers = list(outbound[0])
+    if {'标准区县', '区县清洗依据'} & set(headers):
+        raise ValueError('请使用未加工的区县数据')
     added = ['物料名称匹配', '型号匹配', '分类', '关联单据号匹配', '业务类别']
     if set(added) & set(headers):
         raise ValueError('请使用尚未加工的出库明细')
@@ -189,7 +204,19 @@ def calculate(opening, eoms, outbound, materials, baseline):
             raise ValueError(f'出库明细第 {index} 行：{exc}') from exc
         key = text(row['物料名称'])
         material = material_lookup.get(key, (None, None))
-        detail = [row.get(h) for h in headers] + [*material, category_lookup.get(key)]
+        municipality = clean_city(row.get('地市'))
+        original = text(row.get('区县'))
+        standard = mapping.match(original, municipality)
+        reason = '区县直接映射' if standard else '未匹配或歧义'
+        if original in DISTRICT_EXCLUDED:
+            standard, reason = '', '中心不归入标准区县'
+        elif not standard:
+            standard = mapping.match(row.get('标题', row.get('title')), municipality, keyword=True)
+            if standard:
+                reason = '标题关键词'
+        if municipality not in CITIES:
+            standard, reason = '', '地市无效'
+        detail = [row.get(h) for h in headers] + [standard or None, reason, *material, category_lookup.get(key)]
         details.append(detail)
         if key not in category_lookup:
             audit['unmatched_category_rows'] += 1
@@ -200,9 +227,13 @@ def calculate(opening, eoms, outbound, materials, baseline):
         business = lookup.get(order)
         if business is None:
             audit['unmatched_order_rows'] += 1
+            continue
         matched.append(detail + [order if business is not None else None, business])
         city_key = text(row['地市']) or None
-        county_key = (city_key, text(row['区县']) or None)
+        county_key = (city_key, standard or '未匹配区县')
+        if not standard:
+            audit['unmatched_district_rows'] += 1
+        audit['district_cleaning'][reason] = audit['district_cleaning'].get(reason, 0) + 1
         for i, quantity in enumerate(quantities):
             city[city_key][i] += quantity
             county[county_key][i] += quantity
@@ -216,7 +247,7 @@ def calculate(opening, eoms, outbound, materials, baseline):
     county_total = [sum((v[i] for v in county.values()), Decimal(0)) for i in range(3)]
     if total != city_total or total != county_total:
         raise ValueError('地区汇总与匹配明细数量不一致')
-    detail_headers = headers + added[:3]
+    detail_headers = headers + ['标准区县', '区县清洗依据'] + added[:3]
     sheets = [(['工单号', '业务类别1', '业务类别2'], orders),
               (detail_headers, details), (detail_headers + added[3:], matched),
               (['统计层级', '地市', '区县'] + QUANTITIES, summary)]
@@ -275,7 +306,7 @@ def save(month, sheets, audit, sources):
         c.execute('''INSERT INTO metric_run(metric_run_id,metric_code,metric_version,
             period_start,period_end,started_at,finished_at,status,source_runs)
             VALUES (?,?,?,?,?,?,?,?,?)''',
-            (run_id, 'terminal_installation_reuse', '1.0', start, end, now, now, 'success', dump(sources)))
+            (run_id, 'terminal_installation_reuse', '1.2', start, end, now, now, 'success', dump(sources)))
         c.execute('''INSERT INTO terminal_installation_reuse_audit
             (metric_run_id,report_month,sources,audit,sheet_headers) VALUES (?,?,?,?,?)''',
             (run_id, month, dump(sources), dump(audit), dump({n: t[0] for n, t in zip(NAMES, sheets)})))
@@ -288,7 +319,7 @@ def save(month, sheets, audit, sources):
             for index, values in enumerate(rows, 2):
                 row = dict(zip(headers, values))
                 quantities = [number(row[q]) if q in row else None for q in QUANTITIES]
-                batch.append((run_id, name, index, row.get('地市'), row.get('区县'),
+                batch.append((run_id, name, index, row.get('地市'), row.get('标准区县', row.get('区县')),
                               row.get('业务类别', row.get('业务类别2')), row.get('型号匹配'),
                               row.get('统计层级'), *quantities, dump(values)))
                 if len(batch) == 500:
@@ -311,7 +342,9 @@ def run(args):
     for path, codes in specs:
         table, source = load_source(path, codes, args.month)
         tables.append(table); sources.append(source)
-    sheets, audit = calculate(*tables)
+    mapping_path = args.district_mapping or ROOT / 'metrics/terminal_recovery/区县信息汇总.xlsx'
+    sources.append({'path': str(mapping_path.resolve()), 'sha256': hashlib.sha256(mapping_path.read_bytes()).hexdigest(), 'role': 'district_mapping'})
+    sheets, audit = calculate(*tables, district_mapping=mapping_path)
     result = {'month': args.month, 'audit': audit, 'sources': sources}
     if args.mode != 'database':
         path = args.output_dir / f'装机出库利旧中间结果_{args.month}.xlsx'
@@ -328,6 +361,7 @@ def main():
     parser.add_argument('--month', required=True)
     for option in ['opening', 'eoms', 'outbound', 'material-names', 'material-baseline']:
         parser.add_argument('--' + option, type=Path, help='可选Excel文件；默认读取该月数据库快照')
+    parser.add_argument('--district-mapping', type=Path, help='区县映射Excel，默认复用终端回收区县信息汇总.xlsx')
     parser.add_argument('--mode', choices=['file', 'database', 'both'], default='both')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'outputs/terminal_installation_reuse')
     print(dump(run(parser.parse_args())))

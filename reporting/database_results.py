@@ -359,4 +359,10 @@ def build_data(database, month, manual_metrics_dir=None, required_manual=METRIC_
     data["dataAudit"]["qikuan_sources"] = {
         key: data["qikuanBusiness"][key]["source"] for key in ("stock", "opening")
     }
+    from reporting.terminal_reuse_data import read_terminal_reuse, read_terminal_reuse_cumulative
+    data['terminalReuseCumulative'] = read_terminal_reuse_cumulative(month)
+    data['dataAudit']['terminal_reuse_cumulative_run'] = (data['terminalReuseCumulative'] or {}).get('metric_run_id')
+    data['terminalReuse'] = read_terminal_reuse(month)
+    data['dataAudit']['terminal_reuse_source'] = (data['terminalReuse'] or {}).get('sources')
+    data['dataAudit']['terminal_reuse_run'] = (data['terminalReuse'] or {}).get('metric_run_id')
     return data
