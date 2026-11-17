@@ -37,3 +37,21 @@ python3 scripts/calculate.py \
 ### MySQL 入库
 
 需要同时入库时，在计算命令中传入 `--mysql --month YYYY-MM`。结果写入 `manual_metric_result`，同指标同月份再次运行会更新该月结果。
+
+
+## 区县统计
+
+默认开启区县统计，--no-county 可关闭，Python 调用传 include_county=False。
+--county-map 指定包含“地市、区县、标准区县”三列的映射表，默认 data/区县信息汇总.xlsx。
+开启时要求输入包含 CELL。保留原 CITY 地市口径，以 CELL 唯一匹配区县。
+空值、未匹配、多归属及匹配地市与 CITY 冲突时归入该 CITY 的“未归属区县”，在 audit.cell_quality、audit.cell_issues 中记录。
+区县输出 accepted_count、return_count、return_rate 和各原因 count、share。分子仅为退单完成，分母包含全部受理明细。零分母比率为 null。
+原全省、地市及 ppt_overlay 结构保留，新增顶层 counties 列表。--mysql 将完整结果保存到 manual_metric_result.result_json，metric_set 仍为 qikuan_withdrawal_rate_by_city。关闭区县后同月再次入库会替换原 JSON。
+月份不会自动过滤 Excel 日期，应提供对应月份明细。
+
+在项目根目录运行：
+
+```bash
+python3 skills/calculate-manual-qikuan-withdrawal-rate/scripts/calculate.py --input "/实际路径/企宽.xlsx" --month 2026-10 --output outputs/企宽退单率_2026-10.json --county-map "/实际路径/区县信息汇总.xlsx" --mysql
+python3 skills/calculate-manual-qikuan-withdrawal-rate/scripts/calculate.py --input "/实际路径/企宽.xlsx" --month 2026-10 --output outputs/企宽退单率_2026-10.json --no-county --mysql
+```

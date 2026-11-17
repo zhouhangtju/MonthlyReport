@@ -20,7 +20,7 @@ from config.report_periods import integration_opening_period
 
 DATASET_CODE = "integration_opening"
 METRIC_CODE = "dedicated_line_opening_withdrawal_rate"
-METRIC_VERSION = "1.3.0-provisional"
+METRIC_VERSION = "1.4.0"
 COMPLETION_METRICS = {
     "total": "dedicated_line_opening_completed_count",
     "current": "dedicated_line_opening_completed_current_accepted_count",
@@ -105,6 +105,8 @@ def calculate(
     all_business_types: bool = False,
     withdrawal_statuses: list[str] | None = None,
     test_keywords: list[str] | None = None,
+    county_map: Path | None = None,
+    include_county: bool = True,
 ) -> dict[str, object]:
     start = parse_time(start_date)
     end = parse_time(end_date)
@@ -179,12 +181,56 @@ def calculate(
                         "dimension": {"scope": "全省"}, "numerator": amount,
                         "denominator": None, "metric_value": amount})
 
+    if include_county:
+        county_map = county_map or Path(__file__).resolve().parents[2] / "data/区县信息汇总.xlsx"
+        from metrics.opening.bycity.dedicated_line_metrics_by_city import (
+            load_county_mapping, normalize_city, display_city, standardize_county,
+        )
+        mapping = load_county_mapping(county_map)
+        grouped = {}
+        for row in formal:
+            city = normalize_city(row.get("地市")) or "未归属地市"
+            aliases = mapping["aliases"].get(city, {})
+            county = standardize_county(row.get("区县"), row.get("工单主题"), aliases)
+            grouped.setdefault(city, {}).setdefault(county, []).append(row)
+        completion_ids = {group: {id(row) for row in records}
+                          for group, records in completion_groups.items()}
+        # Replace the original city rates with normalized city and county results.
+        results = [item for item in results if item["dimension_type"] != "city"]
+        for city, counties in sorted(grouped.items()):
+            city_rows = [row for records in counties.values() for row in records]
+            dimensions = [("city", {"city": (display_city(city) if city != "未归属地市" else city)}, city_rows)]
+            county_names = list(mapping["standards"].get(city, []))
+            county_names.extend(name for name in counties if name not in county_names)
+            dimensions.extend(("city_county", {"city": display_city(city) if city != "未归属地市" else city, "county": county},
+                               counties.get(county, [])) for county in county_names)
+            for kind, dimension, records in dimensions:
+                results.append(rate_row(kind, dimension, records, statuses))
+                for group, code in COMPLETION_METRICS.items():
+                    members = completion_ids[group]
+                    amount = sum(id(row) in members for row in records)
+                    results.append({"metric_code": code, "dimension_type": kind,
+                                    "dimension": dimension, "numerator": amount,
+                                    "denominator": None, "metric_value": amount})
+        for code in [METRIC_CODE, *COMPLETION_METRICS.values()]:
+            province = next(r for r in results if r["metric_code"] == code and r["dimension_type"] == "province")
+            cities_total = sum(r["numerator"] for r in results
+                               if r["metric_code"] == code and r["dimension_type"] == "city")
+            counties_total = sum(r["numerator"] for r in results
+                                 if r["metric_code"] == code and r["dimension_type"] == "city_county")
+            if province["numerator"] != cities_total or cities_total != counties_total:
+                raise ValueError("全省、地市、区县数量汇总不一致")
+        if len(formal) != sum(r["denominator"] for r in results
+                             if r["metric_code"] == METRIC_CODE and r["dimension_type"] == "city_county"):
+            raise ValueError("区县分母合计与全省不一致")
+
     return {
         "metric_code": METRIC_CODE,
         "metric_version": METRIC_VERSION,
         "period_start": start_date,
         "period_end": end_date,
         "rules": {
+            "county_map": str(county_map.resolve()) if county_map else None,
             "business_types": "排除固定范围后的全部" if all_business_types or not business_types else business_types,
             "excluded_business_types": sorted(EXCLUDED_BUSINESS_TYPES),
             "excluded_business_type_keywords": EXCLUDED_BUSINESS_TYPE_KEYWORDS,
@@ -285,6 +331,8 @@ def run(
     all_business_types: bool = False,
     withdrawal_statuses: list[str] | None = None,
     test_keywords: list[str] | None = None,
+    county_map: Path | None = None,
+    include_county: bool = True,
 ) -> dict[str, object]:
     if mode not in {"file", "database", "both"}:
         raise ValueError("mode 必须是 file、database 或 both")
@@ -292,7 +340,7 @@ def run(
     rows, source_runs = load_rows(database)
     if not source_runs:
         raise RuntimeError("数据库中没有一体化售中开通工单的成功取数批次")
-    report = calculate(rows, start_date, end_date, business_types=business_types, all_business_types=all_business_types, withdrawal_statuses=withdrawal_statuses, test_keywords=test_keywords)
+    report = calculate(rows, start_date, end_date, business_types=business_types, all_business_types=all_business_types, withdrawal_statuses=withdrawal_statuses, test_keywords=test_keywords, county_map=county_map, include_county=include_county)
     report["source_runs"] = source_runs
     report["metric_run_id"] = save_results(database, report, source_runs) if mode in {"database", "both"} else None
     if mode in {"file", "both"}:
@@ -313,6 +361,8 @@ def main() -> None:
     parser.add_argument("--end-date")
     parser.add_argument("--mode", choices=("file", "database", "both"), default="both")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--no-county", action="store_true", help="关闭默认开启的区县统计，无需区县映射表")
+    parser.add_argument("--county-map", type=Path, default=Path(__file__).resolve().parents[2] / "data/区县信息汇总.xlsx", help="地市、区县、标准区县映射 Excel")
     parser.add_argument("--business-type", action="append", dest="business_types", help="可重复指定，在固定排除规则之后进一步限定业务类型")
     parser.add_argument("--all-business-types", action="store_true", help="兼容参数：不额外限定业务类型，固定排除规则仍然生效")
     parser.add_argument("--withdrawal-status", action="append", dest="withdrawal_statuses", help="可重复指定，默认已撤单、已驳回")
@@ -329,7 +379,7 @@ def main() -> None:
         if not args.start_date or not args.end_date:
             parser.error("请指定 --month，或同时指定 --start-date 和 --end-date")
         start_date, end_date = args.start_date, args.end_date
-    report = run(args.database, start_date, end_date, mode=args.mode, output=args.output, business_types=args.business_types, all_business_types=args.all_business_types, withdrawal_statuses=args.withdrawal_statuses, test_keywords=args.test_keywords)
+    report = run(args.database, start_date, end_date, mode=args.mode, output=args.output, business_types=args.business_types, all_business_types=args.all_business_types, withdrawal_statuses=args.withdrawal_statuses, test_keywords=args.test_keywords, county_map=args.county_map, include_county=not args.no_county)
     print(json.dumps({"metric_run_id": report["metric_run_id"], "quality": report["quality"], "results": report["results"], "output_file": report["output_file"]}, ensure_ascii=False, indent=2))
 
 

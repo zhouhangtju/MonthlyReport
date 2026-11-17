@@ -53,3 +53,19 @@ python3 scripts/calculate.py \
 ### MySQL 入库
 
 需要同时入库时，在计算命令中传入 `--mysql --month YYYY-MM`。结果写入 `manual_metric_result`，同指标同月份再次运行会更新该月结果。
+
+
+## 区县维度与入库
+
+区县统计默认开启，--no-county 可关闭；Python 调用传 include_county=False。映射表默认 data/区县信息汇总.xlsx，必须包含“地市、区县、标准区县”，可用 --county-map 指定其他路径。映射缺失时明确报错。
+
+区县统计要求输入包含“区县、工单主题”。按“地市”限定映射，依次匹配区县原值、区县关键词、工单主题，失败归入该地市“未归属区县”。区县输出 sample_count 及各原因 count、share，占比分母为该区县原因样本总数。
+
+保留原全省、地市及 ppt_overlay 字段，新增顶层 counties 列表。无工单的标准区县数量为零，比率为 null。--mysql 将完整 JSON（含 counties）保存到 manual_metric_result.result_json，按 metric_set、report_month 更新同月结果。关闭区县后再次入库会以本次无区县结果替换同月 JSON。
+
+在项目根目录运行：
+
+```bash
+python3 skills/calculate-manual-withdrawal-reasons/scripts/calculate.py --input "/实际路径/明细.xlsx" --month 2026-10 --output "outputs/calculate-manual-withdrawal-reasons_2026-10.json" --county-map "/实际路径/区县信息汇总.xlsx" --mysql
+python3 skills/calculate-manual-withdrawal-reasons/scripts/calculate.py --input "/实际路径/明细.xlsx" --month 2026-10 --output "outputs/calculate-manual-withdrawal-reasons_2026-10.json" --no-county --mysql
+```

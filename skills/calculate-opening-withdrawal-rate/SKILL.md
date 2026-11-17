@@ -47,3 +47,19 @@ python3 metrics/opening/withdrawal.py \
 ## Python 解释器
 
 若 `python3` 不可用，改用 `python` 执行本技能中的 Python 命令（包括安装依赖命令）；先确认该命令对应 Python 3.10 及以上且已安装项目依赖。Windows 已提供的 `py -3.11` 示例可保留。
+
+
+## 区县统计
+
+默认同时计算全省、地市和区县撤退率及竣工量，结果统一写入 MySQL 的 result_opening_withdrawal，区县维度为 city_county，dimension_value 包含 city 和 county。区县数量包含未归属区县，确保汇总闭合。
+
+默认映射文件为项目根目录下 data/区县信息汇总.xlsx，需包含地市、区县、标准区县三列。可用 --county-map 指定其他路径。匹配顺序为原始区县精确匹配、区县关键词匹配、工单主题关键词回填。
+
+使用 --no-county 关闭区县统计，此时无需映射表，沿用原有统计范围。Python 调用 calculate() 或 run() 可传 include_county=False 关闭。
+
+运行示例：
+
+```bash
+python3 metrics/opening/withdrawal.py --month 2026-10 --county-map "/实际路径/区县信息汇总.xlsx"
+python3 metrics/opening/withdrawal.py --month 2026-10 --no-county
+```

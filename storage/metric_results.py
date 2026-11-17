@@ -23,6 +23,7 @@ FIELDS['qikuan_opening_metrics'] = {'month': 'month', 'scope': 'scope', 'city': 
 FIELDS['qikuan_activation_silence'] = {
     'month': 'month', 'city': 'city', 'district': 'district', 'grid': 'grid',
 }
+FIELDS['dedicated_line_opening_withdrawal_rate']['county'] = 'county'
 FIELDS['business_support_withdrawal_by_city'] = {
     'month': 'month', 'city': 'city', 'county': 'county',
 }
