@@ -10,6 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from storage.manual_results import save_manual_result
+from storage.manual_evidence import archive, source_hash, DEFAULT_ARCHIVE
 
 import pandas as pd
 from metrics.opening.bycity.dedicated_line_metrics_by_city import (
@@ -89,11 +90,20 @@ def main() -> None:
     parser.add_argument("--mysql", action="store_true", help="同时保存到 MySQL（需要 --month）")
     parser.add_argument("--county-map", type=Path, default=DEFAULT_COUNTY_MAP)
     parser.add_argument("--no-county", action="store_true", help="关闭默认开启的区县统计")
+    parser.add_argument("--archive-root", type=Path, default=DEFAULT_ARCHIVE, help="省市原始清单归档根目录")
     args = parser.parse_args()
+    if not args.month:
+        parser.error("计算归档需要 --month YYYY-MM")
+    print("正在读取原始清单并计算…", flush=True)
+    fingerprint = source_hash(args.input)
     result = summarize_file(args.input.resolve(), args.sheet, args.month,
                             county_map=args.county_map, include_county=not args.no_county)
+    print("指标计算完成，准备归档…", flush=True)
+    archive(result, args.input, args.sheet, args.archive_root, args.county_map,
+            not args.no_county, fingerprint)
     args.output.parent.mkdir(parents=True, exist_ok=True); args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     if args.mysql:
+        print("归档完成，正在写入 MySQL…", flush=True)
         save_manual_result(result)
     print(f"完成：{args.output.resolve()} (明细 {result['summary']['source_row_count']} 条，大类 {len(result['dimensions']['categories'])} 个，地市 {len(result['dimensions']['cities'])} 个)")
 

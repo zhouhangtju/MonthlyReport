@@ -54,3 +54,12 @@ python3 scripts/calculate.py \
 python3 skills/calculate-manual-qikuan-withdrawal-reasons/scripts/calculate.py --input "/实际路径/明细.xlsx" --month 2026-10 --output "outputs/calculate-manual-qikuan-withdrawal-reasons_2026-10.json" --county-map "/实际路径/区县信息汇总.xlsx" --mysql
 python3 skills/calculate-manual-qikuan-withdrawal-reasons/scripts/calculate.py --input "/实际路径/明细.xlsx" --month 2026-10 --output "outputs/calculate-manual-qikuan-withdrawal-reasons_2026-10.json" --no-county --mysql
 ```
+
+
+## 计算后原始清单归档
+
+CLI要求--month。计算成功后自动归档，默认D:\dev-projects\openclaw_data\outputs\withdrawal，可用--archive-root修改。
+按报告月份/指标集/source、province、cities/11地市固定目录保存。source备份原始Excel，province及各地市输出原始清单.xlsx，保留全部原始列并增加归档_源行号、归档_标准地市、归档_标准区县、归档_匹配状态。
+区县仅作为列，无区县目录；--no-county时不匹配区县。无法确定地市的原始行归入未归属地市。
+全省和地市清单包含全部原始记录，未按分子筛选，企宽包含完整受理记录。每个技能使用独立固定目录，空地市也生成表头文件。
+manifest记录原始文件哈希、行数与生成时间；计算期间源文件变更时归档失败。成功归档后才输出结果JSON并执行--mysql入库，结果的evidence保存归档根及相对路径。同月重跑覆盖该指标集的固定目录，先写临时目录，完成后替换；不会保留同月旧清单。
